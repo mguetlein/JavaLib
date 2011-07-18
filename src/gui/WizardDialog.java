@@ -1,0 +1,334 @@
+package gui;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Vector;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+
+import util.ImageLoader;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.FormLayout;
+
+public class WizardDialog extends JDialog
+{
+	JLabel titleLabel;
+	JTextArea descriptionTextArea;
+
+	JButton next;
+	JButton prev;
+	JButton cancel;
+	JButton finish;
+
+	JPanel centerPanel;
+	Vector<WizardPanel> panels;
+	int status = 0;
+
+	String title;
+	Icon icon;
+
+	DefaultListModel titleListModel;
+	JList titleList;
+
+	public WizardDialog(JFrame owner, String title, Icon icon)
+	{
+		super(owner, true);
+
+		this.icon = icon;
+		this.title = title;
+		buildLayout();
+		setLocationRelativeTo(owner);
+
+		panels = new Vector<WizardPanel>();
+	}
+
+	private void buildLayout()
+	{
+		// north panel has title and description
+
+		JPanel northPanel = new JPanel(new BorderLayout(0, 0));
+		northPanel.setBackground(Color.WHITE);
+
+		titleLabel = new JLabel();
+		titleLabel.setFont(titleLabel.getFont().deriveFont(titleLabel.getFont().getSize() + 4f));
+		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
+		northPanel.add(titleLabel, BorderLayout.NORTH);
+		descriptionTextArea = new JTextArea();
+		northPanel.add(descriptionTextArea, BorderLayout.SOUTH);
+		descriptionTextArea.setEditable(false);
+		descriptionTextArea.setOpaque(false);
+		descriptionTextArea.setWrapStyleWord(true);
+		descriptionTextArea.setLineWrap(true);
+		northPanel.setBorder(new EmptyBorder(10, 10, 15, 10));
+
+		// center panel contains the wizard panel
+		centerPanel = new JPanel(new BorderLayout());
+		centerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		centerPanel.setBorder(new CompoundBorder(new MatteBorder(1, 1, 1, 0, centerPanel.getBackground().darker()
+				.darker()), new EmptyBorder(10, 10, 10, 10)));
+
+		//		centerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		//		JScrollPane scroll = new JScrollPane(centerPanel);
+		//		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		//		scroll.setBorder(new MatteBorder(1, 1, 1, 0, centerPanel.getBackground().darker().darker()));
+
+		JPanel centerPanelContainer = new JPanel(new BorderLayout());
+		centerPanelContainer.setOpaque(false);
+		centerPanelContainer.add(centerPanel);
+
+		// left panel contains icon and all titles
+
+		DefaultFormBuilder leftPanelBuilder = new DefaultFormBuilder(new FormLayout("p"));
+		leftPanelBuilder.setBackground(Color.WHITE);
+		if (icon != null)
+			leftPanelBuilder.append(new JLabel(icon));
+
+		titleListModel = new DefaultListModel();
+		titleList = new JList(titleListModel)
+		{
+			public Dimension getPreferredSize()
+			{
+				Dimension dim = super.getPreferredSize();
+				return new Dimension(dim.width + 36, dim.height + 2);
+			}
+		};
+		titleList.setBorder(null);
+		titleList.setOpaque(false);
+		titleList.setEnabled(false);
+		DefaultListCellRenderer rend = new DefaultListCellRenderer()
+		{
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+					boolean cellHasFocus)
+			{
+				value = (index + 1) + ". " + value;
+				if (isSelected)
+					value = "<html><u><b>" + value + "</b></u></html>";
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				setEnabled(true);
+				if (!isSelected)
+					setFont(getFont().deriveFont(Font.PLAIN));
+				if (index == errorPanel())
+					setIcon(ImageLoader.ERROR);
+				else
+					setIcon(null);
+				return this;
+			}
+		};
+		rend.setHorizontalTextPosition(SwingConstants.LEFT);
+		rend.setOpaque(false);
+		rend.setForeground(Color.BLACK);
+		titleList.setCellRenderer(rend);
+		leftPanelBuilder.append(titleList);
+		leftPanelBuilder.setBorder(new CompoundBorder(new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker()
+				.darker()), new EmptyBorder(10, 10, 10, 10)));
+
+		// button panel is south
+
+		next = new JButton("Next");
+		prev = new JButton("Previous");
+		cancel = new JButton("Close");
+		finish = new JButton(getFinishText());
+		JPanel buttons = ButtonBarFactory.buildRightAlignedBar(cancel, prev, next, finish);
+		buttons.setBackground(Color.WHITE);
+		buttons.setBorder(new CompoundBorder(
+				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 10, 10,
+						10)));
+
+		centerPanelContainer.add(northPanel, BorderLayout.NORTH);
+		JPanel p = new JPanel(new BorderLayout());
+		p.add(leftPanelBuilder.getPanel(), BorderLayout.WEST);
+		p.add(centerPanelContainer);
+		p.add(buttons, BorderLayout.SOUTH);
+		getContentPane().add(p);
+
+		addListeners();
+	}
+
+	private void addListeners()
+	{
+		cancel.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				WizardDialog.this.setVisible(false);
+			}
+		});
+		finish.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				for (int i = status; i < panels.size(); i++)
+					panels.get(i).proceed();
+				finish();
+				WizardDialog.this.setVisible(false);
+			}
+		});
+		next.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				panels.get(status).proceed();
+				update(status + 1);
+			}
+		});
+		prev.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				update(status - 1);
+			}
+		});
+	}
+
+	protected String getFinishText()
+	{
+		return "Finish";
+	}
+
+	public void finish()
+	{
+
+	}
+
+	public void update()
+	{
+		if (panels.size() > 0)
+			update(status);
+	}
+
+	protected void update(int status)
+	{
+		setIgnoreRepaint(true);
+		if (this.status != status || centerPanel.getComponents().length == 0)
+		{
+			this.status = status;
+			centerPanel.removeAll();
+			centerPanel.add(panels.get(status));
+			validate();
+		}
+
+		prev.setEnabled(status > 0);
+		next.setEnabled(status < panels.size() - 1 && panels.get(status).canProceed());
+		finish.setEnabled(errorPanel() == -1);
+		//setTitle(title + " (" + (status + 1) + "/" + panels.size() + ")");
+		setTitle(title);
+		titleLabel.setText(panels.get(status).getTitle() + " (step " + (status + 1) + " of " + panels.size() + ")");
+		descriptionTextArea.setText(panels.get(status).getDescription());
+
+		titleList.setSelectedIndex(status);
+		setIgnoreRepaint(false);
+		repaint();
+	}
+
+	protected int errorPanel()
+	{
+		for (int i = status; i < panels.size(); i++)
+			if (!panels.get(i).canProceed())
+				return i;
+		return -1;
+	}
+
+	public void addPanel(WizardPanel p)
+	{
+		titleListModel.addElement(p.getTitle());
+		panels.add(p);
+	}
+
+	public void setVisible(boolean b)
+	{
+		if (b)
+		{
+			update();
+		}
+		super.setVisible(b);
+	}
+
+	public static void main(String args[])
+	{
+		WizardPanel p1 = new WizardPanel()
+		{
+			@Override
+			public boolean canProceed()
+			{
+				return true;
+			}
+
+			@Override
+			public String getTitle()
+			{
+				return "first panel";
+			}
+
+			@Override
+			public void proceed()
+			{
+			}
+
+			@Override
+			public String getDescription()
+			{
+				return "this is some info text on the first panel";
+			}
+		};
+		p1.add(new JLabel("test"));
+		WizardPanel p2 = new WizardPanel()
+		{
+			@Override
+			public boolean canProceed()
+			{
+				return true;
+			}
+
+			@Override
+			public String getTitle()
+			{
+				return "second panel";
+			}
+
+			@Override
+			public void proceed()
+			{
+			}
+
+			@Override
+			public String getDescription()
+			{
+				return "information on the second panel";
+			}
+		};
+		p2.add(new JLabel("panel2"));
+
+		WizardDialog w = new WizardDialog(null, "Test wizard", null);
+		w.addPanel(p1);
+		w.addPanel(p2);
+		w.setSize(600, 400);
+		w.setLocationRelativeTo(null);
+		w.setVisible(true);
+		System.exit(0);
+	}
+
+}
