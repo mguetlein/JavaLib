@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -222,5 +223,29 @@ public class SwingUtil
 	{
 		comp.setBorder(new CompoundBorder(new LineBorder(Color.RED, 3), comp.getBorder()));
 
+	}
+
+	public static void waitForAWTEventThread()
+	{
+		final StringBuffer clear = new StringBuffer();
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				clear.append("clear");
+			}
+		});
+		while (!clear.toString().equals("clear"))
+		{
+			try
+			{
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 }

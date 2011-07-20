@@ -27,6 +27,17 @@ public class FileUtil
 		return Arrays.equals(getMd5(file1), getMd5(file2));
 	}
 
+	public static String getMD5String(String filename)
+	{
+		byte[] b = getMd5(filename);
+		String result = "";
+		for (int i = 0; i < b.length; i++)
+		{
+			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
+		}
+		return result;
+	}
+
 	public static byte[] getMd5(String filename)
 	{
 		MessageDigest md = null;

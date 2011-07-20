@@ -275,7 +275,14 @@ public class StringUtil
 
 	public static String randomString(int minLength, int maxLength, Random r)
 	{
-		String chars = "         abcdefghijklmnopqrstuvwxyz";
+		return randomString(minLength, maxLength, r, true);
+	}
+
+	public static String randomString(int minLength, int maxLength, Random r, boolean emptySpaceAllowed)
+	{
+		String chars = "abcdefghijklmnopqrstuvwxyz";
+		if (emptySpaceAllowed)
+			chars = "         " + chars;
 		String s = "";
 		double p = 1 / (double) (maxLength - minLength);
 		while (s.length() < maxLength
