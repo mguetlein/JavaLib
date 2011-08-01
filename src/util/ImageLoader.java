@@ -15,6 +15,7 @@ public class ImageLoader
 
 	public static ImageIcon loadImageIcon(String imagePath, Class<?> relativeTo)
 	{
+		ImageIcon icon = null;
 		try
 		{
 			// works for jar files: copy files into root dir of jar file
@@ -22,12 +23,12 @@ public class ImageLoader
 			if (index == -1)
 				index = 0;
 			//			System.out.println("look for: " + "/" + imagePath.substring(index + 1));
-			return new ImageIcon(relativeTo.getResource("/" + imagePath.substring(index + 1)));
+			icon = new ImageIcon(relativeTo.getResource("/" + imagePath.substring(index + 1)));
 		}
 		catch (Exception e)
 		{
 			// file lies in project folder
-			ImageIcon icon = new ImageIcon(imagePath);
+			icon = new ImageIcon(imagePath);
 			if (icon.getIconWidth() == -1)
 			{
 				try
@@ -41,7 +42,9 @@ public class ImageLoader
 				{
 				}
 			}
-			return icon;
 		}
+		if (icon == null || icon.getIconWidth() <= 0)
+			System.err.println("could not load icon: " + imagePath);
+		return icon;
 	}
 }

@@ -25,6 +25,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
 import util.ImageLoader;
+import util.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -46,16 +47,26 @@ public class WizardDialog extends JDialog
 
 	String title;
 	Icon icon;
+	Icon additionalIcon;
 
 	DefaultListModel titleListModel;
 	JList titleList;
 
+	JLabel iconLabel;
+	JLabel additionalIconLabel;
+
 	public WizardDialog(JFrame owner, String title, Icon icon)
+	{
+		this(owner, title, icon, null);
+	}
+
+	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon)
 	{
 		super(owner, true);
 
 		this.icon = icon;
 		this.title = title;
+		this.additionalIcon = additionalIcon;
 		buildLayout();
 		setLocationRelativeTo(owner);
 
@@ -101,7 +112,10 @@ public class WizardDialog extends JDialog
 		DefaultFormBuilder leftPanelBuilder = new DefaultFormBuilder(new FormLayout("p"));
 		leftPanelBuilder.setBackground(Color.WHITE);
 		if (icon != null)
-			leftPanelBuilder.append(new JLabel(icon));
+		{
+			iconLabel = new JLabel(icon);
+			leftPanelBuilder.append(iconLabel);
+		}
 
 		titleListModel = new DefaultListModel();
 		titleList = new JList(titleListModel)
@@ -139,8 +153,14 @@ public class WizardDialog extends JDialog
 		rend.setForeground(Color.BLACK);
 		titleList.setCellRenderer(rend);
 		leftPanelBuilder.append(titleList);
-		leftPanelBuilder.setBorder(new CompoundBorder(new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker()
-				.darker()), new EmptyBorder(10, 10, 10, 10)));
+
+		JPanel leftPanel = new JPanel(new BorderLayout());
+		leftPanel.setBackground(Color.WHITE);
+		leftPanel.add(leftPanelBuilder.getPanel(), BorderLayout.NORTH);
+		additionalIconLabel = new JLabel(additionalIcon);
+		leftPanel.add(additionalIconLabel, BorderLayout.SOUTH);
+		leftPanel.setBorder(new CompoundBorder(new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker()
+				.darker()), new EmptyBorder(10, 10, 0, 10)));
 
 		// button panel is south
 
@@ -156,12 +176,22 @@ public class WizardDialog extends JDialog
 
 		centerPanelContainer.add(northPanel, BorderLayout.NORTH);
 		JPanel p = new JPanel(new BorderLayout());
-		p.add(leftPanelBuilder.getPanel(), BorderLayout.WEST);
+		p.add(leftPanel, BorderLayout.WEST);
 		p.add(centerPanelContainer);
 		p.add(buttons, BorderLayout.SOUTH);
 		getContentPane().add(p);
 
 		addListeners();
+	}
+
+	public void addClickLinkToIcon(String link)
+	{
+		SwingUtil.addClickLink(iconLabel, link);
+	}
+
+	public void addClickLinkToAdditionalIcon(String link)
+	{
+		SwingUtil.addClickLink(additionalIconLabel, link);
 	}
 
 	private void addListeners()

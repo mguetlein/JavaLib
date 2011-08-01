@@ -3,6 +3,7 @@ package util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -81,6 +83,25 @@ public class SwingUtil
 			}
 		});
 		th.start();
+	}
+
+	public static void addClickLink(JComponent compound, final String uri)
+	{
+		compound.setToolTipText(uri);
+		compound.addMouseListener(new MouseAdapter()
+		{
+			public void mouseClicked(MouseEvent e)
+			{
+				try
+				{
+					Desktop.getDesktop().browse(new URI(uri));
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+		});
 	}
 
 	public static void showTable(String title, List<String> names, List<Vector<Object>> values, int sortColumn,
