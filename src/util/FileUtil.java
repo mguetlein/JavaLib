@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -16,6 +17,45 @@ import java.util.Vector;
 
 public class FileUtil
 {
+	/**
+	 * renameto is not reliable to windows
+	 * 
+	 * @param source
+	 * @param dest
+	 * @return
+	 */
+	public static boolean robustRenameTo(File source, File dest)
+	{
+		if (OSUtil.isWindows())
+		{
+			try
+			{
+				String line;
+				String cmd = "cmd /c MOVE /Y " + source.getAbsolutePath() + " " + dest.getAbsolutePath();
+				System.out.println(cmd);
+				Process p = Runtime.getRuntime().exec(cmd);
+				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				while ((line = input.readLine()) != null)
+					System.out.println(line);
+				input.close();
+				BufferedReader input2 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+				while ((line = input2.readLine()) != null)
+					System.out.println(line);
+				input2.close();
+				p.waitFor();
+				// System.err.println(p.exitValue());
+				return p.exitValue() == 0;
+			}
+			catch (Exception err)
+			{
+				err.printStackTrace();
+				return false;
+			}
+		}
+		else
+			return source.renameTo(dest);
+	}
+
 	public static boolean isContentEqual(String file1, String file2)
 	{
 		File f1 = new File(file1);

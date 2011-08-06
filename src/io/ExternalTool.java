@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.util.Date;
 
 import util.ArrayUtil;
+import util.FileUtil;
 import util.StringUtil;
 
 public class ExternalTool
@@ -165,7 +166,7 @@ public class ExternalTool
 				}
 				if (child.exitValue() != 0)
 					throw new Error(processName + " exited with error: " + child.exitValue());
-				if (tmpStdOutfile != null && !tmpStdOutfile.renameTo(stdOutfile))
+				if (tmpStdOutfile != null && !FileUtil.robustRenameTo(tmpStdOutfile, stdOutfile))
 					throw new Error("cannot rename tmp file");
 			}
 			return child;
