@@ -88,15 +88,20 @@ public class ListUtil
 		return max;
 	}
 
-	public static String toString(List<?> l)
+	public static String toString(List<?> l, String seperator)
 	{
 		String s = "[ ";
 		for (Object object : l)
-			s += object + "; ";
+			s += object + seperator;
 		if (l.size() > 0)
 			s = s.substring(0, s.length() - 2);
 		s += " ]";
 		return s;
+	}
+
+	public static String toString(List<?> l)
+	{
+		return toString(l, "; ");
 	}
 
 	@SuppressWarnings("unchecked")

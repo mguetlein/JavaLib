@@ -244,17 +244,32 @@ public class StringUtil
 
 	public static String whitespace(int length)
 	{
+		return charString(' ', length);
+	}
+
+	public static String charString(char c, int length)
+	{
 		char[] empty = new char[length];
-		Arrays.fill(empty, ' ');
+		Arrays.fill(empty, c);
 		return new String(empty);
 	}
 
 	public static String concatWhitespace(String string, int length)
 	{
-		return concatWhitespace(string, length, true);
+		return concatChar(string, length, ' ');
+	}
+
+	public static String concatChar(String string, int length, char c)
+	{
+		return concatChar(string, length, c, true);
 	}
 
 	public static String concatWhitespace(String string, int length, boolean alignLeft)
+	{
+		return concatChar(string, length, ' ', alignLeft);
+	}
+
+	public static String concatChar(String string, int length, char c, boolean alignLeft)
 	{
 		String s = string + "";
 		if (s.length() >= length)
@@ -262,9 +277,9 @@ public class StringUtil
 		else
 		{
 			if (alignLeft)
-				return s + whitespace(length - string.length());
+				return s + charString(c, length - string.length());
 			else
-				return whitespace(length - string.length()) + s;
+				return charString(c, length - string.length()) + s;
 		}
 	}
 

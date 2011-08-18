@@ -8,6 +8,8 @@ import javax.swing.ImageIcon;
 public class ImageLoader
 {
 	public static final ImageIcon DOWN = loadImageIcon("data/down.png", ImageLoader.class);
+	public static final ImageIcon NUMERIC = loadImageIcon("data/numeric.png", ImageLoader.class);
+	public static final ImageIcon DISTINCT = loadImageIcon("data/distinct.png", ImageLoader.class);
 	public static final ImageIcon RIGHT = loadImageIcon("data/right.png", ImageLoader.class);
 	public static final ImageIcon WARNING = loadImageIcon("data/warning.png", ImageLoader.class);
 	public static final ImageIcon INFO = loadImageIcon("data/info.png", ImageLoader.class);

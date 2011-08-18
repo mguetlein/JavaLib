@@ -112,6 +112,15 @@ public class ArrayUtil
 		return a;
 	}
 
+	public static List<Double> removeNullValues(Double array[])
+	{
+		List<Double> d = new ArrayList<Double>();
+		for (int i = 0; i < array.length; i++)
+			if (array[i] != null)
+				d.add(array[i]);
+		return d;
+	}
+
 	public static double[] toPrimitiveDoubleArray(Double[] doubles)
 	{
 		double[] d = new double[doubles.length];
@@ -146,10 +155,18 @@ public class ArrayUtil
 		return d;
 	}
 
-	public static List<Object> toList(Object[] o)
+	//	public static List<Object> toList(Object[] o)
+	//	{
+	//		List<Object> d = new ArrayList<Object>();
+	//		for (Object e : o)
+	//			d.add(e);
+	//		return d;
+	//	}
+
+	public static <T> List<T> toList(T[] o)
 	{
-		List<Object> d = new ArrayList<Object>();
-		for (Object e : o)
+		List<T> d = new ArrayList<T>();
+		for (T e : o)
 			d.add(e);
 		return d;
 	}
@@ -168,6 +185,11 @@ public class ArrayUtil
 		for (int e : doubles)
 			d.add(e);
 		return d;
+	}
+
+	public static HashSet<Object> getDistinctValues(Object array[])
+	{
+		return new HashSet<Object>(ArrayUtil.toList(array));
 	}
 
 	public static Double[] normalize(Object array[])
@@ -202,6 +224,40 @@ public class ArrayUtil
 	public static Double[] normalize(Double array[])
 	{
 		return normalize(array, 0, 1);
+	}
+
+	public static Double[] normalizeLog(Double array[])
+	{
+		DoubleArraySummary summary = DoubleArraySummary.create(array);
+		array = replaceNull(array, summary.mean);
+		if (summary.min <= 0)
+			array = translate(array, Math.abs(summary.min) + 1);
+		array = log(array);
+		return normalize(array, 0, 1);
+	}
+
+	public static Double[] replaceNull(Double array[], double replace)
+	{
+		Double a[] = new Double[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = array[i] == null ? replace : array[i];
+		return a;
+	}
+
+	public static Double[] translate(Double array[], double offset)
+	{
+		Double a[] = new Double[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = array[i] + offset;
+		return a;
+	}
+
+	public static Double[] log(Double array[])
+	{
+		Double a[] = new Double[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = Math.log10(array[i]);
+		return a;
 	}
 
 	/**

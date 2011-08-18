@@ -1,6 +1,7 @@
 package freechart;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,8 @@ import org.jfree.chart.title.Title;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 
+import util.SwingUtil;
+
 public class HistogramPanel extends JPanel
 {
 	JFreeChart chart;
@@ -23,32 +26,40 @@ public class HistogramPanel extends JPanel
 			List<String> captions, List<double[]> values, int bins)
 	{
 		IntervalXYDataset dataset = createDataset(captions, values, bins);
-		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins);
+		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, false);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel, String caption,
-			double[] values, int bins)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
+			String caption, double[] values, int bins)
 	{
 		this(chartTitle, subtitle, xAxisLabel, yAxisLabel, caption, values, bins, null);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel, String caption,
-			double[] values, int bins, double[] minMax)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
+			String caption, double[] values, int bins, double[] minMax)
+	{
+		this(chartTitle, subtitle, xAxisLabel, yAxisLabel, caption, values, bins, minMax, false);
+	}
+
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
+			String caption, double[] values, int bins, double[] minMax, boolean hideLegend)
 	{
 		IntervalXYDataset dataset = createDataset(caption, values, bins, minMax);
-		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins);
+		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, hideLegend);
 	}
 
 	private void init(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			IntervalXYDataset dataset, int bins)
+			IntervalXYDataset dataset, int bins, boolean hideLegend)
 	{
 		chart = createChart(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset);
-
+		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
 		ChartPanel chartPanel = new ChartPanel(chart);
-
+		chartPanel.setOpaque(false);
+		setBackground(Color.WHITE);
 		setLayout(new BorderLayout());
+		if (hideLegend)
+			chart.removeLegend();
 		add(chartPanel);
-
 	}
 
 	// private IntervalXYDataset createDataset(String caption, double[] values, int bins)
@@ -133,8 +144,8 @@ public class HistogramPanel extends JPanel
 	private JFreeChart createChart(String title, List<String> subtitle, String xAxisLabel, String yAxisLabel,
 			IntervalXYDataset dataset)
 	{
-		JFreeChart chart = ChartFactory.createHistogram(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL,
-				true, false, false);
+		JFreeChart chart = ChartFactory.createHistogram(title, xAxisLabel, yAxisLabel, dataset,
+				PlotOrientation.VERTICAL, true, false, false);
 
 		if (subtitle != null)
 		{
@@ -150,10 +161,17 @@ public class HistogramPanel extends JPanel
 			if (subtitles.size() > 0)
 				chart.setSubtitles(subtitles);
 		}
-		chart.getXYPlot().setForegroundAlpha(0.33f);
+		if (dataset.getSeriesCount() > 1)
+			chart.getXYPlot().setForegroundAlpha(0.33f);
 
 		// chart.getXYPlot().getRangeAxis().setRange(0, 10);
 
 		return chart;
+	}
+
+	public static void main(String args[])
+	{
+		SwingUtil.showInDialog(new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4,
+				1, 2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 20, null, true));
 	}
 }

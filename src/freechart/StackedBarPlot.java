@@ -21,12 +21,12 @@ import org.jfree.ui.RefineryUtilities;
 import util.ArrayUtil;
 import util.SwingUtil;
 
-public class BarPlot extends JFrame
+public class StackedBarPlot extends JFrame
 {
 
 	Map<String, List<Double>> data = new HashMap<String, List<Double>>();
 
-	public BarPlot(final String title)
+	public StackedBarPlot(final String title)
 	{
 		super(title);
 
@@ -101,7 +101,7 @@ public class BarPlot extends JFrame
 
 	public static void plot(Map<String, List<Double>> data)
 	{
-		BarPlot demo = new BarPlot("Stacked Bar Chart Demo 3");
+		StackedBarPlot demo = new StackedBarPlot("Stacked Bar Chart Demo 3");
 		demo.data = data;
 		demo.plotChart();
 	}

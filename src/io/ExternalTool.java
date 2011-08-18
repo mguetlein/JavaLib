@@ -23,6 +23,11 @@ public class ExternalTool
 		return runWithArrayOrString(processName, null, null, command, null, null, wait);
 	}
 
+	public static Process run(final String processName, String command, File stdOutFile, boolean wait)
+	{
+		return runWithArrayOrString(processName, stdOutFile, null, command, null, null, wait);
+	}
+
 	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String[] cmdArray)
 	{
 		run(processName, stdOutfile, errorOutMatch, cmdArray, null);
@@ -55,6 +60,9 @@ public class ExternalTool
 	private static Process runWithArrayOrString(final String processName, File stdOutfile, final String errorOutMatch,
 			Object arrayOrString, String env[], File dir, boolean wait)
 	{
+		if (stdOutfile != null && wait == false)
+			throw new IllegalStateException("illegal param combination");
+
 		try
 		{
 			final File tmpStdOutfile = stdOutfile != null ? new File(stdOutfile + ".tmp") : null;

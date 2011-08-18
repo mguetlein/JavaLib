@@ -6,10 +6,12 @@ import java.awt.Component;
 import java.util.HashMap;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
 import util.SwingUtil;
@@ -21,6 +23,9 @@ public class DescriptionListCellRenderer extends DefaultListCellRenderer
 	HashMap<Integer, String> descriptions = new HashMap<Integer, String>();
 
 	Color descriptionForeground = getForeground();
+	int descriptionSizeOffset = -2;
+	int descriptionSpaceTop = 0;
+	int descriptionFontStyle = Font.ITALIC;
 
 	public DescriptionListCellRenderer()
 	{
@@ -41,6 +46,26 @@ public class DescriptionListCellRenderer extends DefaultListCellRenderer
 		this.descriptionForeground = descriptionForeground;
 	}
 
+	public void setDescriptionSizeOffset(int offset)
+	{
+		descriptionSizeOffset = offset;
+	}
+
+	public void setDescriptionSpaceTop(int space)
+	{
+		descriptionSpaceTop = space;
+	}
+
+	public void setDescriptionFontStyle(int style)
+	{
+		descriptionFontStyle = style;
+	}
+
+	public ImageIcon getIcon(Object value)
+	{
+		return null;
+	}
+
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus)
 	{
@@ -51,14 +76,24 @@ public class DescriptionListCellRenderer extends DefaultListCellRenderer
 			JLabel l = new JLabel(descriptions.get(index));
 			l.setBorder(new MatteBorder(0, 0, 1, 0, descriptionForeground));
 			l.setForeground(descriptionForeground);
-			l.setFont(this.getFont().deriveFont(Font.ITALIC).deriveFont((float) (this.getFont().getSize() - 2)));
+			l.setFont(this.getFont().deriveFont(descriptionFontStyle)
+					.deriveFont((float) (this.getFont().getSize() + descriptionSizeOffset)));
 			p.add(l, BorderLayout.NORTH);
-			p.add(super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus));
-
+			if (index == 0)
+				p.setBorder(null);
+			else
+				p.setBorder(new EmptyBorder(descriptionSpaceTop, 0, 0, 0));
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			label.setIcon(getIcon(value));
+			p.add(label);
 			return p;
 		}
 		else
-			return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		{
+			JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			label.setIcon(getIcon(value));
+			return label;
+		}
 	}
 
 	public static void main(String args[])

@@ -221,7 +221,7 @@ public class MouseOverCheckBoxList extends JList
 		public void selectionChanged(int[] newSelection, int[] oldSelection);
 	}
 
-	static class CheckboxCellRenderer extends JCheckBox implements ListCellRenderer
+	public static class CheckboxCellRenderer extends JCheckBox implements ListCellRenderer
 	{
 		Color selectionBackground = UIManager.getColor("List.selectionBackground");
 		Color selectionForeground = UIManager.getColor("List.selectionForeground");
