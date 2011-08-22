@@ -1,6 +1,5 @@
 package util;
 
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class VectorUtil
@@ -38,16 +37,28 @@ public class VectorUtil
 
 	public static Vector<String> fromCSVString(String csv)
 	{
+		return fromCSVString(csv, true);
+	}
+
+	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields)
+	{
 		Vector<String> res = new Vector<String>();
 		if (csv != null)
 		{
-			StringTokenizer tok = new StringTokenizer(csv, ",");
-			while (tok.hasMoreElements())
+			String split[] = csv.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+			for (String s : split)
 			{
-				String s = (String) tok.nextElement();
-				if (s.trim().length() > 0)
+				s = StringUtil.trimQuotes(s).trim();
+				if (!skipEmptyFields || s.length() > 0)
 					res.add(s);
 			}
+			//			StringTokenizer tok = new StringTokenizer(csv, ",");
+			//			while (tok.hasMoreElements())
+			//			{
+			//				String s = (String) tok.nextElement();
+			//				if (!skipEmptyFields || s.trim().length() > 0)
+			//					res.add(s.trim());
+			//			}
 		}
 		return res;
 	}

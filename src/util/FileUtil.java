@@ -11,12 +11,52 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class FileUtil
 {
+	public static class CSVFile
+	{
+		public List<String> comments;
+		public List<String[]> content;
+	}
+
+	public static CSVFile readCSV(String filename)
+	{
+		try
+		{
+			List<String[]> l = new ArrayList<String[]>();
+			List<String> c = new ArrayList<String>();
+
+			BufferedReader b = new BufferedReader(new FileReader(new File(filename)));
+			String s = "";
+			while ((s = b.readLine()) != null)
+			{
+				if (s.trim().length() == 0)
+					continue;
+				if (s.startsWith("#"))
+					c.add(s);
+				else
+					l.add(ArrayUtil.cast(String.class, VectorUtil.fromCSVString(s, false).toArray()));
+			}
+			b.close();
+
+			CSVFile csv = new CSVFile();
+			csv.comments = c;
+			csv.content = l;
+			return csv;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	/**
 	 * renameto is not reliable to windows
 	 * 

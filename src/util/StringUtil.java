@@ -14,6 +14,17 @@ import java.util.StringTokenizer;
 
 public class StringUtil
 {
+	public static String trimQuotes(String value)
+	{
+		if (value == null)
+			return value;
+
+		value = value.trim();
+		if (value.startsWith("\"") && value.endsWith("\""))
+			return value.substring(1, value.length() - 1);
+
+		return value;
+	}
 
 	static String toCamelCase(String s)
 	{

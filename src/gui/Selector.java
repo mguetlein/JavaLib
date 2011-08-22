@@ -7,8 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -37,7 +35,28 @@ import util.SwingUtil;
 public abstract class Selector<T> extends JPanel
 {
 	Class<T> clazz;
-	LinkedHashMap<String, Vector<T>> elements = new LinkedHashMap<String, Vector<T>>();
+
+	private static class Category
+	{
+		private String s;
+
+		public Category(String s)
+		{
+			this.s = s;
+		}
+
+		public String toString()
+		{
+			return s;
+		}
+
+		public boolean equals(Object o)
+		{
+			return o instanceof Category && ((Category) o).s.equals(s);
+		}
+	}
+
+	//	LinkedHashMap<Category[], Vector<T>> elements = new LinkedHashMap<Category[], Vector<T>>();
 
 	//	DefaultListModel searchListModel = new DefaultListModel();
 	//	JList searchList = new JList(searchListModel);
@@ -96,16 +115,13 @@ public abstract class Selector<T> extends JPanel
 			{
 				JLabel l = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-				switch (node.getPath().length)
+				if (clazz.isInstance(node.getUserObject()))
+					l.setIcon(Selector.this.getIcon((T) node.getUserObject()));
+				else if (Category.class.isInstance(node.getUserObject()))
 				{
-					case 3:
-						l.setIcon(Selector.this.getIcon((T) node.getUserObject()));
-						break;
-					case 2:
-						ImageIcon icon = Selector.this.getCategoryIcon((String) node.getUserObject());
-						if (icon != null)
-							l.setIcon(icon);
-						break;
+					ImageIcon icon = Selector.this.getCategoryIcon(node.getUserObject().toString());
+					if (icon != null)
+						l.setIcon(icon);
 				}
 				return l;
 			}
@@ -191,19 +207,17 @@ public abstract class Selector<T> extends JPanel
 				for (TreePath elem : searchTree.getSelectionPaths())
 				{
 					DefaultMutableTreeNode node = (DefaultMutableTreeNode) elem.getLastPathComponent();
-					if (node.getPath().length == 3)
+					if (clazz.isInstance(node.getUserObject()))
 						if (isValid((T) node.getUserObject()))
-							selectListModel.addElement(node.getUserObject());
+							setSelected((T) node.getUserObject(), true);
 						else
 							invalidTries.add((T) node.getUserObject());
-					else if (node.getPath().length == 2)
+					else if (Category.class.isInstance(node.getUserObject()))
 					{
-						Enumeration<?> children = node.children();
-						while (children.hasMoreElements())
+						for (DefaultMutableTreeNode leaf : TreeUtil.getLeafs(node))
 						{
-							DefaultMutableTreeNode leaf = (DefaultMutableTreeNode) children.nextElement();
 							if (isValid((T) leaf.getUserObject()))
-								selectListModel.addElement(leaf.getUserObject());
+								setSelected((T) leaf.getUserObject(), true);
 							else
 								invalidTries.add((T) leaf.getUserObject());
 						}
@@ -231,7 +245,8 @@ public abstract class Selector<T> extends JPanel
 	{
 		if (searchTree.getSelectionPath() != null)
 		{
-			if (searchTree.getSelectionPath().getPath().length == 3)
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
+			if (clazz.isInstance(node.getUserObject()))
 				return (T) ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
 						.getUserObject();
 		}
@@ -242,15 +257,39 @@ public abstract class Selector<T> extends JPanel
 		return null;
 	}
 
+	public String getHighlightedCategory()
+	{
+		if (searchTree.getSelectionPath() != null)
+		{
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
+			if (Category.class.isInstance(node.getUserObject()))
+				return ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent()).getUserObject()
+						.toString();
+		}
+		return null;
+	}
+
 	public void setSelected(T elem)
 	{
+		setSelected(elem, false);
+	}
+
+	private void setSelected(T elem, boolean skipMatchTest)
+	{
 		boolean match = false;
-		for (Vector<T> elems : elements.values())
-			if (elems.contains(elem))
+		if (skipMatchTest)
+			match = true;
+		else
+		{
+			for (DefaultMutableTreeNode node : TreeUtil.getLeafs(root))
 			{
-				match = true;
-				break;
+				if (node.getUserObject().equals(elem))
+				{
+					match = true;
+					break;
+				}
 			}
+		}
 		if (match && selectListModel.indexOf(elem) == -1)
 			selectListModel.addElement(elem);
 	}
@@ -273,26 +312,27 @@ public abstract class Selector<T> extends JPanel
 	@SuppressWarnings("unchecked")
 	public T[] getSelected(String name)
 	{
+		Category c = new Category(name);
+		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
+		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
+
 		List<T> selected = new ArrayList<T>();
 		for (int i = 0; i < selectListModel.getSize(); i++)
 		{
-			if (elements.get(name).contains(selectListModel.getElementAt(i)))
+			boolean match = false;
+			for (DefaultMutableTreeNode node : leafs)
+			{
+				if (node.getUserObject().equals(selectListModel.getElementAt(i)))
+				{
+					match = true;
+					break;
+				}
+			}
+			if (match)
 				selected.add((T) selectListModel.getElementAt(i));
 		}
 		T a[] = (T[]) Array.newInstance(clazz, selected.size());
 		return selected.toArray(a);
-	}
-
-	private void update()
-	{
-		root.removeAllChildren();
-		for (String key : elements.keySet())
-		{
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(key);
-			addNodeToDefaultTreeModel(searchTreeModel, root, node);
-			for (T elem : elements.get(key))
-				addNodeToDefaultTreeModel(searchTreeModel, node, new DefaultMutableTreeNode(elem));
-		}
 	}
 
 	private static void addNodeToDefaultTreeModel(DefaultTreeModel treeModel, DefaultMutableTreeNode parentNode,
@@ -305,22 +345,46 @@ public abstract class Selector<T> extends JPanel
 
 	public void clearElements()
 	{
-		elements.clear();
-		update();
+		root.removeAllChildren();
 	}
 
 	public void addElements(String name, T... elements)
+	{
+		addElementList(new String[] { name }, elements);
+	}
+
+	public void addElements(String name[], T... elements)
 	{
 		addElementList(name, elements);
 	}
 
 	public void addElementList(String name, T[] elements)
 	{
+		addElementList(new String[] { name }, elements);
+	}
+
+	public void addElementList(String name[], T[] elements)
+	{
 		Vector<T> v = new Vector<T>();
 		for (T t : elements)
 			v.add(t);
-		this.elements.put(name, v);
-		update();
+
+		DefaultMutableTreeNode parent = root;
+		for (String n : name)
+		{
+			Category c = new Category(n);
+			DefaultMutableTreeNode alreadyExists = TreeUtil.getChild(parent, c);
+			if (alreadyExists == null)
+			{
+				DefaultMutableTreeNode node = new DefaultMutableTreeNode(c);
+				addNodeToDefaultTreeModel(searchTreeModel, parent, node);
+				parent = node;
+			}
+			else
+				parent = alreadyExists;
+		}
+		for (T elem : elements)
+			addNodeToDefaultTreeModel(searchTreeModel, parent, new DefaultMutableTreeNode(elem));
 	}
 
 	public static void main(String args[])
@@ -348,6 +412,8 @@ public abstract class Selector<T> extends JPanel
 		sel.addElements("Fische", "Hai", "Kabeljau");
 		sel.addElements("Vögel", "Spatz", "Adler", "Strauß", "Amsel");
 		sel.addElements("Unmögliche Tiere");
+		sel.addElements(new String[] { "Übergruppe", "Untergruppe" }, "Herdentier 1", "Herdentier 2");
+		sel.addElements(new String[] { "Übergruppe", "Untergruppe2" }, "Herdentier 3");
 		sel.addElements("Insekten", "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5", "Ameise6", "Ameise7");
 		SwingUtil.showInDialog(sel);
 	}

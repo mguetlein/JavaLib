@@ -15,17 +15,16 @@ public class ImageLoader
 	public static final ImageIcon INFO = loadImageIcon("data/info.png", ImageLoader.class);
 	public static final ImageIcon ERROR = loadImageIcon("data/error.png", ImageLoader.class);
 
+	public static final ImageIcon CHES_MAPPER = loadImageIcon("data/ches-mapper.png", ImageLoader.class);
+	public static final ImageIcon CHES_MAPPER_SMALL = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);
+	public static final ImageIcon OPENTOX = loadImageIcon("data/OpenTox_logo.png", ImageLoader.class);
+
 	public static ImageIcon loadImageIcon(String imagePath, Class<?> relativeTo)
 	{
 		ImageIcon icon = null;
 		try
 		{
-			// works for jar files: copy files into root dir of jar file
-			int index = imagePath.lastIndexOf("/");
-			if (index == -1)
-				index = 0;
-			//			System.out.println("look for: " + "/" + imagePath.substring(index + 1));
-			icon = new ImageIcon(relativeTo.getResource("/" + imagePath.substring(index + 1)));
+			icon = new ImageIcon(relativeTo.getResource("/" + imagePath));
 		}
 		catch (Exception e)
 		{

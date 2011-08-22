@@ -17,9 +17,19 @@ public class ArrayUtil
 {
 	public static String toCSVString(Object a[])
 	{
+		return toCSVString(a, false);
+	}
+
+	public static String toCSVString(Object a[], boolean addQuotes)
+	{
 		String s = "";
 		for (Object st : a)
-			s += st.toString() + ",";
+		{
+			if (addQuotes)
+				s += "\"" + st.toString() + "\",";
+			else
+				s += st.toString() + ",";
+		}
 		return s;
 	}
 
