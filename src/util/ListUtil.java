@@ -94,7 +94,7 @@ public class ListUtil
 		for (Object object : l)
 			s += object + seperator;
 		if (l.size() > 0)
-			s = s.substring(0, s.length() - 2);
+			s = s.substring(0, s.length() - seperator.length());
 		s += " ]";
 		return s;
 	}
