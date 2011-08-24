@@ -20,7 +20,7 @@ public class DescriptionPanel extends JPanel
 
 	public DescriptionPanel()
 	{
-		this(200);
+		this(400);
 	}
 
 	public DescriptionPanel(int maxLength)

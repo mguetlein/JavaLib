@@ -113,6 +113,9 @@ public class WekaPropertyUtil
 						desc = propertyDescriptor;
 						break;
 					}
+				if (desc == null)
+					throw new Error("no write method for property: " + p.getName() + " (alg: "
+							+ wekaAlgorithm.getClass().getName() + ")");
 				Method setter = desc.getWriteMethod();
 				setter.invoke(wekaAlgorithm, p.getValue());
 			}

@@ -74,6 +74,8 @@ public abstract class Selector<T> extends JPanel
 	public static final String PROPERTY_SELECTION_CHANGED = "PROPERTY_SELECTION_CHANGED";
 	public static final String PROPERTY_HIGHLIGHTING_CHANGED = "PROPERTY_HIGHLIGHTING_CHANGED";
 	public static final String PROPERTY_TRY_ADDING_INVALID = "PROPERTY_TRY_ADDING_INVALID";
+	public static final String PROPERTY_EMPTY_ADD = "PROPERTY_EMPTY_ADD";
+	public static final String PROPERTY_EMPTY_REMOVE = "PROPERTY_EMPTY_REMOVE";
 
 	public Selector(Class<T> clazz, String rootName)
 	{
@@ -95,6 +97,8 @@ public abstract class Selector<T> extends JPanel
 
 	public abstract boolean isValid(T elem);
 
+	public abstract String getString(T elem);
+
 	public abstract ImageIcon getIcon(T elem);
 
 	public abstract ImageIcon getCategoryIcon(String name);
@@ -108,7 +112,7 @@ public abstract class Selector<T> extends JPanel
 
 		searchTree.setCellRenderer(new DefaultTreeCellRenderer()
 		{
-
+			@SuppressWarnings("unchecked")
 			@Override
 			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
 					boolean leaf, int row, boolean hasFocus)
@@ -116,7 +120,10 @@ public abstract class Selector<T> extends JPanel
 				JLabel l = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 				if (clazz.isInstance(node.getUserObject()))
+				{
+					l.setText(Selector.this.getString((T) node.getUserObject()));
 					l.setIcon(Selector.this.getIcon((T) node.getUserObject()));
+				}
 				else if (Category.class.isInstance(node.getUserObject()))
 				{
 					ImageIcon icon = Selector.this.getCategoryIcon(node.getUserObject().toString());
@@ -130,11 +137,13 @@ public abstract class Selector<T> extends JPanel
 		selectList.setCellRenderer(new DefaultListCellRenderer()
 		{
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus)
 			{
 				JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				l.setText(Selector.this.getString((T) value));
 				l.setIcon(Selector.this.getIcon((T) value));
 				return l;
 			}
@@ -200,30 +209,40 @@ public abstract class Selector<T> extends JPanel
 		});
 		addButton.addActionListener(new ActionListener()
 		{
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				List<T> invalidTries = new ArrayList<T>();
-				for (TreePath elem : searchTree.getSelectionPaths())
-				{
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode) elem.getLastPathComponent();
-					if (clazz.isInstance(node.getUserObject()))
-						if (isValid((T) node.getUserObject()))
-							setSelected((T) node.getUserObject(), true);
-						else
-							invalidTries.add((T) node.getUserObject());
-					else if (Category.class.isInstance(node.getUserObject()))
+				boolean selected = false;
+				if (!searchTree.isSelectionEmpty())
+					for (TreePath elem : searchTree.getSelectionPaths())
 					{
-						for (DefaultMutableTreeNode leaf : TreeUtil.getLeafs(node))
+						DefaultMutableTreeNode node = (DefaultMutableTreeNode) elem.getLastPathComponent();
+						if (clazz.isInstance(node.getUserObject()))
 						{
-							if (isValid((T) leaf.getUserObject()))
-								setSelected((T) leaf.getUserObject(), true);
+							selected = true;
+							if (isValid((T) node.getUserObject()))
+								setSelected((T) node.getUserObject(), true);
 							else
-								invalidTries.add((T) leaf.getUserObject());
+								invalidTries.add((T) node.getUserObject());
+						}
+						else if (Category.class.isInstance(node.getUserObject()))
+						{
+							for (DefaultMutableTreeNode leaf : TreeUtil.getLeafs(node))
+							{
+								selected = true;
+								if (isValid((T) leaf.getUserObject()))
+									setSelected((T) leaf.getUserObject(), true);
+								else
+									invalidTries.add((T) leaf.getUserObject());
+							}
 						}
 					}
-				}
-				firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
+				if (selected)
+					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
+				else
+					firePropertyChange(PROPERTY_EMPTY_ADD, true, false);
 				if (invalidTries.size() > 0)
 					firePropertyChange(PROPERTY_TRY_ADDING_INVALID, null, invalidTries);
 			}
@@ -233,9 +252,16 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
+				boolean selected = false;
 				for (Object elem : selectList.getSelectedValues())
+				{
 					selectListModel.removeElement(elem);
-				firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
+					selected = true;
+				}
+				if (selected)
+					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
+				else
+					firePropertyChange(PROPERTY_EMPTY_REMOVE, true, false);
 			}
 		});
 	}
@@ -262,7 +288,9 @@ public abstract class Selector<T> extends JPanel
 		if (searchTree.getSelectionPath() != null)
 		{
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
-			if (Category.class.isInstance(node.getUserObject()))
+			if (node == root)
+				return root.getUserObject().toString();
+			else if (Category.class.isInstance(node.getUserObject()))
 				return ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent()).getUserObject()
 						.toString();
 		}
@@ -406,6 +434,12 @@ public abstract class Selector<T> extends JPanel
 			public ImageIcon getCategoryIcon(String name)
 			{
 				return ImageLoader.INFO;
+			}
+
+			@Override
+			public String getString(String elem)
+			{
+				return elem;
 			}
 		};
 		sel.addElements("Säugetiere", "Hund", "Katze", "Maus", "Nicht-hinzufügbar");

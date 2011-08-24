@@ -13,7 +13,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -31,7 +30,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 
-public class WizardDialog extends JDialog
+public class WizardDialog extends JFrame
 {
 	JLabel titleLabel;
 	JTextArea descriptionTextArea;
@@ -57,12 +56,12 @@ public class WizardDialog extends JDialog
 
 	public WizardDialog(JFrame owner, String title, Icon icon)
 	{
-		this(owner, title, icon, null);
+		//		this(owner, title, icon, null);
 	}
 
 	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon)
 	{
-		super(owner, true);
+		//		super(owner, true);
 
 		this.icon = icon;
 		this.title = title;
