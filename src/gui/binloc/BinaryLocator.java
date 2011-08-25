@@ -3,12 +3,18 @@ package gui.binloc;
 import java.util.List;
 import java.util.Map;
 
+import util.OSUtil;
+
 public class BinaryLocator
 {
 	public static boolean locate(List<Binary> binaries)
 	{
 		Map<String, String> env = System.getenv();
-		String pathDirs[] = env.get("PATH").split(":");
+		String pathDirs[];
+		if (OSUtil.isWindows())
+			pathDirs = System.getenv("PATH").split(";");
+		else
+			pathDirs = env.get("PATH").split(":");
 		boolean allFound = true;
 		for (Binary bin : binaries)
 		{
