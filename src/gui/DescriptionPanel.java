@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import util.StringUtil;
+
 public class DescriptionPanel extends JPanel
 {
 	JTextArea propertyDescriptionTextArea;
@@ -40,8 +42,8 @@ public class DescriptionPanel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				JOptionPane.showMessageDialog(DescriptionPanel.this.getTopLevelAncestor(), text, title,
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(DescriptionPanel.this.getTopLevelAncestor(),
+						StringUtil.wordWrap(text, 80), title, JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 
@@ -52,8 +54,14 @@ public class DescriptionPanel extends JPanel
 
 	public void setText(String title, String text)
 	{
+		setText(title, text, maxLength);
+	}
+
+	public void setText(String title, String text, int maxLength)
+	{
 		this.title = title;
 		this.text = text;
+		this.maxLength = maxLength;
 
 		if (text == null)
 			text = "";

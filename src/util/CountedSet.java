@@ -36,8 +36,7 @@ public class CountedSet<T> implements ArraySummary
 	 */
 	public List<T> values()
 	{
-		List<T> elems = new ArrayList<T>(map.keySet());
-		Collections.sort(elems, new Comparator<T>()
+		return values(new Comparator<T>()
 		{
 			@Override
 			public int compare(T o1, T o2)
@@ -49,6 +48,12 @@ public class CountedSet<T> implements ArraySummary
 					return (-1) * res;
 			}
 		});
+	}
+
+	public List<T> values(Comparator<T> comp)
+	{
+		List<T> elems = new ArrayList<T>(map.keySet());
+		Collections.sort(elems, comp);
 		return elems;
 	}
 

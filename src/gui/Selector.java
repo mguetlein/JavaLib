@@ -374,6 +374,7 @@ public abstract class Selector<T> extends JPanel
 	public void clearElements()
 	{
 		root.removeAllChildren();
+		selectListModel.removeAllElements();
 	}
 
 	public void addElements(String name, T... elements)
