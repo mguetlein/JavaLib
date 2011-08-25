@@ -14,6 +14,8 @@ public class ImageLoader
 	public static final ImageIcon WARNING = loadImageIcon("data/warning.png", ImageLoader.class);
 	public static final ImageIcon INFO = loadImageIcon("data/info.png", ImageLoader.class);
 	public static final ImageIcon ERROR = loadImageIcon("data/error.png", ImageLoader.class);
+	public static final ImageIcon OK = loadImageIcon("data/ok.png", ImageLoader.class);
+	public static final ImageIcon TOOL = loadImageIcon("data/tool.png", ImageLoader.class);
 
 	public static final ImageIcon CHES_MAPPER = loadImageIcon("data/ches-mapper.png", ImageLoader.class);
 	public static final ImageIcon CHES_MAPPER_SMALL = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);

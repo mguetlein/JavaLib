@@ -1,6 +1,8 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -37,6 +39,9 @@ public class DescriptionPanel extends JPanel
 		propertyDescriptionTextArea.setLineWrap(true);
 
 		moreDescriptionButton = new LinkButton("complete description...");
+		moreDescriptionButton.setForegroundFont(moreDescriptionButton.getFont().deriveFont(Font.PLAIN));
+		moreDescriptionButton.setSelectedForegroundFont(moreDescriptionButton.getFont().deriveFont(Font.PLAIN));
+		moreDescriptionButton.setSelectedForegroundColor(Color.BLUE);
 		moreDescriptionButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -47,7 +52,7 @@ public class DescriptionPanel extends JPanel
 			}
 		});
 
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(10, 10));
 		add(propertyDescriptionTextArea);
 		add(moreDescriptionButton, BorderLayout.SOUTH);
 	}
