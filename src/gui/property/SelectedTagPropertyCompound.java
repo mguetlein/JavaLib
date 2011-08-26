@@ -3,6 +3,8 @@ package gui.property;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
@@ -14,11 +16,12 @@ import weka.core.Tag;
 public class SelectedTagPropertyCompound extends JComboBox implements PropertyCompound
 {
 	SelectedTagProperty property;
+	boolean update;
 
 	public SelectedTagPropertyCompound(SelectedTagProperty property)
 	{
-		super(property.value.getTags());
-		setSelectedItem(property.value.getSelectedTag());
+		super(property.getValue().getTags());
+		setSelectedItem(property.getValue().getSelectedTag());
 
 		setRenderer(new DefaultListCellRenderer()
 		{
@@ -36,11 +39,28 @@ public class SelectedTagPropertyCompound extends JComboBox implements PropertyCo
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (getSelectedItem() != SelectedTagPropertyCompound.this.property.value.getSelectedTag())
+				if (getSelectedItem() != SelectedTagPropertyCompound.this.property.getValue().getSelectedTag())
 				{
-					SelectedTagPropertyCompound.this.property.value = new SelectedTag(getSelectedIndex(),
-							SelectedTagPropertyCompound.this.property.value.getTags());
+					if (update)
+						return;
+					update = true;
+					SelectedTagPropertyCompound.this.property.setValue(new SelectedTag(getSelectedIndex(),
+							SelectedTagPropertyCompound.this.property.getValue().getTags()));
+					update = false;
 				}
+			}
+		});
+
+		property.addPropertyChangeListener(new PropertyChangeListener()
+		{
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				if (update)
+					return;
+				update = true;
+				setSelectedItem(SelectedTagPropertyCompound.this.property.getValue().getSelectedTag());
+				update = false;
 			}
 		});
 

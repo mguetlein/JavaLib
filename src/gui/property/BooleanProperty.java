@@ -6,14 +6,14 @@ import javax.swing.JComponent;
 
 public class BooleanProperty extends AbstractProperty
 {
-	Boolean value;
-	Boolean defaultValue;
+	private Boolean value;
+	private Boolean defaultValue;
 
-	public BooleanProperty(String name, Boolean defaultValue)
+	public BooleanProperty(String name, Boolean value, Boolean defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -39,7 +39,16 @@ public class BooleanProperty extends AbstractProperty
 	{
 		String v = loadVal(javaProperties);
 		if (v != null)
-			value = Boolean.parseBoolean(v);
+			setValue(Boolean.parseBoolean(v));
 	}
 
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (Boolean) value;
+			valueChanged(this.value);
+		}
+	}
 }

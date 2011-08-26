@@ -6,14 +6,14 @@ import javax.swing.JComponent;
 
 public class IntegerProperty extends AbstractProperty
 {
-	Integer value;
-	Integer defaultValue;
+	private Integer value;
+	private Integer defaultValue;
 
-	public IntegerProperty(String name, Integer defaultValue)
+	public IntegerProperty(String name, Integer value, Integer defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -39,7 +39,17 @@ public class IntegerProperty extends AbstractProperty
 	{
 		String v = loadVal(javaProperties);
 		if (v != null)
-			value = Integer.parseInt(v);
+			setValue(Integer.parseInt(v));
+	}
+
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (Integer) value;
+			valueChanged(this.value);
+		}
 	}
 
 }

@@ -6,15 +6,15 @@ import javax.swing.JComponent;
 
 public class StringSelectProperty extends AbstractProperty
 {
-	String value;
-	String defaultValue;
-	String values[];
+	private String value;
+	private String defaultValue;
+	private String values[];
 
-	public StringSelectProperty(String name, String[] values, String defaultValue)
+	public StringSelectProperty(String name, String[] values, String value, String defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 		this.values = values;
 	}
 
@@ -30,6 +30,11 @@ public class StringSelectProperty extends AbstractProperty
 		return value;
 	}
 
+	public String[] getValues()
+	{
+		return values;
+	}
+
 	@Override
 	public String getDefaultValue()
 	{
@@ -41,7 +46,17 @@ public class StringSelectProperty extends AbstractProperty
 	{
 		String v = loadVal(javaProperties);
 		if (v != null)
-			value = v;
+			setValue(v);
+	}
+
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (String) value;
+			valueChanged(this.value);
+		}
 	}
 
 }

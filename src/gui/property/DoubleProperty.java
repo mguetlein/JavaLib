@@ -6,14 +6,14 @@ import javax.swing.JComponent;
 
 public class DoubleProperty extends AbstractProperty
 {
-	Double value;
-	Double defaultValue;
+	private Double value;
+	private Double defaultValue;
 
-	public DoubleProperty(String name, Double defaultValue)
+	public DoubleProperty(String name, Double value, Double defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -39,7 +39,17 @@ public class DoubleProperty extends AbstractProperty
 	{
 		String v = loadVal(javaProperties);
 		if (v != null)
-			value = Double.parseDouble(v);
+			setValue(Double.parseDouble(v));
+	}
+
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (Double) value;
+			valueChanged(this.value);
+		}
 	}
 
 }

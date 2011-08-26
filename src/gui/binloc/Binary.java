@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.FileUtil;
 import util.OSUtil;
 
 public class Binary
@@ -56,6 +57,14 @@ public class Binary
 			this.commandLocation = parent + File.separator + command;
 		if (isFound())
 			fireEvent();
+	}
+
+	public String getSisterCommandLocation(String sisterCommand)
+	{
+		if (OSUtil.isWindows())
+			return FileUtil.getParent(commandLocation) + File.separator + sisterCommand + ".exe";
+		else
+			return FileUtil.getParent(commandLocation) + File.separator + sisterCommand;
 	}
 
 	public String getEnvName()

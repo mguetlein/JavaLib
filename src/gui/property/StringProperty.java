@@ -6,14 +6,14 @@ import javax.swing.JComponent;
 
 public class StringProperty extends AbstractProperty
 {
-	String defaultValue;
-	String value;
+	private String defaultValue;
+	private String value;
 
-	public StringProperty(String name, String defaultValue)
+	public StringProperty(String name, String value, String defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -39,7 +39,17 @@ public class StringProperty extends AbstractProperty
 	{
 		String v = (String) loadVal(javaProperties);
 		if (v != null)
-			value = v;
+			setValue(v);
+	}
+
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (String) value;
+			valueChanged(this.value);
+		}
 	}
 
 }

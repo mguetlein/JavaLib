@@ -9,14 +9,14 @@ import weka.core.Utils;
 
 public class WekaProperty extends AbstractProperty
 {
-	OptionHandler value;
-	OptionHandler defaultValue;
+	private OptionHandler value;
+	private OptionHandler defaultValue;
 
-	public WekaProperty(String name, OptionHandler defaultValue)
+	public WekaProperty(String name, OptionHandler value, OptionHandler defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -58,13 +58,22 @@ public class WekaProperty extends AbstractProperty
 
 				OptionHandler c = (OptionHandler) Class.forName(alg).newInstance();
 				c.setOptions(Utils.splitOptions(options));
-				value = c;
+				setValue(c);
 			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+	}
 
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (OptionHandler) value;
+			valueChanged(this.value);
+		}
 	}
 }

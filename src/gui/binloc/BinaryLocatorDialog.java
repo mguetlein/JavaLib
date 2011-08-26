@@ -26,7 +26,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 
 import util.ImageLoader;
-import util.StringUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -144,16 +143,15 @@ public class BinaryLocatorDialog extends JDialog
 				if (b.isFound())
 				{
 					l.setIcon(ImageLoader.OK);
-					found = "Location: " + b.getLocation();
+					found = b.getLocation();
 				}
 				else
 				{
 					l.setIcon(ImageLoader.ERROR);
-					found = "Not found";
+					found = "<b>Not found</b>";
 				}
-				l.setText("<html><b>" + b.getCommand() + "</b><br>"
-						+ StringUtil.wordWrap(b.getDescription(), 100).replaceAll("\n", "<br>") + "<br><b>" + found
-						+ "</b></html>");
+				l.setText("<html><b>" + b.getDescription() + "</b><br><table><tr><td>Program:</td><td>"
+						+ b.getCommand() + "</td></tr><tr><td>Location:</td><td>" + found + "</td></tr></html>");
 
 				l.setBorder(new EmptyBorder(5, 0, 5, 0));
 

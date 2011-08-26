@@ -8,14 +8,14 @@ import weka.core.SelectedTag;
 
 public class SelectedTagProperty extends AbstractProperty
 {
-	SelectedTag value;
-	SelectedTag defaultValue;
+	private SelectedTag value;
+	private SelectedTag defaultValue;
 
-	public SelectedTagProperty(String name, SelectedTag defaultValue)
+	public SelectedTagProperty(String name, SelectedTag value, SelectedTag defaultValue)
 	{
 		super(name);
 		this.defaultValue = defaultValue;
-		this.value = defaultValue;
+		this.value = value;
 	}
 
 	@Override
@@ -41,7 +41,17 @@ public class SelectedTagProperty extends AbstractProperty
 	{
 		String v = loadVal(javaProperties);
 		if (v != null)
-			value = new SelectedTag(Integer.parseInt(v), value.getTags());
+			setValue(new SelectedTag(Integer.parseInt(v), value.getTags()));
+	}
+
+	@Override
+	public void setValue(Object value)
+	{
+		if (!this.value.equals(value))
+		{
+			this.value = (SelectedTag) value;
+			valueChanged(this.value);
+		}
 	}
 
 	public static void main(String args[])

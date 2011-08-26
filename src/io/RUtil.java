@@ -53,7 +53,7 @@ public class RUtil
 		}
 	}
 
-	public static void toRTable(Iterable<?> features, List<double[]> featureValues, String destinationFile)
+	public static void toRTable(Iterable<?> features, List<String[]> featureValues, String destinationFile)
 	{
 		File f = new File(destinationFile);
 		// if (f.exists())
@@ -68,7 +68,7 @@ public class RUtil
 			for (int i = 0; i < featureValues.size(); i++)
 			{
 				bf.write("\"" + (i + 1) + "\" ");
-				for (double v : featureValues.get(i))
+				for (String v : featureValues.get(i))
 					bf.write(v + " ");
 				bf.write("\n");
 			}
