@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,6 +35,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
+
+import com.jgoodies.forms.factories.ButtonBarFactory;
 
 public class SwingUtil
 {
@@ -197,15 +200,25 @@ public class SwingUtil
 
 	public static void showInDialog(JComponent c)
 	{
-		showInDialog(c, null);
+		showInDialog(c, "test dialog", null);
+	}
+
+	public static void showInDialog(JComponent c, String title)
+	{
+		showInDialog(c, title, null);
 	}
 
 	public static void showInDialog(JComponent c, Dimension dim)
 	{
-		JDialog f = new JDialog();
+		showInDialog(c, "test dialog", null);
+	}
+
+	public static void showInDialog(JComponent c, String title, Dimension dim)
+	{
+		final JDialog f = new JDialog();
 		f.setModal(true);
-		f.setTitle("test dialog");
-		JPanel p = new JPanel(new BorderLayout());
+		f.setTitle(title);
+		JPanel p = new JPanel(new BorderLayout(10, 10));
 		p.add(c);
 		p.setBorder(new EmptyBorder(10, 10, 10, 10));
 		f.getContentPane().add(p);
@@ -215,6 +228,16 @@ public class SwingUtil
 			f.setSize(dim);
 		f.setLocationRelativeTo(null);
 		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		JButton close = new JButton("Close");
+		close.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				f.setVisible(false);
+			}
+		});
+		p.add(ButtonBarFactory.buildCloseBar(close), BorderLayout.SOUTH);
 		f.setVisible(true);
 	}
 

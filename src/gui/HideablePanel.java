@@ -74,6 +74,11 @@ public class HideablePanel extends JPanel
 		}
 	}
 
+	public boolean isHidden()
+	{
+		return hide;
+	}
+
 	public static void main(String args[])
 	{
 		HideablePanel p = new HideablePanel("test-panel", true);

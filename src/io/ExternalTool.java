@@ -4,61 +4,35 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.Date;
 
 import util.ArrayUtil;
 import util.FileUtil;
-import util.StringUtil;
 
 public class ExternalTool
 {
 
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String command)
+	public void run(final String processName, String command)
 	{
-		run(processName, stdOutfile, errorOutMatch, command, null);
+		runWithArrayOrString(processName, command, null, null, null, true);
 	}
 
-	public static Process run(final String processName, String command, boolean wait)
+	public Process run(final String processName, String command, File stdOutfile, boolean wait)
 	{
-		return runWithArrayOrString(processName, null, null, command, null, null, wait);
+		return runWithArrayOrString(processName, command, stdOutfile, null, null, wait);
 	}
 
-	public static Process run(final String processName, String command, File stdOutFile, boolean wait)
+	protected void stdout(String s)
 	{
-		return runWithArrayOrString(processName, stdOutFile, null, command, null, null, wait);
+		System.out.println(s);
 	}
 
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String[] cmdArray)
+	protected void stderr(String s)
 	{
-		run(processName, stdOutfile, errorOutMatch, cmdArray, null);
+		System.err.println(s);
 	}
 
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String command,
-			String env[])
-	{
-		run(processName, stdOutfile, errorOutMatch, command, env, null);
-	}
-
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String[] cmdArray,
-			String env[])
-	{
-		run(processName, stdOutfile, errorOutMatch, cmdArray, env, null);
-	}
-
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String command,
-			String env[], File dir)
-	{
-		runWithArrayOrString(processName, stdOutfile, errorOutMatch, command, env, dir, true);
-	}
-
-	public static void run(final String processName, File stdOutfile, final String errorOutMatch, String[] cmdArray,
-			String env[], File dir)
-	{
-		runWithArrayOrString(processName, stdOutfile, errorOutMatch, cmdArray, env, dir, true);
-	}
-
-	private static Process runWithArrayOrString(final String processName, File stdOutfile, final String errorOutMatch,
-			Object arrayOrString, String env[], File dir, boolean wait)
+	protected Process runWithArrayOrString(final String processName, Object arrayOrString, File stdOutfile,
+			String env[], File workingDirectory, boolean wait)
 	{
 		if (stdOutfile != null && wait == false)
 			throw new IllegalStateException("illegal param combination");
@@ -66,30 +40,30 @@ public class ExternalTool
 		try
 		{
 			final File tmpStdOutfile = stdOutfile != null ? new File(stdOutfile + ".tmp") : null;
-			final long starttime = new Date().getTime();
+			//			final long starttime = new Date().getTime();
 			final Process child;
 
 			if (arrayOrString instanceof String)
 			{
 				String command = (String) arrayOrString;
 				System.out.println(processName + " > " + command);
-				if (env == null && dir == null)
+				if (env == null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(command);
-				else if (env != null && dir == null)
+				else if (env != null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(command, env);
 				else
-					child = Runtime.getRuntime().exec(command, env, dir);
+					child = Runtime.getRuntime().exec(command, env, workingDirectory);
 			}
 			else if (arrayOrString instanceof String[])
 			{
 				String[] cmdArray = (String[]) arrayOrString;
 				System.out.println(processName + " > " + ArrayUtil.toString(cmdArray, " "));
-				if (env == null && dir == null)
+				if (env == null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(cmdArray);
-				else if (env != null && dir == null)
+				else if (env != null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(cmdArray, env);
 				else
-					child = Runtime.getRuntime().exec(cmdArray, env, dir);
+					child = Runtime.getRuntime().exec(cmdArray, env, workingDirectory);
 			}
 			else
 				throw new IllegalArgumentException();
@@ -101,17 +75,19 @@ public class ExternalTool
 				{
 					try
 					{
+
 						BufferedReader buffy = new BufferedReader(new InputStreamReader(child.getInputStream()));
 						PrintStream print = null;
 						if (tmpStdOutfile != null)
 							print = new PrintStream(tmpStdOutfile);
-						else
-							print = System.out;
 						while (true)
 						{
 							String s = buffy.readLine();
 							if (s != null)
-								print.println(s);
+								if (tmpStdOutfile != null)
+									print.println(s);
+								else
+									stdout(s);
 							else
 								break;
 						}
@@ -138,9 +114,7 @@ public class ExternalTool
 							String s = buffy.readLine();
 							if (s != null)
 							{
-								if (errorOutMatch == null || s.matches(errorOutMatch))
-									System.out.println(processName + " "
-											+ StringUtil.formatTime(new Date().getTime() - starttime) + " > " + s);
+								stderr(s);
 							}
 							else
 								break;
