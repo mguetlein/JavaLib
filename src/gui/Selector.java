@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +72,9 @@ public abstract class Selector<T> extends JPanel
 
 	JButton addButton = new JButton("add");
 	JButton remButton = new JButton("remove");
+
+	boolean selfUpdateSelection = false;
+	T highlightedElement = null;
 
 	public static final String PROPERTY_SELECTION_CHANGED = "PROPERTY_SELECTION_CHANGED";
 	public static final String PROPERTY_HIGHLIGHTING_CHANGED = "PROPERTY_HIGHLIGHTING_CHANGED";
@@ -188,11 +193,12 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void valueChanged(TreeSelectionEvent e)
 			{
-				if (searchTree.getSelectionPath() != null)
-				{
-					selectList.clearSelection();
-					firePropertyChange(PROPERTY_HIGHLIGHTING_CHANGED, true, false);
-				}
+				if (selfUpdateSelection)
+					return;
+				selfUpdateSelection = true;
+				selectList.clearSelection();
+				updateHighlight();
+				selfUpdateSelection = false;
 			}
 		});
 		selectList.addListSelectionListener(new ListSelectionListener()
@@ -200,11 +206,12 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void valueChanged(ListSelectionEvent e)
 			{
-				if (selectList.getSelectedIndex() != -1)
-				{
-					searchTree.clearSelection();
-					firePropertyChange(PROPERTY_HIGHLIGHTING_CHANGED, true, false);
-				}
+				if (selfUpdateSelection)
+					return;
+				selfUpdateSelection = true;
+				searchTree.clearSelection();
+				updateHighlight();
+				selfUpdateSelection = false;
 			}
 		});
 		addButton.addActionListener(new ActionListener()
@@ -267,20 +274,29 @@ public abstract class Selector<T> extends JPanel
 	}
 
 	@SuppressWarnings("unchecked")
-	public T getHighlightedElement()
+	private void updateHighlight()
 	{
+		T oldHighlight = highlightedElement;
+
+		highlightedElement = null;
 		if (searchTree.getSelectionPath() != null)
 		{
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
 			if (clazz.isInstance(node.getUserObject()))
-				return (T) ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
+				highlightedElement = (T) ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
 						.getUserObject();
 		}
 		else if (selectList.getSelectedIndex() != -1)
-		{
-			return (T) selectList.getSelectedValue();
-		}
-		return null;
+			highlightedElement = (T) selectList.getSelectedValue();
+
+		if (oldHighlight != highlightedElement)
+			firePropertyChange(PROPERTY_HIGHLIGHTING_CHANGED, oldHighlight, highlightedElement);
+	}
+
+	@SuppressWarnings("unchecked")
+	public T getHighlightedElement()
+	{
+		return highlightedElement;
 	}
 
 	public String getHighlightedCategory()
@@ -418,7 +434,7 @@ public abstract class Selector<T> extends JPanel
 
 	public static void main(String args[])
 	{
-		Selector<String> sel = new Selector<String>(String.class, "Tiere")
+		final Selector<String> sel = new Selector<String>(String.class, "Tiere")
 		{
 			public ImageIcon getIcon(String renderable)
 			{
@@ -443,6 +459,14 @@ public abstract class Selector<T> extends JPanel
 				return elem;
 			}
 		};
+		sel.addPropertyChangeListener(Selector.PROPERTY_HIGHLIGHTING_CHANGED, new PropertyChangeListener()
+		{
+			@Override
+			public void propertyChange(PropertyChangeEvent evt)
+			{
+				System.out.println("new highlighting: " + sel.getHighlightedElement());
+			}
+		});
 		sel.addElements("Säugetiere", "Hund", "Katze", "Maus", "Nicht-hinzufügbar");
 		sel.addElements("Fische", "Hai", "Kabeljau");
 		sel.addElements("Vögel", "Spatz", "Adler", "Strauß", "Amsel");
