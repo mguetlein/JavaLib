@@ -40,24 +40,32 @@ public class MessagePanel extends JPanel
 			this.details = details;
 		}
 
-		String toString = null;
+		String detailString = null;
+		String noDetailString = null;
 
 		public String toString()
 		{
 			if (showMessageDetails)
 			{
-				if (toString == null)
+				if (detailString == null)
 				{
 					if (details == null || details.length() == 0)
-						toString = "<html><b>" + message + "</b></html>";
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
+								+ "</b></html>";
 					else
-						toString = "<html><b>" + message + "</b><br>"
-								+ StringUtil.wordWrap(details, 80).replaceAll("\n", "<br>") + "</html>";
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
+								+ "</b><br>" + StringUtil.wordWrap(details, 120).replaceAll("\n", "<br>") + "</html>";
 				}
-				return toString;
+				return detailString;
 			}
 			else
-				return "<html><b>" + message + "</b></html>";
+			{
+				if (noDetailString == null)
+					noDetailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
+							+ "</b></html>";
+				return noDetailString;
+			}
+
 		}
 	}
 

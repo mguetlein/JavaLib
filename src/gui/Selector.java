@@ -74,6 +74,7 @@ public abstract class Selector<T> extends JPanel
 	JButton remButton = new JButton("remove");
 
 	boolean selfUpdateSelection = false;
+	String highlightedCategory = null;
 	T highlightedElement = null;
 
 	public static final String PROPERTY_SELECTION_CHANGED = "PROPERTY_SELECTION_CHANGED";
@@ -277,6 +278,7 @@ public abstract class Selector<T> extends JPanel
 	private void updateHighlight()
 	{
 		T oldHighlight = highlightedElement;
+		String oldHighlight2 = highlightedCategory;
 
 		highlightedElement = null;
 		if (searchTree.getSelectionPath() != null)
@@ -289,7 +291,18 @@ public abstract class Selector<T> extends JPanel
 		else if (selectList.getSelectedIndex() != -1)
 			highlightedElement = (T) selectList.getSelectedValue();
 
-		if (oldHighlight != highlightedElement)
+		highlightedCategory = null;
+		if (searchTree.getSelectionPath() != null)
+		{
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
+			if (node == root)
+				highlightedCategory = root.getUserObject().toString();
+			else if (Category.class.isInstance(node.getUserObject()))
+				highlightedCategory = ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
+						.getUserObject().toString();
+		}
+
+		if (oldHighlight != highlightedElement || oldHighlight2 != highlightedCategory)
 			firePropertyChange(PROPERTY_HIGHLIGHTING_CHANGED, oldHighlight, highlightedElement);
 	}
 
@@ -301,16 +314,7 @@ public abstract class Selector<T> extends JPanel
 
 	public String getHighlightedCategory()
 	{
-		if (searchTree.getSelectionPath() != null)
-		{
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
-			if (node == root)
-				return root.getUserObject().toString();
-			else if (Category.class.isInstance(node.getUserObject()))
-				return ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent()).getUserObject()
-						.toString();
-		}
-		return null;
+		return highlightedCategory;
 	}
 
 	public void setSelected(T elem)
@@ -464,7 +468,8 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				System.out.println("new highlighting: " + sel.getHighlightedElement());
+				System.out.println("new highlighting: " + sel.getHighlightedElement() + " - "
+						+ sel.getHighlightedCategory());
 			}
 		});
 		sel.addElements("Säugetiere", "Hund", "Katze", "Maus", "Nicht-hinzufügbar");
@@ -475,6 +480,7 @@ public abstract class Selector<T> extends JPanel
 		sel.addElements(new String[] { "Übergruppe", "Untergruppe2" }, "Herdentier 3");
 		sel.addElements("Insekten", "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5", "Ameise6", "Ameise7");
 		SwingUtil.showInDialog(sel);
+		System.exit(0);
 	}
 
 }
