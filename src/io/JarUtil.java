@@ -15,13 +15,14 @@ public class JarUtil
 	{
 		try
 		{
-			System.err.println("extract: '" + fileName + "' -> '" + dest + "'");
 			if (new File(dest).exists())
 			{
-				System.err.println("already extracted: " + dest);
+				System.out.println("already extracted: " + dest);
 				if (!overwrite)
 					return;
 			}
+			else
+				System.out.println("extract: '" + fileName + "' -> '" + dest + "'");
 			URL u = JarUtil.class.getResource("/" + fileName);
 			BufferedReader r;
 			if (u == null)
