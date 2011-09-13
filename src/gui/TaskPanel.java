@@ -64,7 +64,11 @@ public class TaskPanel extends JPanel
 					verboseLabel.setText(message);
 				else
 				{
-					System.out.println("> " + message);
+					if (prop.equals(Task.PROPERTY_WARNING) || prop.equals(Task.PROPERTY_ERROR))
+						System.err.println("> " + message);
+					else
+						System.out.println("> " + message);
+
 					if (!prop.equals(Task.PROPERTY_WARNING))
 					{
 						if (prop.equals(Task.PROPERTY_ERROR))

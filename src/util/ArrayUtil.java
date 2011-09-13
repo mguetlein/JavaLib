@@ -65,6 +65,14 @@ public class ArrayUtil
 		return sum;
 	}
 
+	public static int indexOf(int[] array, int elem)
+	{
+		for (int i = 0; i < array.length; i++)
+			if (array[i] == elem)
+				return i;
+		return -1;
+	}
+
 	public static <T> int indexOf(T[] array, T elem)
 	{
 		for (int i = 0; i < array.length; i++)
@@ -114,6 +122,14 @@ public class ArrayUtil
 		return a;
 	}
 
+	public static Integer[] toIntegerArray(int array[])
+	{
+		Integer[] a = new Integer[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = new Integer(array[i]);
+		return a;
+	}
+
 	public static Double[] toDoubleArray(Integer array[])
 	{
 		Double[] a = new Double[array.length];
@@ -156,6 +172,19 @@ public class ArrayUtil
 	{
 		int[] d = new int[ints.size()];
 		Iterator<Integer> it = ints.iterator();
+		int i = 0;
+		while (it.hasNext())
+		{
+			d[i] = it.next();
+			i++;
+		}
+		return d;
+	}
+
+	public static boolean[] toPrimitiveBooleanArray(Collection<Boolean> bools)
+	{
+		boolean[] d = new boolean[bools.size()];
+		Iterator<Boolean> it = bools.iterator();
 		int i = 0;
 		while (it.hasNext())
 		{
@@ -465,6 +494,14 @@ public class ArrayUtil
 		return c;
 	}
 
+	public static int[] concat(int[] a, int[] b)
+	{
+		int[] c = new int[a.length + b.length];
+		System.arraycopy(a, 0, c, 0, a.length);
+		System.arraycopy(b, 0, c, a.length, b.length);
+		return c;
+	}
+
 	public static <T> T[] concat(T[]... arrays)
 	{
 		if (arrays[0].length == 0)
@@ -729,6 +766,30 @@ public class ArrayUtil
 	{
 		int[] order = ArrayUtil.getOrdering(array, cmp);
 		return order[(order.length + 1) / 2 - 1];
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T[] cut(Class<T> type, T[] a1, T[] a2)
+	{
+		List<T> cut = new ArrayList<T>();
+		for (int i = 0; i < a1.length; i++)
+			if (ArrayUtil.indexOf(a2, a1[i]) != -1)
+				cut.add(a1[i]);
+		T[] c = (T[]) Array.newInstance(type, cut.size());
+		cut.toArray(c);
+		return c;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T[] remove(Class<T> type, T[] a1, T[] a2)
+	{
+		List<T> rem = new ArrayList<T>();
+		for (int i = 0; i < a1.length; i++)
+			if (ArrayUtil.indexOf(a2, a1[i]) == -1)
+				rem.add(a1[i]);
+		T[] c = (T[]) Array.newInstance(type, rem.size());
+		rem.toArray(c);
+		return c;
 	}
 
 	public static void main(String args[])

@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 public class MouseOverList extends JList
 {
@@ -32,14 +34,37 @@ public class MouseOverList extends JList
 	}
 
 	boolean clearOnExit = true;
+	int lastSelectedIndex = -1;
 
 	public void setClearOnExit(boolean b)
 	{
 		clearOnExit = b;
 	}
 
+	/**
+	 * != -1
+	 * 
+	 * @return
+	 */
+	public int getLastSelectedIndex()
+	{
+		return lastSelectedIndex;
+	}
+
 	public void init()
 	{
+		addListSelectionListener(new ListSelectionListener()
+		{
+
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+			{
+				int index = MouseOverList.this.getSelectedIndex();
+				if (index >= 0)
+					lastSelectedIndex = index;
+			}
+		});
+
 		addMouseMotionListener(new MouseAdapter()
 		{
 			public void mouseMoved(MouseEvent me)

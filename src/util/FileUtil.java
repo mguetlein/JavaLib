@@ -163,6 +163,19 @@ public class FileUtil
 		}
 	}
 
+	/**
+	 * without .
+	 */
+	public static String getFilenamExtension(String file)
+	{
+		String n = new File(file).getName();
+		int index = n.lastIndexOf('.');
+		if (index == -1)
+			return "";
+		else
+			return n.substring(index + 1);
+	}
+
 	public static String getParent(String file)
 	{
 		return new File(file).getParent();

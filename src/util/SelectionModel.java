@@ -13,6 +13,7 @@ public class SelectionModel
 	List<PropertyChangeListener> listeners;
 	boolean multiSelectionAllowed = false;
 	boolean suppressEvents = false;
+	boolean exclusiveSelection = false;
 
 	public SelectionModel()
 	{
@@ -48,24 +49,6 @@ public class SelectionModel
 		return ArrayUtil.toPrimitiveIntArray(selected);
 	}
 
-	public void setSelectedInverted(int index)
-	{
-		int[] oldVal = getSelectedIndices();
-		if (isSelected(index))
-			selected.remove(index);
-		else
-		{
-			if (!multiSelectionAllowed)
-				selected.clear();
-			if (index < 0)
-				throw new IllegalStateException();
-			selected.add(index);
-		}
-		if (!suppressEvents)
-			for (PropertyChangeListener l : listeners)
-				l.propertyChange(new PropertyChangeEvent(this, "", oldVal, getSelectedIndices()));
-	}
-
 	public void clearSelection()
 	{
 		int[] oldVal = getSelectedIndices();
@@ -80,13 +63,48 @@ public class SelectionModel
 		setSelected(index, true);
 	}
 
-	public void setSelected(int index, boolean b)
+	public void setSelected(int index, boolean exclusiveSelection)
 	{
-		if (b && isSelected(index))
-			return;
-		if (!b && !isSelected(index))
-			return;
-		setSelectedInverted(index);
+		setSelected(index, true, true);
+	}
+
+	public void setSelected(int index, boolean exclusiveSelection, boolean selected)
+	{
+		if (exclusiveSelection)
+		{
+			if (isSelected(index) == selected && getNumSelected() == 1)
+				return;
+		}
+		else
+		{
+			if (isSelected(index) == selected)
+				return;
+		}
+		setSelectedInverted(index, exclusiveSelection);
+	}
+
+	public void setSelectedInverted(int index)
+	{
+		setSelectedInverted(index, false);
+	}
+
+	private void setSelectedInverted(int index, boolean exclusiveSelection)
+	{
+		int[] oldVal = getSelectedIndices();
+		if (isSelected(index))
+			selected.remove(index);
+		else
+		{
+			if (!multiSelectionAllowed || exclusiveSelection)
+				selected.clear();
+			if (index < 0)
+				throw new IllegalStateException();
+			selected.add(index);
+		}
+		this.exclusiveSelection = exclusiveSelection;
+		if (!suppressEvents)
+			for (PropertyChangeListener l : listeners)
+				l.propertyChange(new PropertyChangeEvent(this, "", oldVal, getSelectedIndices()));
 	}
 
 	public boolean isSelected(int index)
@@ -103,29 +121,35 @@ public class SelectionModel
 	{
 		boolean b[] = new boolean[indices.length];
 		Arrays.fill(b, true);
-		setSelectedIndices(indices, b, true);
+		setSelectedIndices(indices, b, false);
 	}
 
 	public void setSelectedIndices(int[] indices)
 	{
 		boolean b[] = new boolean[indices.length];
 		Arrays.fill(b, true);
-		setSelectedIndices(indices, b, false);
+		setSelectedIndices(indices, b, true);
 	}
 
-	private void setSelectedIndices(int[] indices, boolean selected[], boolean add)
+	private void setSelectedIndices(int[] indices, boolean selected[], boolean exclusiveSelection)
 	{
 		int[] oldSelection = getSelectedIndices();
 		suppressEvents = true;
-		if (!add)
+		if (exclusiveSelection)
 			clearSelection();
 		for (int j = 0; j < indices.length; j++)
-			setSelected(indices[j], selected[j]);
+			setSelected(indices[j], false, selected[j]);
 		suppressEvents = false;
 		int[] newSelection = getSelectedIndices();
+		this.exclusiveSelection = exclusiveSelection;
 		if (!suppressEvents && !Arrays.equals(oldSelection, newSelection))
 			for (PropertyChangeListener l : listeners)
 				l.propertyChange(new PropertyChangeEvent(this, "", oldSelection, newSelection));
+	}
+
+	public boolean isExclusiveSelection()
+	{
+		return exclusiveSelection;
 	}
 
 }

@@ -29,4 +29,9 @@ public class ColorUtil
 		else
 			throw new Error("unknown/not-supported color: " + s);
 	}
+
+	public static String toJMolString(Color c)
+	{
+		return "[" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + "]";
+	}
 }

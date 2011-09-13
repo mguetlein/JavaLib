@@ -242,6 +242,9 @@ public class MouseOverCheckBoxList extends JList
 				setForeground(forground);
 				setBackground(background);
 			}
+			//			System.out.println("render " + index + " "
+			//					+ ((MouseOverCheckBoxList) list).getCheckBoxSelection().isSelected(index) + " "
+			//					+ ArrayUtil.toString(((MouseOverCheckBoxList) list).getCheckBoxSelection().getSelectedIndices()));
 			setSelected(((MouseOverCheckBoxList) list).getCheckBoxSelection().isSelected(index));
 			return this;
 		}
