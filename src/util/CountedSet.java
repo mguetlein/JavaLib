@@ -67,7 +67,10 @@ public class CountedSet<T> implements ArraySummary
 
 	public int getCount(T elem)
 	{
-		return map.get(elem);
+		if (map.containsKey(elem))
+			return map.get(elem);
+		else
+			return 0;
 	}
 
 	public static <T> CountedSet<T> create(Iterable<T> objects)

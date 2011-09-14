@@ -2,6 +2,7 @@ package freechart;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,15 +20,26 @@ import util.SwingUtil;
 
 public class BarPlotPanel extends JPanel
 {
+	ChartPanel chartPanel;
 
 	Map<String, List<Double>> data = new HashMap<String, List<Double>>();
 
 	public BarPlotPanel(String title, String yAxisLabel, double values[], String names[])
 	{
-		this(title, yAxisLabel, ArrayUtil.toList(values), ArrayUtil.toList(names));
+		this(title, yAxisLabel, values, names, true);
+	}
+
+	public BarPlotPanel(String title, String yAxisLabel, double values[], String names[], boolean opaque)
+	{
+		this(title, yAxisLabel, ArrayUtil.toList(values), ArrayUtil.toList(names), opaque);
 	}
 
 	public BarPlotPanel(String title, String yAxisLabel, List<Double> values, List<String> names)
+	{
+		this(title, yAxisLabel, values, names, true);
+	}
+
+	public BarPlotPanel(String title, String yAxisLabel, List<Double> values, List<String> names, boolean opaque)
 	{
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (int i = 0; i < names.size(); i++)
@@ -47,12 +59,26 @@ public class BarPlotPanel extends JPanel
 		//		((NumberAxis) plot.getRangeAxis()).setTickUnit(new NumberTickUnit(1));
 
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
-		ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel = new ChartPanel(chart);
 		chartPanel.setOpaque(false);
 		chartPanel.setPreferredSize(null);
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
 		add(chartPanel);
+
+		if (!opaque)
+		{
+			setOpaque(false);
+			chartPanel.setOpaque(false);
+			chartPanel.setBackground(new Color(0, 0, 0, 0f));
+			chartPanel.getChart().getPlot().setBackgroundAlpha(0f);
+			chartPanel.getChart().setBackgroundPaint(new Color(0, 0, 0, 0f));
+		}
+	}
+
+	public ChartPanel getChartPanel()
+	{
+		return chartPanel;
 	}
 
 	// ((NumberAxis) plot.getDomainAxis()).setTickUnit(new NumberTickUnit(1));
@@ -74,13 +100,16 @@ public class BarPlotPanel extends JPanel
 		// demo.addData("test2", new double[] { 2, 1, 0.5, 9 });
 		// demo.plot();
 
-		Map<String, List<Double>> data = new HashMap<String, List<Double>>();
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBackground(Color.YELLOW);
+		p.add(new BarPlotPanel("Title", "Axis-Name", new double[] { 3, 5, 7, 2 }, new String[] { "asdf", "ene", "mene",
+				"miste" }, false));
 
-		SwingUtil.showInDialog(new BarPlotPanel("Title", "Axis-Name", new double[] { 3, 5, 7, 2 }, new String[] {
-				"asdf", "ene", "mene", "miste" }));
+		SwingUtil.showInDialog(p, new Dimension(400, 300));
 
 		System.out.println("done");
 		System.exit(0);
 
 	}
+
 }

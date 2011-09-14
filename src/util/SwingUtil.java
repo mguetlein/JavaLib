@@ -210,7 +210,7 @@ public class SwingUtil
 
 	public static void showInDialog(JComponent c, Dimension dim)
 	{
-		showInDialog(c, "test dialog", null);
+		showInDialog(c, "test dialog", dim);
 	}
 
 	public static void showInDialog(JComponent c, String title, Dimension dim)
@@ -265,7 +265,12 @@ public class SwingUtil
 
 	public static void setDebugBorder(JComponent comp)
 	{
-		comp.setBorder(new CompoundBorder(new LineBorder(Color.RED, 3), comp.getBorder()));
+		setDebugBorder(comp, Color.RED);
+	}
+
+	public static void setDebugBorder(JComponent comp, Color col)
+	{
+		comp.setBorder(new CompoundBorder(new LineBorder(col, 3), comp.getBorder()));
 
 	}
 

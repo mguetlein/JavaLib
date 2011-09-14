@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JPanel;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -18,7 +16,7 @@ import org.jfree.data.xy.IntervalXYDataset;
 
 import util.SwingUtil;
 
-public class HistogramPanel extends JPanel
+public class HistogramPanel extends AbstractFreeChartPanel
 {
 	JFreeChart chart;
 
@@ -53,19 +51,15 @@ public class HistogramPanel extends JPanel
 	{
 		chart = createChart(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset);
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
-		ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel = new ChartPanel(chart);
 		chartPanel.setOpaque(false);
+
 		setBackground(Color.WHITE);
 		setLayout(new BorderLayout());
 		if (hideLegend)
 			chart.removeLegend();
 		add(chartPanel);
 	}
-
-	// private IntervalXYDataset createDataset(String caption, double[] values, int bins)
-	// {
-	// return createDataset(caption, values, bins, null);
-	// }
 
 	private IntervalXYDataset createDataset(String caption, double[] values, int bins, double[] minMax)
 	{
@@ -161,8 +155,8 @@ public class HistogramPanel extends JPanel
 			if (subtitles.size() > 0)
 				chart.setSubtitles(subtitles);
 		}
-		if (dataset.getSeriesCount() > 1)
-			chart.getXYPlot().setForegroundAlpha(0.33f);
+		//		if (dataset.getSeriesCount() > 1)
+		//			chart.getXYPlot().setForegroundAlpha(0.33f);
 
 		// chart.getXYPlot().getRangeAxis().setRange(0, 10);
 
@@ -171,7 +165,12 @@ public class HistogramPanel extends JPanel
 
 	public static void main(String args[])
 	{
-		SwingUtil.showInDialog(new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4,
-				1, 2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 20, null, true));
+		HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4, 1,
+				2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 5, null, true);
+		p.setForegroundColor(Color.GREEN);
+		p.setShadowVisible(false);
+		SwingUtil.showInDialog(p);
+
 	}
+
 }
