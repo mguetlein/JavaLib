@@ -130,6 +130,17 @@ public class ArrayUtil
 		return a;
 	}
 
+	/**
+	 * no casting, +"" !
+	 */
+	public static String[] toStringArray(Object array[])
+	{
+		String[] a = new String[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = array + "";
+		return a;
+	}
+
 	public static Double[] toDoubleArray(Integer array[])
 	{
 		Double[] a = new Double[array.length];

@@ -15,8 +15,8 @@ public class IntegerPropertyCompound extends JSpinner implements PropertyCompoun
 
 	public IntegerPropertyCompound(IntegerProperty property)
 	{
-		super(new SpinnerNumberModel((int) property.getValue(), Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
-
+		super(new SpinnerNumberModel((int) property.getValue(), (int) property.getMinValue(),
+				(int) property.getMaxValue(), 1));
 		((JSpinner.DefaultEditor) getEditor()).getTextField().setColumns(10);
 
 		this.property = property;

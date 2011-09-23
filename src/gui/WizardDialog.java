@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
@@ -17,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
@@ -56,13 +60,11 @@ public class WizardDialog extends JFrame
 
 	public WizardDialog(JFrame owner, String title, Icon icon)
 	{
-		//		this(owner, title, icon, null);
+		this(owner, title, icon, null);
 	}
 
 	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon)
 	{
-		//		super(owner, true);
-
 		this.icon = icon;
 		this.title = title;
 		this.additionalIcon = additionalIcon;
@@ -93,9 +95,9 @@ public class WizardDialog extends JFrame
 
 		// center panel contains the wizard panel
 		centerPanel = new JPanel(new BorderLayout());
-		centerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		//		centerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		centerPanel.setBorder(new CompoundBorder(new MatteBorder(1, 1, 1, 0, centerPanel.getBackground().darker()
-				.darker()), new EmptyBorder(10, 10, 10, 10)));
+				.darker()), new EmptyBorder(10, 10, 10, 5)));
 
 		//		centerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		//		JScrollPane scroll = new JScrollPane(centerPanel);
@@ -180,6 +182,9 @@ public class WizardDialog extends JFrame
 		p.add(buttons, BorderLayout.SOUTH);
 		getContentPane().add(p);
 
+		//		SwingUtil.setDebugBorder(centerPanelContainer, Color.RED);
+		//		SwingUtil.setDebugBorder(centerPanel, Color.CYAN);
+
 		addListeners();
 	}
 
@@ -195,6 +200,16 @@ public class WizardDialog extends JFrame
 
 	private void addListeners()
 	{
+		titleList.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mouseClicked(MouseEvent e)
+			{
+				Point p = new Point(e.getX(), e.getY());
+				proceedTo(titleList.locationToIndex(p));
+			}
+		});
+
 		cancel.addActionListener(new ActionListener()
 		{
 			@Override
@@ -233,6 +248,31 @@ public class WizardDialog extends JFrame
 		});
 	}
 
+	public void proceedTo(int index)
+	{
+		if (index < status)
+		{
+			while (index < status)
+			{
+				update(status - 1);
+			}
+		}
+		else if (index > status)
+		{
+			while (index > status)
+			{
+				boolean canProceed = (status < panels.size() - 1 && panels.get(status).canProceed());
+				if (!canProceed)
+					break;
+				else
+				{
+					panels.get(status).proceed();
+					update(status + 1);
+				}
+			}
+		}
+	}
+
 	protected String getFinishText()
 	{
 		return "Finish";
@@ -256,7 +296,18 @@ public class WizardDialog extends JFrame
 		{
 			this.status = status;
 			centerPanel.removeAll();
-			centerPanel.add(panels.get(status));
+
+			JPanel p = new JPanel(new BorderLayout());
+			p.setBorder(new EmptyBorder(0, 0, 0, 20));
+			p.add(panels.get(status));
+			JScrollPane scroll = new JScrollPane(p);
+			scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			//			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			scroll.setBorder(null);
+			centerPanel.add(scroll);
+
+			//centerPanel.add(panels.get(status));
+
 			validate();
 		}
 

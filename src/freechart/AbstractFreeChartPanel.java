@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Plot;
@@ -83,7 +84,28 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 		a2.setLabelPaint(col);
 		a2.setTickLabelPaint(col);
 		a2.setTickMarkPaint(col);
+	}
 
+	@Override
+	public void setIntegerTickUnits()
+	{
+		Plot plot = chartPanel.getChart().getPlot();
+
+		Axis a2;
+		if (plot instanceof XYPlot)
+		{
+			XYPlot p = (XYPlot) plot;
+			a2 = p.getRangeAxis();
+		}
+		else if (plot instanceof CategoryPlot)
+		{
+			CategoryPlot p = (CategoryPlot) plot;
+			a2 = p.getRangeAxis();
+		}
+		else
+			throw new IllegalStateException("unknown plot " + plot.getClass());
+
+		((NumberAxis) a2).setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 	}
 
 	@Override

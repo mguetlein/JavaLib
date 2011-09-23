@@ -3,6 +3,7 @@ package gui.property;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 import java.util.Properties;
 
 import javax.swing.JButton;
@@ -50,6 +51,12 @@ public class PropertyPanel extends JPanel
 	public Property[] getProperties()
 	{
 		return properties;
+	}
+
+	public void addPropertyChangeListenerToProperties(PropertyChangeListener l)
+	{
+		for (Property p : properties)
+			p.addPropertyChangeListener(l);
 	}
 
 	public void store()

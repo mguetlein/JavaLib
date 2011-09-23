@@ -306,7 +306,6 @@ public abstract class Selector<T> extends JPanel
 			firePropertyChange(PROPERTY_HIGHLIGHTING_CHANGED, oldHighlight, highlightedElement);
 	}
 
-	@SuppressWarnings("unchecked")
 	public T getHighlightedElement()
 	{
 		return highlightedElement;
@@ -481,6 +480,13 @@ public abstract class Selector<T> extends JPanel
 		sel.addElements("Insekten", "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5", "Ameise6", "Ameise7");
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
+	}
+
+	public void repaintSelector()
+	{
+		for (DefaultMutableTreeNode node : TreeUtil.getLeafs(root))
+			searchTreeModel.nodeChanged(node);
+		repaint();
 	}
 
 }

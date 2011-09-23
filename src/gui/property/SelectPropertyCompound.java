@@ -6,13 +6,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JComboBox;
+import javax.swing.SwingUtilities;
 
-public class StringSelectPropertyCompound extends JComboBox implements PropertyCompound
+public class SelectPropertyCompound extends JComboBox implements PropertyCompound
 {
-	StringSelectProperty property;
+	SelectProperty property;
 	boolean update;
 
-	public StringSelectPropertyCompound(StringSelectProperty property)
+	public SelectPropertyCompound(SelectProperty property)
 	{
 		super(property.getValues());
 		this.property = property;
@@ -22,11 +23,17 @@ public class StringSelectPropertyCompound extends JComboBox implements PropertyC
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (update)
-					return;
-				update = true;
-				StringSelectPropertyCompound.this.property.setValue((String) getSelectedItem());
-				update = false;
+				SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+					{
+						if (update)
+							return;
+						update = true;
+						SelectPropertyCompound.this.property.setValue(getSelectedItem());
+						update = false;
+					}
+				});
 			}
 		});
 
@@ -38,7 +45,7 @@ public class StringSelectPropertyCompound extends JComboBox implements PropertyC
 				if (update)
 					return;
 				update = true;
-				setSelectedItem(StringSelectPropertyCompound.this.property.getValue());
+				setSelectedItem(SelectPropertyCompound.this.property.getValue());
 				update = false;
 			}
 		});

@@ -80,7 +80,5 @@ public class DescriptionPanel extends JPanel
 			propertyDescriptionTextArea.setText(text);
 			moreDescriptionButton.setVisible(false);
 		}
-
 	}
-
 }

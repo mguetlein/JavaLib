@@ -11,4 +11,6 @@ public interface FreeChartPanel
 	public void setForegroundColor(Color c);
 
 	public void setSeriesColor(int index, Color c);
+
+	public void setIntegerTickUnits();
 }

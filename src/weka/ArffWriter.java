@@ -72,14 +72,17 @@ public class ArffWriter
 				for (int j = 0; j < data.getNumAttributes(); j++)
 				{
 					String value = data.getAttributeValue(i, j);
-					if (value != null)
+					if (value == null || !value.equals("0"))
 					{
 						if (!first)
 							s.append(", ");
 						else
 							first = false;
 
-						s.append(j + " " + value);
+						if (value == null)
+							s.append(j + " " + data.getMissingValue(j));
+						else
+							s.append(j + " " + value);
 					}
 				}
 				s.append("}");

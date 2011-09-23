@@ -44,15 +44,19 @@ public class LinkButton extends JLabel
 			@Override
 			public void mousePressed(MouseEvent e)
 			{
-				for (ActionListener l : actionListeners)
-					l.actionPerformed(new ActionEvent(LinkButton.this, -1, ""));
+				if (isEnabled())
+					for (ActionListener l : actionListeners)
+						l.actionPerformed(new ActionEvent(LinkButton.this, -1, ""));
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e)
 			{
-				setForeground(selectedForegroundColor);
-				setFont(selectedForegroundFont);
+				if (isEnabled())
+				{
+					setForeground(selectedForegroundColor);
+					setFont(selectedForegroundFont);
+				}
 			}
 
 			@Override

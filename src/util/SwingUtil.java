@@ -222,11 +222,6 @@ public class SwingUtil
 		p.add(c);
 		p.setBorder(new EmptyBorder(10, 10, 10, 10));
 		f.getContentPane().add(p);
-		if (dim == null)
-			f.pack();
-		else
-			f.setSize(dim);
-		f.setLocationRelativeTo(null);
 		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		JButton close = new JButton("Close");
 		close.addActionListener(new ActionListener()
@@ -238,6 +233,11 @@ public class SwingUtil
 			}
 		});
 		p.add(ButtonBarFactory.buildCloseBar(close), BorderLayout.SOUTH);
+		if (dim == null)
+			f.pack();
+		else
+			f.setSize(dim);
+		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
 

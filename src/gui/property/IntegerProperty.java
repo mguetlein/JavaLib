@@ -9,11 +9,29 @@ public class IntegerProperty extends AbstractProperty
 	private Integer value;
 	private Integer defaultValue;
 
+	private Integer minValue = Integer.MIN_VALUE;
+	private Integer maxValue = Integer.MAX_VALUE;
+
 	public IntegerProperty(String name, Integer value, Integer defaultValue)
 	{
-		super(name);
+		this(name, name, value, defaultValue);
+	}
+
+	public IntegerProperty(String name, String uniqueName, Integer value, Integer defaultValue)
+	{
+		super(name, uniqueName);
 		this.defaultValue = defaultValue;
 		this.value = value;
+	}
+
+	public IntegerProperty(String name, String uniqueName, Integer value, Integer defaultValue, Integer minValue,
+			Integer maxValue)
+	{
+		super(name, uniqueName);
+		this.defaultValue = defaultValue;
+		this.value = value;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
 	}
 
 	@Override
@@ -47,9 +65,21 @@ public class IntegerProperty extends AbstractProperty
 	{
 		if (!this.value.equals(value))
 		{
+			if ((Integer) value < minValue || (Integer) value > maxValue)
+				throw new IllegalArgumentException();
 			this.value = (Integer) value;
 			valueChanged(this.value);
 		}
+	}
+
+	public Integer getMinValue()
+	{
+		return minValue;
+	}
+
+	public Integer getMaxValue()
+	{
+		return maxValue;
 	}
 
 }
