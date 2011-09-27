@@ -242,26 +242,21 @@ public class ArrayUtil
 		return new HashSet<Object>(ArrayUtil.toList(array));
 	}
 
-	public static Double[] normalize(Object array[])
+	public static Double[] normalizeObjectArray(Object array[])
 	{
 		if (array.length == 0)
 			return new Double[0];
-		if (array[0] instanceof Number)
-			return normalize(ArrayUtil.cast(Double.class, array));
-		else
-		{
-			// the old way sorted in order of number of occurences
-			//List<Object> valuesInOrderOfCounts = CountedSet.fromArray(array).values();
+		// the old way sorted in order of number of occurences
+		//List<Object> valuesInOrderOfCounts = CountedSet.fromArray(array).values();
 
-			//remove duplicates and convert to list, sort list
-			List<Object> s = new ArrayList<Object>(new HashSet<Object>(ArrayUtil.toList(array)));
-			Collections.sort(s, new DefaultComparator<Object>());
+		//remove duplicates and convert to list, sort list
+		List<Object> s = new ArrayList<Object>(new HashSet<Object>(ArrayUtil.toList(array)));
+		Collections.sort(s, new DefaultComparator<Object>());
 
-			Double[] indices = new Double[array.length];
-			for (int i = 0; i < indices.length; i++)
-				indices[i] = (double) s.indexOf(array[i]);
-			return normalize(indices);
-		}
+		Double[] indices = new Double[array.length];
+		for (int i = 0; i < indices.length; i++)
+			indices[i] = (double) s.indexOf(array[i]);
+		return normalize(indices);
 	}
 
 	/**
@@ -805,8 +800,11 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		Object o[] = { "a", "b", "a", "c", "b", "b" };
-		System.out.println(toString(normalize(o)));
+		//		Object o[] = { "a", "b", "a", "c", "b", "b" };
+		//		System.out.println(toString(normalize(o)));
+
+		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
+		System.out.println(toString(normalize(d)));
 
 		//		Object s[] = { new Double(5), new Double(3) };
 		//		Double o[] = ArrayUtil.cast(Double.class, s);

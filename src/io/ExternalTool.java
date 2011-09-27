@@ -21,6 +21,11 @@ public class ExternalTool
 		return runWithArrayOrString(processName, command, stdOutfile, null, null, wait);
 	}
 
+	public Process run(final String processName, String command, File stdOutfile, boolean wait, String env[])
+	{
+		return runWithArrayOrString(processName, command, stdOutfile, env, null, wait);
+	}
+
 	protected void stdout(String s)
 	{
 		System.out.println(s);

@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.CategoryPlot;
@@ -18,6 +19,7 @@ import org.jfree.chart.renderer.xy.XYBarRenderer;
 public abstract class AbstractFreeChartPanel extends JPanel implements FreeChartPanel
 {
 	protected ChartPanel chartPanel;
+	protected boolean integerTick = false;
 
 	@Override
 	public void setShadowVisible(boolean b)
@@ -89,6 +91,7 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 	@Override
 	public void setIntegerTickUnits()
 	{
+		integerTick = true;
 		Plot plot = chartPanel.getChart().getPlot();
 
 		Axis a2;
@@ -122,6 +125,27 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 			throw new IllegalStateException("unknown plot" + plot.getClass());
 
 		renderer.setSeriesPaint(index, c);
+	}
+
+	public void setYAxisLogscale(boolean b)
+	{
+		Plot plot = chartPanel.getChart().getPlot();
+
+		if (plot instanceof XYPlot)
+		{
+			XYPlot p = (XYPlot) plot;
+			p.setRangeAxis(new LogarithmicAxis(p.getRangeAxis().getLabel()));
+		}
+		else if (plot instanceof CategoryPlot)
+		{
+			CategoryPlot p = (CategoryPlot) plot;
+			p.setRangeAxis(new LogarithmicAxis(p.getRangeAxis().getLabel()));
+		}
+		else
+			throw new IllegalStateException("unknown plot " + plot.getClass());
+
+		if (integerTick)
+			setIntegerTickUnits();
 	}
 
 }
