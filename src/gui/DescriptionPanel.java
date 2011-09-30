@@ -6,9 +6,13 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import util.StringUtil;
 
@@ -47,8 +51,17 @@ public class DescriptionPanel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				JOptionPane.showMessageDialog(DescriptionPanel.this.getTopLevelAncestor(),
-						StringUtil.wordWrap(text, 80), title, JOptionPane.INFORMATION_MESSAGE);
+				JTextPane t = new JTextPane();
+				t.setContentType("text/html");
+				t.setText("<html>" + StringUtil.wordWrap(text, 80).replaceAll("\n", "<br>") + "</html>");
+				MutableAttributeSet attrs = t.getInputAttributes();
+				Font font = new JLabel().getFont();
+				StyleConstants.setFontFamily(attrs, font.getFamily());
+				StyleConstants.setFontSize(attrs, font.getSize());
+				t.getStyledDocument().setCharacterAttributes(0, t.getText().length() + 1, attrs, true);
+				t.setOpaque(false);
+				JOptionPane.showMessageDialog(DescriptionPanel.this.getTopLevelAncestor(), t, title,
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 
