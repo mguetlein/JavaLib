@@ -3,6 +3,7 @@ package freechart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Paint;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,9 @@ import java.util.Map;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.StackedBarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -51,6 +54,17 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 
 		chartPanel = new ChartPanel(chart);
 
+		((CategoryPlot) chart.getPlot()).setRenderer(new StackedBarRenderer()
+		{
+			public Paint getItemPaint(final int row, final int column)
+			{
+				if (seriesColors.get(row) != null)
+					return seriesColors.get(row)[column];
+				else
+					return super.getItemPaint(row, column);
+			}
+		});
+
 		setLayout(new BorderLayout());
 		add(chartPanel);
 	}
@@ -71,6 +85,13 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 		return d;
 	}
 
+	HashMap<Integer, Color[]> seriesColors = new HashMap<Integer, Color[]>();
+
+	public void setSeriesCategoryColors(int series, Color c[])
+	{
+		seriesColors.put(series, c);
+	}
+
 	public static void main(final String[] args)
 	{
 		Map<String, List<Double>> data = new HashMap<String, List<Double>>();
@@ -84,6 +105,8 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 		demo.setForegroundColor(Color.GREEN.darker());
 		demo.setShadowVisible(false);
 		demo.setSeriesColor(0, Color.CYAN);
+
+		demo.setSeriesCategoryColors(1, new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA });
 
 		SwingUtil.showInDialog(demo, new Dimension(400, 300));
 

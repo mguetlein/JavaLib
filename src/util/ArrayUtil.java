@@ -137,7 +137,7 @@ public class ArrayUtil
 	{
 		String[] a = new String[array.length];
 		for (int i = 0; i < a.length; i++)
-			a[i] = array + "";
+			a[i] = array[i] + "";
 		return a;
 	}
 

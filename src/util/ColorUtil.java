@@ -34,4 +34,28 @@ public class ColorUtil
 	{
 		return "[" + c.getRed() + "," + c.getGreen() + "," + c.getBlue() + "]";
 	}
+
+	public static Color[] darker(Color c[])
+	{
+		Color col[] = new Color[c.length];
+		for (int i = 0; i < col.length; i++)
+			col[i] = new Color(c[i].getRGB()).darker();
+		return col;
+	}
+
+	public static Color[] brighter(Color c[])
+	{
+		Color col[] = new Color[c.length];
+		for (int i = 0; i < col.length; i++)
+			col[i] = new Color(c[i].getRGB()).brighter();
+		return col;
+	}
+
+	public static Color grayscale(Color c)
+	{
+		int rgbNum = (int) ((c.getRed() + c.getGreen() + c.getBlue()) / 3.0);
+		return new Color(rgbNum, rgbNum, rgbNum);
+
+	}
+
 }
