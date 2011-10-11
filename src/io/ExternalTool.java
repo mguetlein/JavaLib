@@ -36,6 +36,13 @@ public class ExternalTool
 		System.err.println(s);
 	}
 
+	StringBuffer errorOut = new StringBuffer();
+
+	public String getErrorOut()
+	{
+		return errorOut.toString();
+	}
+
 	protected Process runWithArrayOrString(final String processName, Object arrayOrString, File stdOutfile,
 			String env[], File workingDirectory, boolean wait)
 	{
@@ -119,6 +126,8 @@ public class ExternalTool
 							String s = buffy.readLine();
 							if (s != null)
 							{
+								errorOut.append(s);
+								errorOut.append("\n");
 								stderr(s);
 							}
 							else
@@ -152,7 +161,7 @@ public class ExternalTool
 					}
 				}
 				if (child.exitValue() != 0)
-					throw new Error(processName + " exited with error: " + child.exitValue());
+					throw new ExternalToolError(processName + " exited with error: " + child.exitValue(), getErrorOut());
 				if (tmpStdOutfile != null && !FileUtil.robustRenameTo(tmpStdOutfile, stdOutfile))
 					throw new Error("cannot rename tmp file");
 			}
@@ -162,6 +171,22 @@ public class ExternalTool
 		{
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public static class ExternalToolError extends Error
+	{
+		private String errorOut;
+
+		public ExternalToolError(String msg, String errorOut)
+		{
+			super(msg);
+			this.errorOut = errorOut;
+		}
+
+		public String getErrorOut()
+		{
+			return errorOut;
 		}
 	}
 }

@@ -80,6 +80,48 @@ public class RUtil
 		}
 	}
 
+	public static List<Integer> readCluster(String matrixFile)
+	{
+		File f = new File(matrixFile);
+		if (!f.exists())
+			throw new IllegalStateException("matrix file not found: " + f.getAbsolutePath());
+		List<Integer> l = new ArrayList<Integer>();
+		try
+		{
+			BufferedReader bf = new BufferedReader(new FileReader(f));
+			String line;
+			boolean firstline = true;
+			while ((line = bf.readLine()) != null)
+			{
+				// System.out.println(line);
+				String s[] = line.split(" ");
+				// System.out.println(ArrayUtil.toString(s));
+
+				if (firstline)
+					firstline = false;
+				else
+				{
+					Integer c = null;
+					for (int i = 0; i < s.length; i++)
+						if (i == 1)
+							c = new Integer(s[i]);
+					l.add(c);
+				}
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return l;
+
+	}
+
 	public static List<Vector3D> readRVectorMatrix(String matrixFile)
 	{
 		File f = new File(matrixFile);

@@ -15,7 +15,7 @@ public class DoublePropertyCompound extends JSpinner implements PropertyCompound
 
 	public DoublePropertyCompound(DoubleProperty property)
 	{
-		super(new SpinnerNumberModel((double) property.getValue(), 0, 1, 0.01));
+		super(new SpinnerNumberModel((double) property.getValue(), 0, Double.MAX_VALUE, 0.01));
 
 		((JSpinner.DefaultEditor) getEditor()).getTextField().setColumns(10);
 
