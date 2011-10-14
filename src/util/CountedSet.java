@@ -61,7 +61,7 @@ public class CountedSet<T> implements ArraySummary
 	{
 		String s = "[ ";
 		for (T elem : values())
-			s += elem + "(" + getCount(elem) + "), ";
+			s += elem + "(#" + getCount(elem) + "), ";
 		return s.substring(0, s.length() - 2) + " ]";
 	}
 
