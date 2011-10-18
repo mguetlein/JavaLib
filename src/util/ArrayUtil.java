@@ -76,7 +76,7 @@ public class ArrayUtil
 	public static <T> int indexOf(T[] array, T elem)
 	{
 		for (int i = 0; i < array.length; i++)
-			if (array[i].equals(elem))
+			if (ObjectUtil.equals(array[i], elem))
 				return i;
 		return -1;
 	}
@@ -237,9 +237,9 @@ public class ArrayUtil
 		return d;
 	}
 
-	public static HashSet<Object> getDistinctValues(Object array[])
+	public static <T> HashSet<T> getDistinctValues(T array[])
 	{
-		return new HashSet<Object>(ArrayUtil.toList(array));
+		return new HashSet<T>(ArrayUtil.toList(array));
 	}
 
 	public static Double[] normalizeObjectArray(Object array[])
