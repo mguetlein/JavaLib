@@ -9,15 +9,15 @@ public class DoubleProperty extends AbstractProperty
 	private Double value;
 	private Double defaultValue;
 
-	public DoubleProperty(String name, Double value, Double defaultValue)
+	public DoubleProperty(String name, Double value)
 	{
-		this(name, name, value, defaultValue);
+		this(name, name, value);
 	}
 
-	public DoubleProperty(String name, String uniqueName, Double value, Double defaultValue)
+	public DoubleProperty(String name, String uniqueName, Double value)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 

@@ -9,10 +9,10 @@ public class StringProperty extends AbstractProperty
 	private String defaultValue;
 	private String value;
 
-	public StringProperty(String name, String value, String defaultValue)
+	public StringProperty(String name, String value)
 	{
 		super(name);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 

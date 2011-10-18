@@ -77,7 +77,7 @@ public class PropertyPanel extends JPanel
 			{
 				if (javaProperties != null)
 					p.load(javaProperties);
-				builder.append(p.getName() + ":");
+				builder.append(p.getDisplayName() + ":");
 				builder.append(p.getPropertyCompound());
 			}
 			if (properties.length > 0)
@@ -93,8 +93,10 @@ public class PropertyPanel extends JPanel
 	{
 		Property[] props = new Property[2];
 
-		props[0] = new StringProperty("Test-Property", "value", "default");
-		props[1] = new IntegerProperty("Test-Int-Property", 10, 15);
+		props[0] = new StringProperty("Test-Property", "default");
+		props[0].setValue("value");
+		props[1] = new IntegerProperty("Test-Int-Property", 15);
+		props[1].setValue(10);
 
 		SwingUtil.showInDialog(new PropertyPanel(props));
 	}

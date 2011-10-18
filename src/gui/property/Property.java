@@ -23,4 +23,8 @@ public interface Property
 
 	public void addPropertyChangeListener(PropertyChangeListener l);
 
+	public void setDisplayName(String string);
+
+	public String getDisplayName();
+
 }

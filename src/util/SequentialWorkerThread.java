@@ -10,9 +10,11 @@ public class SequentialWorkerThread
 
 	static boolean DEBUG = false;
 
+	private Thread th;
+
 	public SequentialWorkerThread()
 	{
-		Thread th = new Thread(new Runnable()
+		th = new Thread(new Runnable()
 		{
 			public void run()
 			{
@@ -49,6 +51,11 @@ public class SequentialWorkerThread
 			}
 		}, "Sequential Worker Thread");
 		th.start();
+	}
+
+	public boolean runningInThread()
+	{
+		return th == Thread.currentThread();
 	}
 
 	public void addJob(Runnable r, String name)

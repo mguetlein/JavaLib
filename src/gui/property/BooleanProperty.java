@@ -9,15 +9,15 @@ public class BooleanProperty extends AbstractProperty
 	private Boolean value;
 	private Boolean defaultValue;
 
-	public BooleanProperty(String name, Boolean value, Boolean defaultValue)
+	public BooleanProperty(String name, Boolean value)
 	{
-		this(name, name, value, defaultValue);
+		this(name, name, value);
 	}
 
-	public BooleanProperty(String name, String uniqueName, Boolean value, Boolean defaultValue)
+	public BooleanProperty(String name, String uniqueName, Boolean value)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 

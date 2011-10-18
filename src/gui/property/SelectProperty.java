@@ -10,10 +10,15 @@ public class SelectProperty extends AbstractProperty
 	private Object defaultValue;
 	private Object values[];
 
-	public SelectProperty(String name, Object[] values, Object value, Object defaultValue)
+	public SelectProperty(String name, Object[] values, Object value)
 	{
-		super(name);
-		this.defaultValue = defaultValue;
+		this(name, name, values, value);
+	}
+
+	public SelectProperty(String name, String uniqueName, Object[] values, Object value)
+	{
+		super(name, uniqueName);
+		this.defaultValue = value;
 		this.value = value;
 		this.values = values;
 	}

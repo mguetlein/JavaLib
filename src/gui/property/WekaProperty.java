@@ -12,10 +12,10 @@ public class WekaProperty extends AbstractProperty
 	private OptionHandler value;
 	private OptionHandler defaultValue;
 
-	public WekaProperty(String name, String uniqueName, OptionHandler value, OptionHandler defaultValue)
+	public WekaProperty(String name, String uniqueName, OptionHandler value)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 

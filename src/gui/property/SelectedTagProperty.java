@@ -11,10 +11,10 @@ public class SelectedTagProperty extends AbstractProperty
 	private SelectedTag value;
 	private SelectedTag defaultValue;
 
-	public SelectedTagProperty(String name, String uniqueName, SelectedTag value, SelectedTag defaultValue)
+	public SelectedTagProperty(String name, String uniqueName, SelectedTag value)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 

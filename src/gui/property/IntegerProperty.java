@@ -12,23 +12,22 @@ public class IntegerProperty extends AbstractProperty
 	private Integer minValue = Integer.MIN_VALUE;
 	private Integer maxValue = Integer.MAX_VALUE;
 
-	public IntegerProperty(String name, Integer value, Integer defaultValue)
+	public IntegerProperty(String name, Integer value)
 	{
-		this(name, name, value, defaultValue);
+		this(name, name, value);
 	}
 
-	public IntegerProperty(String name, String uniqueName, Integer value, Integer defaultValue)
+	public IntegerProperty(String name, String uniqueName, Integer value)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 	}
 
-	public IntegerProperty(String name, String uniqueName, Integer value, Integer defaultValue, Integer minValue,
-			Integer maxValue)
+	public IntegerProperty(String name, String uniqueName, Integer value, Integer minValue, Integer maxValue)
 	{
 		super(name, uniqueName);
-		this.defaultValue = defaultValue;
+		this.defaultValue = value;
 		this.value = value;
 		this.minValue = minValue;
 		this.maxValue = maxValue;

@@ -12,6 +12,7 @@ public abstract class AbstractProperty implements Property
 {
 	String name;
 	private String uniqueName;
+	protected String displayName;
 
 	List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
@@ -25,6 +26,7 @@ public abstract class AbstractProperty implements Property
 	public AbstractProperty(String name, String uniqueName)
 	{
 		this.name = name;
+		this.displayName = name;
 		this.uniqueName = uniqueName;
 
 		if (uniqueSaveNames.contains(uniqueName))
@@ -36,6 +38,18 @@ public abstract class AbstractProperty implements Property
 	public String getName()
 	{
 		return name;
+	}
+
+	@Override
+	public String getDisplayName()
+	{
+		return displayName;
+	}
+
+	@Override
+	public void setDisplayName(String displayName)
+	{
+		this.displayName = displayName;
 	}
 
 	protected String loadVal(Properties javaProperties)
