@@ -65,11 +65,11 @@ public class RUtil
 			for (Object o : features)
 				bf.write("\"" + o + "\" ");
 			bf.write("\n");
-			for (int i = 0; i < featureValues.size(); i++)
+			for (int i = 0; i < featureValues.get(0).length; i++)
 			{
 				bf.write("\"" + (i + 1) + "\" ");
-				for (String v : featureValues.get(i))
-					bf.write(v + " ");
+				for (String v[] : featureValues)
+					bf.write(v[i] + " ");
 				bf.write("\n");
 			}
 			bf.close();
