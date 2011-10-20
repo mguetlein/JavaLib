@@ -69,6 +69,7 @@ public class TextPanel extends JPanel
 
 		editorPane.setOpaque(false);
 		editorPane.setEditable(false);
+
 		if (paragraph != null)
 			addParagraph(paragraph);
 		buildLayout();
@@ -115,7 +116,8 @@ public class TextPanel extends JPanel
 	{
 		if (parseForLinks)
 			text = parseForLinks(text);
-		body += "<p>" + text.trim().replaceAll("\n", "<br>") + "</p>";
+		//body += "<p>" + text.trim().replaceAll("\n", "<br>") + "</p>";
+		body += text.trim().replaceAll("\n", "<br>") + "<br>";
 		update();
 	}
 

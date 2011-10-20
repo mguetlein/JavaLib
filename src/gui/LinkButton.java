@@ -52,21 +52,32 @@ public class LinkButton extends JLabel
 			@Override
 			public void mouseEntered(MouseEvent e)
 			{
-				if (isEnabled())
-				{
-					setForeground(selectedForegroundColor);
-					setFont(selectedForegroundFont);
-				}
+				enabledHovering(true);
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e)
 			{
-				setForeground(foregroundColor);
-				setFont(foregroundFont);
+				enabledHovering(false);
 			}
 		});
+	}
 
+	protected void enabledHovering(boolean hoverTrue)
+	{
+		if (hoverTrue)
+		{
+			if (isEnabled())
+			{
+				setForeground(selectedForegroundColor);
+				setFont(selectedForegroundFont);
+			}
+		}
+		else
+		{
+			setForeground(foregroundColor);
+			setFont(foregroundFont);
+		}
 	}
 
 	public void setText(String text)

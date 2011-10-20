@@ -9,14 +9,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 
 import util.SwingUtil;
-
-import com.jgoodies.forms.layout.CellConstraints;
-import com.jgoodies.forms.layout.FormLayout;
 
 public class MoreTextPanel extends TextPanel
 {
@@ -41,9 +39,13 @@ public class MoreTextPanel extends TextPanel
 						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
+		moreDescriptionButton.setBorder(new CompoundBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, editorPane
+				.getBackground().darker()), new MatteBorder(1, 0, 0, 0, editorPane.getBackground().brighter())),
+				new EmptyBorder(2, 0, 0, 0)));
 
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(0, 0));
 		add(editorPane, BorderLayout.CENTER);
+		editorPane.setBorder(null);
 		add(moreDescriptionButton, BorderLayout.SOUTH);
 
 		addComponentListener(new ComponentAdapter()
@@ -76,24 +78,8 @@ public class MoreTextPanel extends TextPanel
 		d.addParagraph("which is extremely helpful. http://www.google.de/  Turns out that the second argument to the String replaceAll method “may” have some issues extremely helpful. http://www.google.de/  Turns out that the second argument to the String extremely helpful. http://www.google.de/  Turns out that the second argument to the String extremely helpful. http://www.google.de/  Turns out that the second argument to the String with dollar signs and backslashes which you only find out about if you dig into the Matcher class that backs the replaceAll method or if you’re lucky and you read about the whole thing on a site devoted to regular expressions. In short:\n"
 				+ "    In the replacement text, a dollar sign not follo http://www.asdf.com/ wed by a digit caus extremely helpful. http://www.google.de/  Turns out that the second argument to the Stringes an IllegalArgumentException to be thrown. If there are less than 9 backreferences, a dollar sign followed by a digit greater than the number of backreferences throws an IndexOutOfBoundsException. So be careful if the replacement string is a user-specified string. To insert a dollar sign as literal text, use \\$ in the replacement text. When coding the replacement text as a literal string in your source code, remember that the backslash itself must be escaped too: “\\\\$”. ");
 		d.setDialogTitle("Dialog Title");
-		SwingUtil.setDebugBorder(d);
-
 		d.setPreferredWith(300);
-
-		JPanel pp = new JPanel(new FormLayout("fill:p:grow", "p,fill:100:grow"));
-		CellConstraints cc = new CellConstraints();
-		pp.add(d, cc.xy(1, 2));
-		JLabel lab = new JLabel("more stuff");
-		SwingUtil.setDebugBorder(lab, Color.GREEN);
-		lab.setPreferredSize(new Dimension(100, 300));
-		pp.add(lab, cc.xy(1, 1));
-
-		//		JPanel pp = new JPanel(new BorderLayout());
-		//		pp.add(d, BorderLayout.NORTH);
-
-		SwingUtil.showInDialog(pp, new Dimension(400, 800));
-
-		//		SwingUtil.showInDialog(d, new Dimension(400, 300));
+		SwingUtil.showInDialog(d, new Dimension(400, 300));
 		System.exit(0);
 	}
 }
