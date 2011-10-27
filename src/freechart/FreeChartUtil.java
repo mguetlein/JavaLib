@@ -18,9 +18,9 @@ public class FreeChartUtil
 	public static Color[] COLORS = ArrayUtil.cast(Color.class, ChartColor.createDefaultPaintArray());
 
 	public static Color[] BRIGHT_COLORS = new Color[] {
-			new Color(255, 20, 20),
+			new Color(255, 40, 40),
 			new Color(40, 40, 255),
-			new Color(20, 255, 20),
+			new Color(40, 255, 40),
 			//new Color(0xFF, 0x55, 0x55), new Color(0x55, 0x55, 0xFF), new Color(0x55, 0xFF, 0x55), 
 			new Color(0xFF, 0xFF, 0x55), new Color(0xFF, 0x55, 0xFF), new Color(0x55, 0xFF, 0xFF), Color.pink,
 			Color.gray, ChartColor.DARK_RED, ChartColor.DARK_BLUE, ChartColor.DARK_GREEN, ChartColor.DARK_YELLOW,
@@ -35,6 +35,7 @@ public class FreeChartUtil
 	{
 		DefaultFormBuilder b = new DefaultFormBuilder(new FormLayout("p"));
 		for (Color c : BRIGHT_COLORS)
+		//for (Color c : COLORS)
 		{
 			JLabel l = new JLabel(c.toString());
 			l.setBorder(new EmptyBorder(2, 2, 2, 2));
