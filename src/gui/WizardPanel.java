@@ -11,4 +11,6 @@ public abstract class WizardPanel extends JPanel
 	public abstract String getTitle();
 
 	public abstract String getDescription();
+
+	public abstract boolean hasWarning();
 }

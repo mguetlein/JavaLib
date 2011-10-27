@@ -144,6 +144,8 @@ public class WizardDialog extends JFrame
 					setFont(getFont().deriveFont(Font.PLAIN));
 				if (index == errorPanel())
 					setIcon(ImageLoader.ERROR);
+				else if (panels.get(index).hasWarning())
+					setIcon(ImageLoader.WARNING);
 				else
 					setIcon(null);
 				return this;
@@ -373,6 +375,12 @@ public class WizardDialog extends JFrame
 			{
 				return "this is some info text on the first panel";
 			}
+
+			@Override
+			public boolean hasWarning()
+			{
+				return true;
+			}
 		};
 		p1.add(new JLabel("test"));
 		WizardPanel p2 = new WizardPanel()
@@ -399,6 +407,12 @@ public class WizardDialog extends JFrame
 			{
 				return "information on the second panel";
 			}
+
+			@Override
+			public boolean hasWarning()
+			{
+				return false;
+			}
 		};
 		p2.add(new JLabel("panel2"));
 
@@ -408,6 +422,7 @@ public class WizardDialog extends JFrame
 		w.setSize(600, 400);
 		w.setLocationRelativeTo(null);
 		w.setVisible(true);
+		SwingUtil.waitWhileVisible(w);
 		System.exit(0);
 	}
 
