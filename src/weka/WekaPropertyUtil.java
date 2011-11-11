@@ -2,6 +2,7 @@ package weka;
 
 import gui.property.BooleanProperty;
 import gui.property.DoubleProperty;
+import gui.property.FileProperty;
 import gui.property.IntegerProperty;
 import gui.property.Property;
 import gui.property.SelectedTagProperty;
@@ -11,6 +12,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -122,8 +124,12 @@ public class WekaPropertyUtil
 				else if (type == SelectedTag.class)
 					props.add(new SelectedTagProperty(name, uniqueName, (SelectedTag) getter.invoke(wekaAlgorithm,
 							(Object[]) null)));
+				else if (type == File.class)
+					props.add(new FileProperty(name, uniqueName, (File) getter.invoke(wekaAlgorithm, (Object[]) null)));
 				else
-					throw new Error("unknown type: " + type);
+				{
+					throw new Error("unknown type in algorithm '" + wekaAlgorithm.getClass().getName() + "' : " + type);
+				}
 			}
 		}
 		catch (IllegalArgumentException e)
@@ -144,6 +150,11 @@ public class WekaPropertyUtil
 
 	public static void setProperties(Object wekaAlgorithm, Property[] properties)
 	{
+		setProperties(wekaAlgorithm, properties, false);
+	}
+
+	public static void setProperties(Object wekaAlgorithm, Property[] properties, boolean setDefaultProps)
+	{
 		try
 		{
 			for (Property p : properties)
@@ -159,7 +170,7 @@ public class WekaPropertyUtil
 					throw new Error("no write method for property: " + p.getName() + " (alg: "
 							+ wekaAlgorithm.getClass().getName() + ")");
 				Method setter = desc.getWriteMethod();
-				setter.invoke(wekaAlgorithm, p.getValue());
+				setter.invoke(wekaAlgorithm, setDefaultProps ? p.getDefaultValue() : p.getValue());
 			}
 		}
 		catch (IllegalArgumentException e)

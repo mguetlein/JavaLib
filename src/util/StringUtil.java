@@ -1,12 +1,17 @@
 package util;
 
 import java.awt.FontMetrics;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -335,8 +340,21 @@ public class StringUtil
 
 	public static void main(String[] args)
 	{
-		System.out.println(toCamelCase("ene_mene_miste"));
-		System.out.println(toProperCase("EneMeneMiste"));
+		//		System.out.println(toCamelCase("ene_mene_miste"));
+		//		System.out.println(toProperCase("EneMeneMiste"));
+		Random r = new Random();
+		HashMap<String, String> md5keys = new HashMap<String, String>();
+		while (true)
+		{
+			if (md5keys.size() % 1000 == 0)
+				System.out.println(md5keys.size());
+			String s = StringUtil.randomString(0, 1000, r);
+			String md5 = StringUtil.getMD5(s);
+			if (md5keys.containsKey(md5) && !s.equals(md5keys.get(md5)))
+				throw new Error("same key at " + md5keys.size() + "key: " + md5 + "\n'" + s + "'\n'" + md5keys.get(md5)
+						+ "'");
+			md5keys.put(md5, s);
+		}
 
 		//		System.out.println(ArrayUtil.toString(indicesOf("c-c-c-c", "-")));
 		//		System.out.println(ArrayUtil.toString(indicesOf("c-c-c-c", "x")));
@@ -434,4 +452,36 @@ public class StringUtil
 		return (rsm);
 	}
 
+	public static String getMD5(String data)
+	{
+		try
+		{
+			MessageDigest m = MessageDigest.getInstance("MD5");
+			m.reset();
+			m.update(data.getBytes());
+			BigInteger bigInt = new BigInteger(1, m.digest());
+			String hashtext = bigInt.toString(16);
+			while (hashtext.length() < 32)
+			{
+				hashtext = "0" + hashtext;
+			}
+			return hashtext;
+		}
+		catch (NoSuchAlgorithmException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static String encodeFilename(String s)
+	{
+		try
+		{
+			return URLEncoder.encode(s, "UTF-8");
+		}
+		catch (java.io.UnsupportedEncodingException e)
+		{
+			throw new RuntimeException("UTF-8 is an unknown encoding!?");
+		}
+	}
 }

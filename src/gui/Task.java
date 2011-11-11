@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -139,7 +140,7 @@ public class Task
 		{
 			public void run()
 			{
-				SwingUtil.showInDialog(pp, title);//, new Dimension(600, 400));
+				SwingUtil.showInDialog(pp, title, new Dimension(600, 400));
 			}
 		});
 		th.start();

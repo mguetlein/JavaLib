@@ -23,6 +23,8 @@ import com.lowagie.text.Font;
 
 public class TaskPanel extends JPanel
 {
+	public static boolean PRINT_VERBOSE_MESSAGES = false;
+
 	Task t;
 
 	private JButton killButton;
@@ -61,7 +63,11 @@ public class TaskPanel extends JPanel
 				}
 
 				if (prop.equals(Task.PROPERTY_VERBOSE))
+				{
 					verboseLabel.setText(message);
+					if (PRINT_VERBOSE_MESSAGES)
+						System.out.println(">> " + message);
+				}
 				else
 				{
 					if (prop.equals(Task.PROPERTY_WARNING) || prop.equals(Task.PROPERTY_ERROR))

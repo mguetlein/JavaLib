@@ -4,7 +4,7 @@ import javax.swing.JPanel;
 
 public abstract class WizardPanel extends JPanel
 {
-	public abstract boolean canProceed();
+	public abstract Messages canProceed();
 
 	public abstract void proceed();
 
@@ -12,5 +12,4 @@ public abstract class WizardPanel extends JPanel
 
 	public abstract String getDescription();
 
-	public abstract boolean hasWarning();
 }

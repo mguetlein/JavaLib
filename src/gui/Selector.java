@@ -14,6 +14,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -105,7 +106,7 @@ public abstract class Selector<T> extends JPanel
 
 	public abstract String getString(T elem);
 
-	public abstract ImageIcon getIcon(T elem);
+	public abstract Icon getIcon(T elem);
 
 	public abstract ImageIcon getCategoryIcon(String name);
 

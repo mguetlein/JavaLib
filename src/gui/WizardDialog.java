@@ -20,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
@@ -34,7 +33,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 
-public class WizardDialog extends JFrame
+public class WizardDialog extends BlockableFrame
 {
 	JLabel titleLabel;
 	JTextArea descriptionTextArea;
@@ -55,6 +54,8 @@ public class WizardDialog extends JFrame
 	DefaultListModel titleListModel;
 	JList titleList;
 
+	MessageLabel messageLabel;
+
 	JLabel iconLabel;
 	JLabel additionalIconLabel;
 
@@ -65,6 +66,7 @@ public class WizardDialog extends JFrame
 
 	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon)
 	{
+		super(title);
 		this.icon = icon;
 		this.title = title;
 		this.additionalIcon = additionalIcon;
@@ -132,6 +134,8 @@ public class WizardDialog extends JFrame
 		titleList.setEnabled(false);
 		DefaultListCellRenderer rend = new DefaultListCellRenderer()
 		{
+			Color foreground = getForeground();
+
 			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus)
 			{
@@ -142,12 +146,34 @@ public class WizardDialog extends JFrame
 				setEnabled(true);
 				if (!isSelected)
 					setFont(getFont().deriveFont(Font.PLAIN));
-				if (index == errorPanel())
-					setIcon(ImageLoader.ERROR);
-				else if (panels.get(index).hasWarning())
-					setIcon(ImageLoader.WARNING);
+
+				int errorIndex = errorPanel();
+				if (errorIndex == -1 || errorIndex >= index)
+				{
+					setFont(getFont().deriveFont(Font.PLAIN));
+					setForeground(foreground);
+
+					if (errorIndex == index)
+						setIcon(ImageLoader.ERROR);
+					else
+					{
+						Messages msg = panels.get(index).canProceed();
+						if (msg == null || msg.getSize() == 0)
+							setIcon(null);
+						else if (msg.containsWarning())
+							setIcon(ImageLoader.WARNING);
+						else if (msg.containsSlow())
+							setIcon(ImageLoader.HOURGLASS);
+						else
+							setIcon(ImageLoader.INFO);
+					}
+				}
 				else
+				{
+					setFont(getFont().deriveFont(Font.ITALIC));
+					setForeground(foreground.brighter().brighter());
 					setIcon(null);
+				}
 				return this;
 			}
 		};
@@ -156,6 +182,9 @@ public class WizardDialog extends JFrame
 		rend.setForeground(Color.BLACK);
 		titleList.setCellRenderer(rend);
 		leftPanelBuilder.append(titleList);
+
+		messageLabel = new MessageLabel();
+		leftPanelBuilder.append(messageLabel);
 
 		JPanel leftPanel = new JPanel(new BorderLayout());
 		leftPanel.setBackground(Color.WHITE);
@@ -263,7 +292,7 @@ public class WizardDialog extends JFrame
 		{
 			while (index > status)
 			{
-				boolean canProceed = (status < panels.size() - 1 && panels.get(status).canProceed());
+				boolean canProceed = (status < panels.size() - 1 && canProceed(status));
 				if (!canProceed)
 					break;
 				else
@@ -300,13 +329,10 @@ public class WizardDialog extends JFrame
 			centerPanel.removeAll();
 
 			JPanel p = new JPanel(new BorderLayout());
-			p.setBorder(new EmptyBorder(0, 0, 0, 20));
+			p.setBorder(new EmptyBorder(0, 0, 0, 10));
 			p.add(panels.get(status));
-			JScrollPane scroll = new JScrollPane(p);
-			scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			//			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			scroll.setBorder(null);
-			centerPanel.add(scroll);
+
+			centerPanel.add(p);
 
 			//centerPanel.add(panels.get(status));
 
@@ -314,22 +340,30 @@ public class WizardDialog extends JFrame
 		}
 
 		prev.setEnabled(status > 0);
-		next.setEnabled(status < panels.size() - 1 && panels.get(status).canProceed());
+		next.setEnabled(status < panels.size() - 1 && canProceed(status));
 		finish.setEnabled(errorPanel() == -1);
 		//setTitle(title + " (" + (status + 1) + "/" + panels.size() + ")");
 		setTitle(title);
 		titleLabel.setText(panels.get(status).getTitle() + " (step " + (status + 1) + " of " + panels.size() + ")");
 		descriptionTextArea.setText(panels.get(status).getDescription());
 
+		messageLabel.setMessages(panels.get(status).canProceed());
+
 		titleList.setSelectedIndex(status);
 		setIgnoreRepaint(false);
 		repaint();
 	}
 
+	private boolean canProceed(int i)
+	{
+		Messages msg = panels.get(i).canProceed();
+		return (msg == null || !msg.containsError());
+	}
+
 	protected int errorPanel()
 	{
 		for (int i = status; i < panels.size(); i++)
-			if (!panels.get(i).canProceed())
+			if (!canProceed(i))
 				return i;
 		return -1;
 	}
@@ -354,12 +388,6 @@ public class WizardDialog extends JFrame
 		WizardPanel p1 = new WizardPanel()
 		{
 			@Override
-			public boolean canProceed()
-			{
-				return true;
-			}
-
-			@Override
 			public String getTitle()
 			{
 				return "first panel";
@@ -377,20 +405,15 @@ public class WizardDialog extends JFrame
 			}
 
 			@Override
-			public boolean hasWarning()
+			public Messages canProceed()
 			{
-				return true;
+				return Messages.warningMessage("bla asldkfj alskd fölaks fölaks jfdölaks jfdölaks jfdölakjs fd");
 			}
+
 		};
 		p1.add(new JLabel("test"));
 		WizardPanel p2 = new WizardPanel()
 		{
-			@Override
-			public boolean canProceed()
-			{
-				return true;
-			}
-
 			@Override
 			public String getTitle()
 			{
@@ -409,21 +432,21 @@ public class WizardDialog extends JFrame
 			}
 
 			@Override
-			public boolean hasWarning()
+			public Messages canProceed()
 			{
-				return false;
+				return null;
 			}
+
 		};
-		p2.add(new JLabel("panel2"));
 
 		WizardDialog w = new WizardDialog(null, "Test wizard", null);
 		w.addPanel(p1);
 		w.addPanel(p2);
+		//		w.setMessage(Message.warningMessage("bla asldkfj alskd fölaks fölaks jfdölaks jfdölaks jfdölakjs fd"));
 		w.setSize(600, 400);
 		w.setLocationRelativeTo(null);
 		w.setVisible(true);
 		SwingUtil.waitWhileVisible(w);
 		System.exit(0);
 	}
-
 }

@@ -21,19 +21,14 @@ import util.SwingUtil;
 
 public class MessagePanel extends JPanel
 {
-	static enum Type
-	{
-		INFO, ERROR, WARNING;
-	}
-
 	class Message
 	{
-		Type type;
+		MessageType type;
 		String message;
 		String details;
 		boolean isSelected = false;
 
-		public Message(Type type, String message, String details)
+		public Message(MessageType type, String message, String details)
 		{
 			this.type = type;
 			this.message = message;
@@ -50,22 +45,21 @@ public class MessagePanel extends JPanel
 				if (detailString == null)
 				{
 					if (details == null || details.length() == 0)
-						detailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
 								+ "</b></html>";
 					else
-						detailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
-								+ "</b><br>" + StringUtil.wordWrap(details, 120).replaceAll("\n", "<br>") + "</html>";
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
+								+ "</b><br>" + StringUtil.wordWrap(details, 80).replaceAll("\n", "<br>") + "</html>";
 				}
 				return detailString;
 			}
 			else
 			{
 				if (noDetailString == null)
-					noDetailString = "<html><b>" + StringUtil.wordWrap(message, 120).replaceAll("\n", "<br>")
+					noDetailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
 							+ "</b></html>";
 				return noDetailString;
 			}
-
 		}
 	}
 
@@ -100,14 +94,17 @@ public class MessagePanel extends JPanel
 				super.getListCellRendererComponent(list, message, index, isSelected, cellHasFocus);
 				switch (message.type)
 				{
-					case WARNING:
+					case Warning:
 						setIcon(ImageLoader.WARNING);
 						break;
-					case ERROR:
+					case Error:
 						setIcon(ImageLoader.ERROR);
 						break;
-					case INFO:
+					case Info:
 						setIcon(ImageLoader.INFO);
+						break;
+					case Slow:
+						setIcon(ImageLoader.HOURGLASS);
 						break;
 					default:
 						throw new Error("not handled type");
@@ -142,17 +139,17 @@ public class MessagePanel extends JPanel
 
 	public void addWarning(String message, String details)
 	{
-		addMessage(new Message(Type.WARNING, message, details));
+		addMessage(new Message(MessageType.Warning, message, details));
 	}
 
 	public void addError(String message, String details)
 	{
-		addMessage(new Message(Type.ERROR, message, details));
+		addMessage(new Message(MessageType.Error, message, details));
 	}
 
 	public void addInfo(String message, String details)
 	{
-		addMessage(new Message(Type.INFO, message, details));
+		addMessage(new Message(MessageType.Info, message, details));
 	}
 
 	List<Message> messages = new ArrayList<Message>();

@@ -25,10 +25,12 @@ public class ArrayUtil
 		String s = "";
 		for (Object st : a)
 		{
+			if ((st + "").contains(","))
+				throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
 			if (addQuotes)
-				s += "\"" + st.toString() + "\",";
+				s += "\"" + st + "\",";
 			else
-				s += st.toString() + ",";
+				s += st + ",";
 		}
 		return s;
 	}
@@ -37,6 +39,14 @@ public class ArrayUtil
 	{
 		String s = "";
 		for (int i : a)
+			s += i + ",";
+		return s;
+	}
+
+	public static String booleanToCSVString(boolean a[])
+	{
+		String s = "";
+		for (boolean i : a)
 			s += i + ",";
 		return s;
 	}
@@ -66,6 +76,14 @@ public class ArrayUtil
 	}
 
 	public static int indexOf(int[] array, int elem)
+	{
+		for (int i = 0; i < array.length; i++)
+			if (array[i] == elem)
+				return i;
+		return -1;
+	}
+
+	public static int indexOf(double[] array, double elem)
 	{
 		for (int i = 0; i < array.length; i++)
 			if (array[i] == elem)
@@ -592,6 +610,22 @@ public class ArrayUtil
 		}
 	}
 
+	public static void scramble(int[] array)
+	{
+		scramble(array, new Random());
+	}
+
+	public static void scramble(int[] array, Random r)
+	{
+		for (int i = 0; i < array.length; i++)
+		{
+			int j = r.nextInt(array.length);
+			int tmp = array[j];
+			array[j] = array[i];
+			array[i] = tmp;
+		}
+	}
+
 	public static String toString(int array[])
 	{
 		return toString(array, -1);
@@ -626,15 +660,20 @@ public class ArrayUtil
 		return s;
 	}
 
-	public static String toString(Object array[], String seperator)
+	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket)
 	{
-		String s = "[ ";
+		String s = openingBracket;
 		for (int i = 0; i < array.length; i++)
 			s += array[i] + seperator + " ";
 		if (array.length > 0)
 			s = s.substring(0, s.length() - (1 + seperator.length()));
-		s += " ]";
+		s += closingBracket;
 		return s;
+	}
+
+	public static String toString(Object array[], String seperator)
+	{
+		return toString(array, seperator, "[ ", " ]");
 	}
 
 	public static String toString(Object array[])
@@ -724,7 +763,7 @@ public class ArrayUtil
 		Double d[] = new Double[array.length];
 		for (int i = 0; i < d.length; i++)
 		{
-			if (array[i] == null || array[i].toString().trim().length() == 0)
+			if (array[i] == null || array[i].equals("null") || array[i].toString().trim().length() == 0)
 				d[i] = null;
 			else
 			{
@@ -736,6 +775,20 @@ public class ArrayUtil
 			}
 		}
 		return d;
+	}
+
+	public static boolean[] parseBoolean(String[] array)
+	{
+		boolean bArray[] = new boolean[array.length];
+		for (int i = 0; i < bArray.length; i++)
+		{
+			Boolean b = Boolean.parseBoolean(array[i]);
+			if (b == null)
+				throw new IllegalArgumentException("not a bool: " + array[i]);
+			else
+				bArray[i] = b;
+		}
+		return bArray;
 	}
 
 	public static double euclDistance(double[] values, double[] values2)

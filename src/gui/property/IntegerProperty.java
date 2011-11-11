@@ -24,6 +24,15 @@ public class IntegerProperty extends AbstractProperty
 		this.value = value;
 	}
 
+	public IntegerProperty(String name, Integer value, Integer minValue, Integer maxValue)
+	{
+		super(name, name);
+		this.defaultValue = value;
+		this.value = value;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+	}
+
 	public IntegerProperty(String name, String uniqueName, Integer value, Integer minValue, Integer maxValue)
 	{
 		super(name, uniqueName);

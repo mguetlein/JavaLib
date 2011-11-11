@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class ArffWriter
 {
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	public static void writeToArffFile(File file, ArffWritable data)
 	{

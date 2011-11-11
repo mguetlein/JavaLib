@@ -6,6 +6,12 @@ import java.util.List;
 
 import util.FileUtil;
 
+/**
+ * takes into account that a different file with equal name may exist (too complicated) 
+ * 
+ * @author martin
+ *
+ */
 public class FileResultCacher
 {
 	String finalInfile;
