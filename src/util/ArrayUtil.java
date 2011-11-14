@@ -148,6 +148,12 @@ public class ArrayUtil
 		return a;
 	}
 
+	public static Integer[] toIntegerArray(List<Integer> values)
+	{
+		Integer[] i = new Integer[values.size()];
+		return values.toArray(i);
+	}
+
 	/**
 	 * no casting, +"" !
 	 */
@@ -775,6 +781,32 @@ public class ArrayUtil
 			}
 		}
 		return d;
+	}
+
+	/**
+	 * trys to parse String array into Integer array (empty strings/null are inserted as null)
+	 * returns null if a non-parsable String is included
+	 * 
+	 * @param array
+	 * @return
+	 */
+	public static Integer[] parseIntegers(Object[] array)
+	{
+		Integer ints[] = new Integer[array.length];
+		for (int i = 0; i < ints.length; i++)
+		{
+			if (array[i] == null || array[i].equals("null") || array[i].toString().trim().length() == 0)
+				ints[i] = null;
+			else
+			{
+				Integer parse = IntegerUtil.parseInteger(array[i].toString());
+				if (parse == null)
+					return null;
+				else
+					ints[i] = parse;
+			}
+		}
+		return ints;
 	}
 
 	public static boolean[] parseBoolean(String[] array)

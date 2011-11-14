@@ -41,6 +41,12 @@ public abstract class AbstractProperty implements Property
 	}
 
 	@Override
+	public String getUniqueName()
+	{
+		return uniqueName;
+	}
+
+	@Override
 	public String getDisplayName()
 	{
 		return displayName;
