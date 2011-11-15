@@ -362,6 +362,8 @@ public abstract class Selector<T> extends JPanel
 	{
 		Category c = new Category(name);
 		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
+		if (parent == null)
+			return null;
 		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
 
 		List<T> selected = new ArrayList<T>();
