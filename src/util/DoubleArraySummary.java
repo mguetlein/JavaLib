@@ -35,16 +35,16 @@ public class DoubleArraySummary implements ArraySummary
 
 	public String toString()
 	{
-		//		return "num: " + num + ", min: " + min + ", max: " + max + ", sum: " + sum + ", mean: " + mean + ", numZero: "
-		//				+ numZero + ", numNull: " + numNull;
+		// return "num: " + num + ", min: " + min + ", max: " + max + ", sum: " + sum + ", mean: " + mean + ", numZero: "
+		// + numZero + ", numNull: " + numNull;
 
-		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Ø:"
+		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
 				+ StringUtil.formatDouble(median);
 	}
 
 	public String format()
 	{
-		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Ø:"
+		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
 				+ StringUtil.formatDouble(median);
 	}
 

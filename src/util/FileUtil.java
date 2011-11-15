@@ -97,6 +97,20 @@ public class FileUtil
 			return source.renameTo(dest);
 	}
 
+	/**
+	 * replace a backslash in windows with a double-backslash
+	 * 
+	 * @param f
+	 * @return
+	 */
+	public static String getAbsolutePathEscaped(File f)
+	{
+		if (OSUtil.isWindows())
+			return f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\");
+		else
+			return f.getAbsolutePath();
+	}
+
 	public static boolean copy(File source, File dest)
 	{
 		FileInputStream from = null;
@@ -327,13 +341,15 @@ public class FileUtil
 
 	public static void main(String args[])
 	{
-		//		String s = "C:\\bla\\blub";
-		//		System.out.println(s);
-		//		System.out.println(toCygwinPosixPath(s));
+		System.out.println(getAbsolutePathEscaped(new File(".")));
 
-		System.out.println(FileUtil.isContentEqual(
-				"/home/martin/workspace/ClusterViewer/cluster_data/nctrer_small_3d/002.nctrer.distances.table",
-				"/home/martin/workspace/ClusterViewer/cluster_data/nctrer_small_3d/003.nctrer.distances.table"));
+		// String s = "C:\\bla\\blub";
+		// System.out.println(s);
+		// System.out.println(toCygwinPosixPath(s));
+
+		// System.out.println(FileUtil.isContentEqual(
+		// "/home/martin/workspace/ClusterViewer/cluster_data/nctrer_small_3d/002.nctrer.distances.table",
+		// "/home/martin/workspace/ClusterViewer/cluster_data/nctrer_small_3d/003.nctrer.distances.table"));
 	}
 
 }

@@ -21,6 +21,11 @@ public class ExternalTool
 		return runWithArrayOrString(processName, command, stdOutfile, null, null, wait);
 	}
 
+	public Process run(final String processName, String command[], File stdOutfile, boolean wait, String env[])
+	{
+		return runWithArrayOrString(processName, command, stdOutfile, env, null, wait);
+	}
+
 	public Process run(final String processName, String command, File stdOutfile, boolean wait, String env[])
 	{
 		return runWithArrayOrString(processName, command, stdOutfile, env, null, wait);
@@ -52,7 +57,7 @@ public class ExternalTool
 		try
 		{
 			final File tmpStdOutfile = stdOutfile != null ? new File(stdOutfile + ".tmp") : null;
-			//			final long starttime = new Date().getTime();
+			// final long starttime = new Date().getTime();
 			final Process child;
 
 			if (arrayOrString instanceof String)
@@ -69,7 +74,7 @@ public class ExternalTool
 			else if (arrayOrString instanceof String[])
 			{
 				String[] cmdArray = (String[]) arrayOrString;
-				System.out.println(processName + " > " + ArrayUtil.toString(cmdArray, " "));
+				System.out.println(processName + " > " + ArrayUtil.toString(cmdArray, " ", "", ""));
 				if (env == null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(cmdArray);
 				else if (env != null && workingDirectory == null)
