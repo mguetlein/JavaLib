@@ -18,10 +18,9 @@ public class BlockableFrame extends JFrame implements Blockable
 	private static boolean DEBUG = false;
 	List<String> block = new ArrayList<String>();
 
-	public BlockableFrame(String title)
+	public BlockableFrame()
 	{
-		super(title);
-
+		super();
 		glass = new JPanel();
 		LayoutManager layout = new OverlayLayout(glass);
 		glass.setLayout(layout);
@@ -40,6 +39,12 @@ public class BlockableFrame extends JFrame implements Blockable
 		setGlassPane(glass);
 		glass.setVisible(true);
 		glass.setOpaque(false);
+	}
+
+	public BlockableFrame(String title)
+	{
+		this();
+		setTitle(title);
 	}
 
 	@Override
