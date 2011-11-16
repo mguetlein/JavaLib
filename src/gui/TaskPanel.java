@@ -164,7 +164,10 @@ public class TaskPanel extends JPanel
 				//				String message = evt.getNewValue().toString();
 				//				String details = evt.getOldValue().toString();
 
-				d.setTitle(t.getPercent() + "% - " + title);
+				if (t.getPercent() == 0)
+					d.setTitle(title);
+				else
+					d.setTitle(t.getPercent() + "% - " + title);
 				if (prop.equals(Task.PROPERTY_ERROR))
 					d.setTitle("ERROR: " + d.getTitle());
 			}

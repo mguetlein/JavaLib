@@ -89,10 +89,14 @@ public class TextPanel extends JPanel
 		return t;
 	}
 
+	public String getText()
+	{
+		return body;
+	}
+
 	private void update()
 	{
 		editorPane.setText("<html><body>" + body + "</body></html>");
-
 		if (preferredWith != -1)
 		{
 			// HACK part 1, reset preferred size and set with (see part 2 above)

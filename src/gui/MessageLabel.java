@@ -12,13 +12,23 @@ import util.ImageLoader;
 
 public class MessageLabel extends JPanel
 {
-	private JLabel infoIcon;
-	private JTextArea infoTextArea;
+	private JLabel infoIcon = new JLabel();
+	private JTextArea infoTextArea = new JTextArea();
+
+	public MessageLabel(Messages msgs)
+	{
+		this();
+		setMessages(msgs);
+	}
+
+	public MessageLabel(Message msg)
+	{
+		this();
+		setMessage(msg);
+	}
 
 	public MessageLabel()
 	{
-		infoIcon = new JLabel();
-		infoTextArea = new JTextArea();
 		infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.PLAIN));
 		infoTextArea.setBorder(null);
 		infoTextArea.setEditable(false);
@@ -28,11 +38,19 @@ public class MessageLabel extends JPanel
 		setLayout(new BorderLayout(5, 0));
 		add(infoIcon, BorderLayout.WEST);
 		add(infoTextArea);
-
 		setOpaque(true);
 		setBorder(new MatteBorder(1, 1, 1, 1, getBackground().darker().darker()));
-
 		setMessages(null);
+	}
+
+	public void setMessageFont(Font f)
+	{
+		infoTextArea.setFont(f);
+	}
+
+	public Font getMessageFont()
+	{
+		return infoTextArea.getFont();
 	}
 
 	public void setMessages(Messages msgs)

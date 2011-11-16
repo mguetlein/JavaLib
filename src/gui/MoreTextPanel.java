@@ -82,4 +82,5 @@ public class MoreTextPanel extends TextPanel
 		SwingUtil.showInDialog(d, new Dimension(400, 300));
 		System.exit(0);
 	}
+
 }
