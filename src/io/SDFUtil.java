@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 import util.ArrayUtil;
+import util.DoubleKeyHashMap;
 
 public class SDFUtil
 {
@@ -107,7 +108,7 @@ public class SDFUtil
 
 	public static void filter_exclude(String infile, String outfile, List<Integer> excludeIndices)
 	{
-		filter(infile, outfile, excludeIndices, false);
+		filter(infile, outfile, excludeIndices, false, null, null);
 	}
 
 	public static void filter(String infile, String outfile, int[] includeIndices)
@@ -117,10 +118,23 @@ public class SDFUtil
 
 	public static void filter(String infile, String outfile, List<Integer> includeIndices)
 	{
-		filter(infile, outfile, includeIndices, true);
+		filter(infile, outfile, includeIndices, true, null, null);
 	}
 
-	private static void filter(String infile, String outfile, List<Integer> indices, boolean include)
+	public static void filter(String infile, String outfile, int[] includeIndices, List<Object> featureNames,
+			DoubleKeyHashMap<Integer, Object, Object> featureValues)
+	{
+		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureNames, featureValues);
+	}
+
+	public static void filter(String infile, String outfile, List<Integer> includeIndices, List<Object> featureNames,
+			DoubleKeyHashMap<Integer, Object, Object> featureValues)
+	{
+		filter(infile, outfile, includeIndices, true, featureNames, featureValues);
+	}
+
+	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
+			List<Object> featureNames, DoubleKeyHashMap<Integer, Object, Object> featureValues)
 	{
 		File in = new File(infile);
 		if (!in.exists())
@@ -140,8 +154,23 @@ public class SDFUtil
 			while ((line = b.readLine()) != null)
 			{
 				if ((indices.indexOf(index) != -1 && include) || (indices.indexOf(index) == -1 && !include))
+				{
+					if (line.equals("$$$$"))
+					{
+						if (featureNames != null)
+						{
+							for (Object key : featureValues.keySet2(index))
+							{
+								w.write(">  <" + key + ">\n");
+								w.write(featureValues.get(index, key) + "\n");
+								w.write("\n");
+							}
+						}
+						index++;
+					}
 					w.write(line + "\n");
-				if (line.equals("$$$$"))
+				}
+				else if (line.equals("$$$$"))
 					index++;
 			}
 			b.close();
