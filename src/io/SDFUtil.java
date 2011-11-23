@@ -301,14 +301,17 @@ public class SDFUtil
 
 	public static void main(String args[])
 	{
+		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
+				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
+
 		//reduce("/home/martin/data/cox2_3d_WithReals.sdf", "/home/martin/data/cox2_3d_WithReals.m.sdf", 0.33);
 
 		//		filter_exclude("/home/martin/data/3d/bzr/data/bzr_3d.sd", "/home/martin/data/3d/bzr/data/bzr.sdf", new int[] {
 		//				191, 192 });
 
-		filter_match("/home/martin/results/cox2_cv#f-0_n-10_r-1_s-true_t-false#.sdf",
-				"/home/martin/workspace/external/moss/br_example.sdf", new String[] { "3-24", "3-36", "3-68", "3-78",
-						"4-42", "4-49", "9-44", "9-45" });
+		//		filter_match("/home/martin/results/cox2_cv#f-0_n-10_r-1_s-true_t-false#.sdf",
+		//				"/home/martin/workspace/external/moss/br_example.sdf", new String[] { "3-24", "3-36", "3-68", "3-78",
+		//						"4-42", "4-49", "9-44", "9-45" });
 
 		//		int include[] = { 0, 1, 400 };
 		//		SDFUtil.filter(

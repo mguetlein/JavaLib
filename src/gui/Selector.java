@@ -261,12 +261,15 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
+				selfUpdateSelection = true;
 				boolean selected = false;
 				for (Object elem : selectList.getSelectedValues())
 				{
 					selectListModel.removeElement(elem);
 					selected = true;
 				}
+				updateHighlight();
+				selfUpdateSelection = false;
 				if (selected)
 					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 				else

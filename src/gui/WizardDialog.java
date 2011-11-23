@@ -219,6 +219,11 @@ public class WizardDialog extends BlockableFrame
 		addListeners();
 	}
 
+	public void setCloseButtonText(String string)
+	{
+		cancel.setText(string);
+	}
+
 	public void addClickLinkToIcon(String link)
 	{
 		SwingUtil.addClickLink(iconLabel, link);

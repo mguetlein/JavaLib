@@ -276,11 +276,17 @@ public class ArrayUtil
 		//remove duplicates and convert to list, sort list
 		List<Object> s = new ArrayList<Object>(new HashSet<Object>(ArrayUtil.toList(array)));
 		Collections.sort(s, new DefaultComparator<Object>());
+		if (s.contains(null))
+			s.remove(null);
 
 		Double[] indices = new Double[array.length];
 		for (int i = 0; i < indices.length; i++)
-			indices[i] = (double) s.indexOf(array[i]);
-		return normalize(indices);
+			if (array[i] != null)
+				indices[i] = (double) s.indexOf(array[i]);
+			else
+				indices[i] = null;
+
+		return normalize(indices, false);
 	}
 
 	/**
@@ -290,19 +296,19 @@ public class ArrayUtil
 	 * @param array
 	 * @return
 	 */
-	public static Double[] normalize(Double array[])
+	public static Double[] normalize(Double array[], boolean replaceNullWithMedian)
 	{
-		return normalize(array, 0, 1);
+		return normalize(array, 0, 1, replaceNullWithMedian);
 	}
 
-	public static Double[] normalizeLog(Double array[])
+	public static Double[] normalizeLog(Double array[], boolean replaceNullWithMedian)
 	{
 		DoubleArraySummary summary = DoubleArraySummary.create(array);
 		array = replaceNull(array, summary.mean);
 		if (summary.min <= 0)
 			array = translate(array, Math.abs(summary.min) + 1);
 		array = log(array);
-		return normalize(array, 0, 1);
+		return normalize(array, 0, 1, replaceNullWithMedian);
 	}
 
 	public static Double[] replaceNull(Double array[], double replace)
@@ -331,26 +337,18 @@ public class ArrayUtil
 
 	/**
 	 * normalizes to MIN-MAX<br>
-	 * REPLACES NULL VALUES WITH MEAN(MIN,MAX)
+	 * REPLACES NULL VALUES WITH MEDIAN(MIN,MAX)
 	 * 
 	 * @param array
 	 * @return
 	 */
-	public static Double[] normalize(Double array[], double min, double max)
+	public static Double[] normalize(Double array[], double min, double max, boolean replaceNullWithMedian)
 	{
-		double minVal = Double.MAX_VALUE;
-		double maxVal = -Double.MAX_VALUE;
-		for (int i = 0; i < array.length; i++)
-		{
-			if (array[i] != null && array[i] < minVal)
-				minVal = array[i];
-			if (array[i] != null && array[i] > maxVal)
-				maxVal = array[i];
-		}
-		double deltaVal = maxVal - minVal;
+		DoubleArraySummary sum = DoubleArraySummary.create(array);
+		double deltaVal = sum.max - sum.min;
 		double delta = (max - min);
 		Double a[] = new Double[array.length];
-		if (minVal == maxVal)
+		if (sum.min == sum.max)
 		{
 			Arrays.fill(a, min + delta / 2.0);
 			return a;
@@ -359,10 +357,14 @@ public class ArrayUtil
 		{
 			for (int i = 0; i < a.length; i++)
 			{
-				if (array[i] == null || Double.isNaN(array[i]))
-					a[i] = min + delta / 2.0;
+				Double v = array[i];
+				if (replaceNullWithMedian && (v == null || Double.isNaN(v)))
+					v = sum.median;
+
+				if (v == null)
+					a[i] = null;
 				else
-					a[i] = (array[i] - minVal) / deltaVal * delta + min;
+					a[i] = (v - sum.min) / deltaVal * delta + min;
 			}
 			return a;
 		}
@@ -889,7 +891,7 @@ public class ArrayUtil
 		//		System.out.println(toString(normalize(o)));
 
 		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
-		System.out.println(toString(normalize(d)));
+		System.out.println(toString(normalize(d, false)));
 
 		//		Object s[] = { new Double(5), new Double(3) };
 		//		Double o[] = ArrayUtil.cast(Double.class, s);

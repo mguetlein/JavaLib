@@ -93,4 +93,13 @@ public class CountedSet<T> implements ArraySummary
 	{
 		System.out.println(fromArray(new String[] { "a", "b", "b", "c", "a", "b", "c", "b" }));
 	}
+
+	@Override
+	public int getNumNull()
+	{
+		if (!map.containsKey(null))
+			return 0;
+		else
+			return map.get(null);
+	}
 }

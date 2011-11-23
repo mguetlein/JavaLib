@@ -69,7 +69,10 @@ public class RUtil
 			{
 				bf.write("\"" + (i + 1) + "\" ");
 				for (String v[] : featureValues)
-					bf.write(v[i] + " ");
+					if (v[i] == null || v[i].equals("null"))
+						bf.write("NA ");
+					else
+						bf.write(v[i] + " ");
 				bf.write("\n");
 			}
 			bf.close();

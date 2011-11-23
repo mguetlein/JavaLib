@@ -38,14 +38,18 @@ public class DoubleArraySummary implements ArraySummary
 		// return "num: " + num + ", min: " + min + ", max: " + max + ", sum: " + sum + ", mean: " + mean + ", numZero: "
 		// + numZero + ", numNull: " + numNull;
 
-		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
-				+ StringUtil.formatDouble(median);
+		//		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
+		//				+ StringUtil.formatDouble(median);
+		return format();
 	}
 
 	public String format()
 	{
-		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
-				+ StringUtil.formatDouble(median);
+		if (numNull == num)
+			return "null";
+		else
+			return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
+					+ StringUtil.formatDouble(median);
 	}
 
 	public double getNum()
