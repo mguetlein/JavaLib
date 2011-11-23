@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.SequenceInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import org.jfree.io.IOUtils;
 
 public class FileUtil
 {
@@ -257,8 +260,19 @@ public class FileUtil
 
 	public static void join(String input1, String input2, String output)
 	{
-		FileUtil.writeStringToFile(output, FileUtil.readStringFromFile(input1));
-		FileUtil.writeStringToFile(output, FileUtil.readStringFromFile(input2), true);
+		try
+		{
+			InputStream i1 = new FileInputStream(new File(input1));
+			InputStream i2 = new FileInputStream(new File(input2));
+			InputStream i = new SequenceInputStream(i1, i2);
+			IOUtils.getInstance().copyStreams(i, new FileOutputStream(output));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		//		FileUtil.writeStringToFile(output, FileUtil.readStringFromFile(input1));
+		//		FileUtil.writeStringToFile(output, FileUtil.readStringFromFile(input2), true);
 	}
 
 	public static String readStringFromFile(String file)
