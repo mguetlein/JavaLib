@@ -17,7 +17,7 @@ public class JarUtil
 		{
 			if (new File(dest).exists())
 			{
-				System.out.println("already extracted: " + dest);
+				//System.out.println("already extracted: " + dest);
 				if (!overwrite)
 					return;
 			}
