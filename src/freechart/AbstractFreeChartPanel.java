@@ -148,4 +148,15 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 			setIntegerTickUnits();
 	}
 
+	public void setBarWidthLimited()
+	{
+		Plot plot = chartPanel.getChart().getPlot();
+		if (plot instanceof CategoryPlot)
+		{
+			CategoryPlot p = (CategoryPlot) plot;
+			BarRenderer br = (BarRenderer) p.getRenderer();
+			br.setMaximumBarWidth(.35);
+		}
+	}
+
 }

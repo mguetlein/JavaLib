@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
+import util.ScreenUtil;
+
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
@@ -142,6 +144,11 @@ public class TaskPanel extends JPanel
 
 	public JDialog showDialog(Window owner, final String title)
 	{
+		return showDialog(owner, title, 0);
+	}
+
+	public JDialog showDialog(Window owner, final String title, int screen)
+	{
 		//		hidablePanel.setVisible(true);
 		killButton.setVisible(true);
 		bar.setVisible(true);
@@ -150,7 +157,11 @@ public class TaskPanel extends JPanel
 		d.setModal(false);
 		d.add(this);
 		d.pack();
-		d.setLocationRelativeTo(owner);
+
+		if (owner != null && owner.isVisible())
+			d.setLocationRelativeTo(owner);
+		else
+			ScreenUtil.centerOnScreen(d, screen);
 
 		if (!t.progress)
 			bar.setVisible(false);

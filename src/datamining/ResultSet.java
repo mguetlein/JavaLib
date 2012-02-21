@@ -13,8 +13,10 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.TTestImpl;
 
 import util.ArrayUtil;
+import util.DoubleUtil;
 import util.ListUtil;
 import util.StringUtil;
+import util.TimeFormatUtil;
 
 public class ResultSet
 {
@@ -30,9 +32,48 @@ public class ResultSet
 
 	private static HashMap<String, String> niceProperties = new HashMap<String, String>();
 
+	public void toLong(String p)
+	{
+		if (!properties.contains(p))
+			return;
+		for (int i = 0; i < results.size(); i++)
+		{
+			if (getResultValue(i, p) != null)
+			{
+				Double d = DoubleUtil.parseDouble(getResultValue(i, p).toString());
+				setResultValue(i, p, d == null ? null : d.longValue());
+			}
+		}
+	}
+
+	public void toInt(String p)
+	{
+		if (!properties.contains(p))
+			return;
+		for (int i = 0; i < results.size(); i++)
+		{
+			Double d = DoubleUtil.parseDouble(getResultValue(i, p).toString());
+			setResultValue(i, p, d == null ? null : d.intValue());
+		}
+	}
+
 	public void sortProperties(List<String> propertyOrder)
 	{
 		ListUtil.sort(properties, propertyOrder);
+	}
+
+	public void movePropertyBack(String string)
+	{
+		if (properties.indexOf(string) != -1)
+		{
+			properties.remove(string);
+			properties.add(string);
+		}
+	}
+
+	public List<String> getProperties()
+	{
+		return properties;
 	}
 
 	public String toNiceString()
@@ -41,6 +82,11 @@ public class ResultSet
 	}
 
 	public String toNiceString(int indent, boolean horizontalLine)
+	{
+		return toNiceString(indent, horizontalLine, false);
+	}
+
+	public String toNiceString(int indent, boolean horizontalLine, boolean longToTime)
 	{
 		String whitespace = "";
 		if (indent > 0)
@@ -52,8 +98,7 @@ public class ResultSet
 			maxLength[i] = Math.max(maxLength[i], niceProperty(properties.get(i)).length());
 
 			for (Result r : results)
-				maxLength[i] = Math.max(maxLength[i], niceValue(r.getValue(properties.get(i)))
-						.length());
+				maxLength[i] = Math.max(maxLength[i], niceValue(r.getValue(properties.get(i)), -1, true).length());
 		}
 
 		String s = whitespace;
@@ -86,7 +131,7 @@ public class ResultSet
 			{
 				if (i > 0)
 					s += " | ";
-				s += niceValue(r.getValue(properties.get(i)), maxLength[i]);
+				s += niceValue(r.getValue(properties.get(i)), maxLength[i], longToTime);
 			}
 			s += "\n";
 		}
@@ -102,11 +147,6 @@ public class ResultSet
 			return niceProperties.get(property);
 		else
 			return property;
-	}
-
-	private String niceValue(Object value)
-	{
-		return niceValue(value, -1);
 	}
 
 	public void doubleToInt(String... prop)
@@ -125,7 +165,17 @@ public class ResultSet
 		}
 	}
 
+	private String niceValue(Object value)
+	{
+		return niceValue(value, -1);
+	}
+
 	private String niceValue(Object value, int maxLength)
+	{
+		return niceValue(value, maxLength, false);
+	}
+
+	private String niceValue(Object value, int maxLength, boolean longToTime)
 	{
 		String s;
 		boolean alignLeft = true;
@@ -136,8 +186,7 @@ public class ResultSet
 		{
 			s = "";
 			for (Number n : (Number[]) value)
-				s += (s.length() == 0 ? "" : "; ")
-						+ StringUtil.formatDouble((Double) n, numDecimalPlaces);
+				s += (s.length() == 0 ? "" : "; ") + StringUtil.formatDouble((Double) n, numDecimalPlaces);
 			// s += " ]";
 			alignLeft = false;
 		}
@@ -150,6 +199,10 @@ public class ResultSet
 		{
 			s = value.toString();
 			alignLeft = false;
+		}
+		else if (value instanceof Long && longToTime)
+		{
+			s = TimeFormatUtil.format((Long) value);
 		}
 		else
 			s = value.toString();
@@ -177,19 +230,48 @@ public class ResultSet
 
 	public String toMediaWikiString()
 	{
+		return toMediaWikiString(true, false);
+	}
+
+	public String toMediaWikiString(boolean niceProps, boolean longToTime)
+	{
+		return toMediaWikiString(true, false, false);
+	}
+
+	public String toMediaWikiString(boolean niceProps, boolean longToTime, boolean renderTime)
+	{
 		Locale l = Locale.getDefault();
 		Locale.setDefault(new Locale("en"));
 
 		String s = "{|cellpadding=\"3\" cellspacing=\"0\" border=\"1\"\n";
 		for (String p : properties)
-			s += "!" + p + "\n";
+			s += "!" + niceProperty(p) + "\n";
 		s += "|-\n";
 
 		for (Result r : results)
 		{
 			for (String p : properties)
 			{
-				s += "| " + niceValue(r.getValue(p)) + "\n";
+				if (renderTime && r.getValue(p) instanceof Long)
+				{
+					double seconds = ((Long) r.getValue(p)).longValue() / 1000.0;
+					String style = "";
+					if (seconds <= 60)
+						style = "style=\"background-color:rgb(122,255,122);\"| ";
+					else if (seconds >= 60 * 5)
+						style = "style=\"background-color:rgb(255,122,122);\"| ";
+					else
+						style = "style=\"background-color:rgb(255,255,122);\"| ";
+					s += "| " + style + niceValue(r.getValue(p), -1, longToTime) + "\n";
+				}
+				else if (r.getValue(p) == null || r.getValue(p).toString().equals("null"))
+				{
+					String style = "style=\"background-color:rgb(255,122,122);\"| ";
+					s += "| " + style + "''not tested''" + "\n";
+					//s += "| -\n";
+				}
+				else
+					s += "| " + niceValue(r.getValue(p), -1, longToTime) + "\n";
 			}
 			s += "|-\n";
 		}
@@ -217,8 +299,8 @@ public class ResultSet
 		sortResults(property, true, false, -1);
 	}
 
-	public void sortResults(final String property, final boolean ascending,
-			final boolean numerical, final int classIndex)
+	public void sortResults(final String property, final boolean ascending, final boolean numerical,
+			final int classIndex)
 	{
 		if (!properties.contains(property))
 			return;
@@ -250,8 +332,8 @@ public class ResultSet
 						}
 						catch (ClassCastException e)
 						{
-							System.err.println(e.getMessage() + " : " + property + " -> "
-									+ o1.getValue(property) + " / " + o2.getValue(property));
+							System.err.println(e.getMessage() + " : " + property + " -> " + o1.getValue(property)
+									+ " / " + o2.getValue(property));
 							e.printStackTrace();
 							System.exit(1);
 						}
@@ -284,8 +366,7 @@ public class ResultSet
 					}
 				}
 				else
-					return niceValue(o1.getValue(property)).compareTo(
-							niceValue(o2.getValue(property)))
+					return niceValue(o1.getValue(property)).compareTo(niceValue(o2.getValue(property)))
 							* (ascending ? 1 : -1);
 			}
 		});
@@ -319,14 +400,13 @@ public class ResultSet
 		return group;
 	}
 
-	public ResultSet join(List<String> equalProperties, List<String> ommitProperties,
-			List<String> varianceProperties)
+	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties)
 	{
 		return join(equalProperties, ommitProperties, varianceProperties, Result.JOIN_MODE_MEAN);
 	}
 
-	public ResultSet join(List<String> equalProperties, List<String> ommitProperties,
-			List<String> varianceProperties, int joinMode)
+	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties,
+			int joinMode)
 	{
 		ResultSet joined = new ResultSet();
 
@@ -348,8 +428,10 @@ public class ResultSet
 			if (joined.results.size() <= group[i])
 				joined.results.add(results.get(i));
 			else
-				joined.results.set(group[i], joined.results.get(group[i]).join(results.get(i),
-						joined.properties, equalProperties, varianceProperties, joinMode));
+				joined.results.set(
+						group[i],
+						joined.results.get(group[i]).join(results.get(i), joined.properties, equalProperties,
+								varianceProperties, joinMode));
 		}
 
 		return joined;
@@ -375,8 +457,7 @@ public class ResultSet
 	// properties.add(property);
 	// }
 
-	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set,
-			String setMergePropValue)
+	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set, String setMergePropValue)
 	{
 		for (String p : properties)
 			if (!p.equals(mergeProperty) && !set.properties.contains(p))
@@ -497,8 +578,8 @@ public class ResultSet
 	// }
 	// }
 
-	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties,
-			String testProperty, double confidence)
+	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties, String testProperty,
+			double confidence)
 	{
 		// HashMap<String, List<Object>> differentPropValues = new HashMap<String, List<Object>>();
 		// for (int i = 0; i < results.size(); i++)
@@ -576,8 +657,7 @@ public class ResultSet
 
 			List<Integer> indices = indexMap.get(p);
 			for (int i = 0; i < values.length; i++)
-				values[i] = ((Double) results.get(indices.get(i)).getValue(testProperty))
-						.doubleValue();
+				values[i] = ((Double) results.get(indices.get(i)).getValue(testProperty)).doubleValue();
 
 			valuesMap.put(p, values);
 			meansMap.put(p, ArrayUtil.getMean(values));
@@ -596,21 +676,18 @@ public class ResultSet
 				{
 					for (int k = 0; k < 2; k++)
 					{
-						double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i
-								: j]), valuesMap.get(compareProps[k == 0 ? j : i]));
+						double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i : j]),
+								valuesMap.get(compareProps[k == 0 ? j : i]));
 
 						int index = result.addResult();
 
-						result.setResultValue(index, compareProperty + "_1",
-								compareProps[k == 0 ? i : j]);
-						result.setResultValue(index, compareProperty + "_2",
-								compareProps[k == 0 ? j : i]);
+						result.setResultValue(index, compareProperty + "_1", compareProps[k == 0 ? i : j]);
+						result.setResultValue(index, compareProperty + "_2", compareProps[k == 0 ? j : i]);
 
 						int test = 0;
 						if (ttestValue <= confidence)
 						{
-							if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap
-									.get(compareProps[k == 0 ? j : i]))
+							if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap.get(compareProps[k == 0 ? j : i]))
 								test = 1;
 							else
 								test = -1;
@@ -667,16 +744,14 @@ public class ResultSet
 						diff.setResultValue(x, p, res1.getValue(p));
 					for (String p : properties)
 					{
-						if (equalPlusProp.contains(p)
-								|| (ommitProperties != null && ommitProperties.contains(p)))
+						if (equalPlusProp.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
 							continue;
 
 						Object val1 = res1.getValue(p);
 						Object val2 = res2.getValue(p);
 						if (val1 instanceof Number)
 						{
-							double value = ((Number) val1).doubleValue()
-									- ((Number) val2).doubleValue();
+							double value = ((Number) val1).doubleValue() - ((Number) val2).doubleValue();
 							diff.setResultValue(x, p, value);
 						}
 						else
@@ -720,8 +795,7 @@ public class ResultSet
 					for (int k = 0; k < properties.size(); k++)
 					{
 						String p = properties.get(k);
-						if (equalProperties.contains(p)
-								|| (ommitProperties != null && ommitProperties.contains(p)))
+						if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
 							continue;
 
 						Object val = results.get(i).getValue(p);
@@ -754,8 +828,7 @@ public class ResultSet
 				for (int k = 0; k < properties.size(); k++)
 				{
 					String p = properties.get(k);
-					if (equalProperties.contains(p)
-							|| (ommitProperties != null && ommitProperties.contains(p)))
+					if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
 						continue;
 
 					if (na[k])
@@ -781,6 +854,31 @@ public class ResultSet
 
 	public static void main(String args[])
 	{
+		//		ResultSet set1 = new ResultSet();
+		//		String datasetName = "Dataset";
+		//		String openBabel3D = "OpenBabel 3D";
+		//		set1.properties.add(datasetName);
+		//		set1.properties.add(openBabel3D);
+		//		int index = set1.addResult();
+		//		set1.setResultValue(index, datasetName, "dataset1");
+		//		set1.setResultValue(index, openBabel3D, 3.0);
+		//
+		//		ResultSet set2 = new ResultSet();
+		//		String cdk3D = "CDK 3D";
+		//		set2.properties.add(datasetName);
+		//		set2.properties.add(cdk3D);
+		//		index = set2.addResult();
+		//		set2.setResultValue(index, datasetName, "dataset1");
+		//		set2.setResultValue(index, cdk3D, 2.0);
+		//
+		//		System.out.println(set1.toNiceString());
+		//		System.out.println(set2.toNiceString());
+		//
+		//		set1.concat(set2);
+		//		System.out.println(set1.toNiceString());
+		//
+		//		System.exit(0);
+
 		ResultSet set = new ResultSet();
 		set.properties.add("features");
 		set.properties.add("dataset");
@@ -872,7 +970,6 @@ public class ResultSet
 		ResultSet winLoss = diff.winLoss(equalProperties3, null);
 		System.out.println(winLoss.toNiceString());
 		System.out.println();
-
 	}
 
 }

@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
@@ -12,6 +11,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -126,7 +126,7 @@ public class Task
 		return warnings.size() > 0;
 	}
 
-	public void showWarningDialog(final Component owner, final String title, String message)
+	public void showWarningDialog(final JFrame owner, final String title, String message)
 	{
 		MessagePanel p = new MessagePanel();
 		for (int i = 0; i < warnings.size(); i++)
@@ -140,7 +140,7 @@ public class Task
 		{
 			public void run()
 			{
-				SwingUtil.showInDialog(pp, title, new Dimension(600, 400));
+				SwingUtil.showInDialog(pp, title, new Dimension(600, 400), null, owner);
 			}
 		});
 		th.start();
@@ -163,7 +163,12 @@ public class Task
 
 	public void showDialog(Window owner, String title)
 	{
-		dialog = getPanel().showDialog(owner, title);
+		showDialog(owner, title, 0);
+	}
+
+	public void showDialog(Window owner, String title, int screen)
+	{
+		dialog = getPanel().showDialog(owner, title, screen);
 	}
 
 	public JDialog getDialog()

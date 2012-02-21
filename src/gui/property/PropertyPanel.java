@@ -101,13 +101,15 @@ public class PropertyPanel extends JPanel
 
 	public static void main(String args[])
 	{
-		Property[] props = new Property[3];
+		Property[] props = new Property[5];
 
 		props[0] = new StringProperty("Test-Property", "default");
 		props[0].setValue("value");
 		props[1] = new IntegerProperty("Test-Int-Property", 15);
 		props[1].setValue(10);
 		props[2] = new FileProperty("A file", null);
+		props[3] = new DoubleProperty("Double prop", 0.5);
+		props[4] = new DoubleProperty("Double prop small", 0.0001, 0.0, 1.0, 0.00001);
 
 		SwingUtil.showInDialog(new PropertyPanel(props));
 	}

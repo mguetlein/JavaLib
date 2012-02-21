@@ -222,7 +222,13 @@ public class SwingUtil
 
 	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible)
 	{
-		final JDialog f = new JDialog();
+		showInDialog(c, title, dim, runAfterVisible, null);
+	}
+
+	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
+			JFrame owner)
+	{
+		final JDialog f = new JDialog(owner);
 		f.setModal(true);
 		f.setTitle(title);
 		JPanel p = new JPanel(new BorderLayout(10, 10));
@@ -244,7 +250,7 @@ public class SwingUtil
 			f.pack();
 		else
 			f.setSize(dim);
-		f.setLocationRelativeTo(null);
+		f.setLocationRelativeTo(owner);
 		if (runAfterVisible != null)
 		{
 			f.addWindowListener(new WindowAdapter()

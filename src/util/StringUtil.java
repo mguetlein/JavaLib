@@ -1,6 +1,10 @@
 package util;
 
 import java.awt.FontMetrics;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -11,11 +15,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class StringUtil
 {
@@ -338,23 +345,100 @@ public class StringUtil
 		return false;
 	}
 
+	public static String compress(String str)
+	{
+		try
+		{
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			GZIPOutputStream gzip = new GZIPOutputStream(out);
+			gzip.write(str.getBytes());
+			gzip.close();
+			return new String(Base64.encodeBase64URLSafe(out.toByteArray()));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static String deCompress(String str)
+	{
+		try
+		{
+			byte[] bytes = Base64.decodeBase64(str);
+			GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(bytes));
+			BufferedReader b = new BufferedReader(new InputStreamReader(gzip));
+			StringBuffer res = new StringBuffer();
+			String l = null;
+			while ((l = b.readLine()) != null)
+			{
+				res.append(l);
+				res.append("\n");
+			}
+			return res.toString();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
 	public static void main(String[] args)
 	{
+
+		String string = "#---No Comment---\n"
+				+ "#Mon Jan 09 15:39:24 CET 2012\n"
+				+ "property-Smarts\\ matching\\ software\\ for\\ smarts\\ files=OpenBabel\n"
+				+ "property-The\\ number\\ of\\ dimensions\\ to\\ use\\ in\\ reduction\\ method\\ (initial_dims)=17\n"
+				+ "Align\\ Compounds-method=Maximum Common Subgraph (MCS) Aligner\n"
+				+ "Embed\\ into\\ 3D\\ Space-simple-selected=false\n"
+				+ "features-cdk=\"ALogP\",\"Acidic Group Count\",\"Aromatic Atoms Count\",\"Aromatic Bonds Count\",\"Element Count\",\"Basic Group Count\",\"Bond Count\",\"Largest Chain\",\"Largest Pi Chain\",\"Longest Aliphatic Chain\",\"Mannhold LogP\",\"Rotatable Bonds Count\",\"Lipinski's Rule of Five\",\"Molecular Weight\",\"XLogP\",\n"
+				+ "property-Maximum\\ number\\ of\\ iterations\\ (max_iter)=1000\n"
+				+ "dataset-current-dir=/home/martin/data\n"
+				+ "Embed\\ into\\ 3D\\ Space-method=PCA 3D Embedder (R)\n"
+				+ "bin-path-Rscript=/usr/games/Rscript\n"
+				+ "property-Skip\\ fragments\\ that\\ match\\ all\\ compounds=true\n"
+				+ "property-Optimal\\ number\\ of\\ neighbors\\ (perplexity)=7\n"
+				+ "property-Maximum\\ number\\ of\\ iterations\\ (itmax)=150\n"
+				+ "property-forcefield=mm2\n"
+				+ "Create\\ 3D\\ Structures-simple-selected=false\n"
+				+ "Align\\ Compounds-simple-selected=false\n"
+				+ "bin-path-babel=/usr/bin/babel\n"
+				+ "Cluster\\ Dataset-simple-selected=true\n"
+				+ "property-Minimum\\ frequency=5\n"
+				+ "Create\\ 3D\\ Structures-method=No 3D Structure Generation (use original structures)\n"
+				+ "dataset-recently-used=null\\#/home/martin/data/bbp2.sdf\\#bbp2.sdf,http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fwww.cheminformatics.org%2Fdatasets%2Ffunar-timofei%2Ffunar-timofei.3d.sdf\\#http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2Fcaco2.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2FNCTRER_v4b_232_15Feb2008.ob3d.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf,\n"
+				+ "property-maxNumClusters=10\n" + "Embed\\ into\\ 3D\\ Space-simple-yes=true\n"
+				+ "property-minNumClusters=2\n" + "features-integrated=\n" + "features-fragments=\n"
+				+ "Cluster\\ Dataset-simple-yes=true";
+
+		String comp = compress(string);
+		System.out.println(comp.length());
+		System.out.println();
+		System.out.println(comp);
+		System.out.println();
+		System.out.println(string.length());
+		System.out.println();
+		System.out.println(deCompress(comp));
+
 		//		System.out.println(toCamelCase("ene_mene_miste"));
 		//		System.out.println(toProperCase("EneMeneMiste"));
-		Random r = new Random();
-		HashMap<String, String> md5keys = new HashMap<String, String>();
-		while (true)
-		{
-			if (md5keys.size() % 1000 == 0)
-				System.out.println(md5keys.size());
-			String s = StringUtil.randomString(0, 1000, r);
-			String md5 = StringUtil.getMD5(s);
-			if (md5keys.containsKey(md5) && !s.equals(md5keys.get(md5)))
-				throw new Error("same key at " + md5keys.size() + "key: " + md5 + "\n'" + s + "'\n'" + md5keys.get(md5)
-						+ "'");
-			md5keys.put(md5, s);
-		}
+
+		//		Random r = new Random();
+		//		HashMap<String, String> md5keys = new HashMap<String, String>();
+		//		while (true)
+		//		{
+		//			if (md5keys.size() % 1000 == 0)
+		//				System.out.println(md5keys.size());
+		//			String s = StringUtil.randomString(0, 1000, r);
+		//			String md5 = StringUtil.getMD5(s);
+		//			if (md5keys.containsKey(md5) && !s.equals(md5keys.get(md5)))
+		//				throw new Error("same key at " + md5keys.size() + "key: " + md5 + "\n'" + s + "'\n'" + md5keys.get(md5)
+		//						+ "'");
+		//			md5keys.put(md5, s);
+		//		}
 
 		//		System.out.println(ArrayUtil.toString(indicesOf("c-c-c-c", "-")));
 		//		System.out.println(ArrayUtil.toString(indicesOf("c-c-c-c", "x")));
@@ -484,4 +568,5 @@ public class StringUtil
 			throw new RuntimeException("UTF-8 is an unknown encoding!?");
 		}
 	}
+
 }

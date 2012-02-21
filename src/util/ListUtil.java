@@ -1,5 +1,6 @@
 package util;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -128,6 +129,13 @@ public class ListUtil
 			for (T t : list)
 				l.add(t);
 		return l;
+	}
+
+	public static <T> T[] toArray(List<T> list)
+	{
+		@SuppressWarnings("unchecked")
+		T a[] = (T[]) Array.newInstance(list.get(0).getClass(), list.size());
+		return list.toArray(a);
 	}
 
 	public static void main(String[] args)

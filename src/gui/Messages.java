@@ -25,6 +25,11 @@ public class Messages
 		return new Messages(Message.slowMessage(string));
 	}
 
+	public static Messages slowMessage(String string, String url, String urlText)
+	{
+		return new Messages(Message.slowMessage(string, url, urlText));
+	}
+
 	public static Messages warningMessage(String string)
 	{
 		return new Messages(Message.warningMessage(string));

@@ -13,6 +13,7 @@ import java.util.Random;
 
 import util.ArrayUtil;
 import util.DoubleKeyHashMap;
+import util.ListUtil;
 
 public class SDFUtil
 {
@@ -140,7 +141,8 @@ public class SDFUtil
 		if (!in.exists())
 			throw new IllegalArgumentException("file not found" + infile);
 
-		System.out.println("filter sdf file to: " + outfile);
+		System.out.println("filter sdf file to: " + outfile + ", indices-size: " + indices.size() + ", "
+				+ ListUtil.toString(indices));
 		File out = new File(outfile);
 		//		if (out.exists())
 		//			System.err.println("overwriting " + outfile);
@@ -301,8 +303,8 @@ public class SDFUtil
 
 	public static void main(String args[])
 	{
-		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
-				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
+		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
+		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
 		//reduce("/home/martin/data/cox2_3d_WithReals.sdf", "/home/martin/data/cox2_3d_WithReals.m.sdf", 0.33);
 
@@ -313,10 +315,9 @@ public class SDFUtil
 		//				"/home/martin/workspace/external/moss/br_example.sdf", new String[] { "3-24", "3-36", "3-68", "3-78",
 		//						"4-42", "4-49", "9-44", "9-45" });
 
-		//		int include[] = { 0, 1, 400 };
-		//		SDFUtil.filter(
-		//				"/home/martin/workspace/ClusterViewer/geclusterteDatensaetze/cox2_3d_WithReals/Dataset/cox2_3d_WithReals.sdf",
-		//				"/home/martin/tmp/delme.sdf", include);
+		int include[] = { 103 };
+		SDFUtil.filter("/home/martin/data/CPDBAS_v5d_1547_20Nov2008.ob.sdf", "/home/martin/data/CPDBAS_104__.sdf",
+				include);
 
 		//		String f[] = { "newFeatureX" };
 		//		List<double[]> l = new ArrayList<double[]>();

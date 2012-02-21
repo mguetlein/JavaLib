@@ -148,6 +148,11 @@ public class ArrayUtil
 		return a;
 	}
 
+	public static <T> T[] toArray(List<T> list)
+	{
+		return ListUtil.toArray(list);
+	}
+
 	public static Integer[] toIntegerArray(List<Integer> values)
 	{
 		Integer[] i = new Integer[values.size()];
@@ -442,6 +447,11 @@ public class ArrayUtil
 				}
 			}
 		return order;
+	}
+
+	public static <T> T[] sort(T[] array, Comparator<T> comp)
+	{
+		return sortAccordingToOrdering(getOrdering(array, comp), array);
 	}
 
 	@SuppressWarnings("unchecked")

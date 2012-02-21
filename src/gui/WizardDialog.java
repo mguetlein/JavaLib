@@ -3,6 +3,7 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -10,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
 import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
@@ -42,6 +44,7 @@ public class WizardDialog extends BlockableFrame
 	JButton prev;
 	JButton cancel;
 	JButton finish;
+	JButton help;
 
 	JPanel centerPanel;
 	Vector<WizardPanel> panels;
@@ -59,20 +62,22 @@ public class WizardDialog extends BlockableFrame
 	JLabel iconLabel;
 	JLabel additionalIconLabel;
 
+	String helpURL;
+
 	public WizardDialog(JFrame owner, String title, Icon icon)
 	{
-		this(owner, title, icon, null);
+		this(owner, title, icon, null, null);
 	}
 
-	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon)
+	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon, String helpURL)
 	{
 		super(title);
 		this.icon = icon;
 		this.title = title;
 		this.additionalIcon = additionalIcon;
+		this.helpURL = helpURL;
 		buildLayout();
 		setLocationRelativeTo(owner);
-
 		panels = new Vector<WizardPanel>();
 	}
 
@@ -195,15 +200,17 @@ public class WizardDialog extends BlockableFrame
 				.darker()), new EmptyBorder(10, 10, 0, 10)));
 
 		// button panel is south
-
+		help = new JButton("Help");
+		if (helpURL == null)
+			help.setEnabled(false);
 		next = new JButton("Next");
 		prev = new JButton("Previous");
 		cancel = new JButton("Close");
 		finish = new JButton(getFinishText());
-		JPanel buttons = ButtonBarFactory.buildRightAlignedBar(cancel, prev, next, finish);
+		JPanel buttons = ButtonBarFactory.buildHelpBar(help, cancel, prev, next, finish);
 		buttons.setBackground(Color.WHITE);
 		buttons.setBorder(new CompoundBorder(
-				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 10, 10,
+				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 35, 10,
 						10)));
 
 		centerPanelContainer.add(northPanel, BorderLayout.NORTH);
@@ -245,7 +252,21 @@ public class WizardDialog extends BlockableFrame
 				proceedTo(titleList.locationToIndex(p));
 			}
 		});
-
+		help.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					Desktop.getDesktop().browse(new URI(helpURL));
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+		});
 		cancel.addActionListener(new ActionListener()
 		{
 			@Override

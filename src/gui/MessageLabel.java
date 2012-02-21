@@ -1,11 +1,17 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URI;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 
 import util.ImageLoader;
@@ -14,6 +20,8 @@ public class MessageLabel extends JPanel
 {
 	private JLabel infoIcon = new JLabel();
 	private JTextArea infoTextArea = new JTextArea();
+	private LinkButton link = new LinkButton("");
+	private String url;
 
 	public MessageLabel(Messages msgs)
 	{
@@ -38,6 +46,27 @@ public class MessageLabel extends JPanel
 		setLayout(new BorderLayout(5, 0));
 		add(infoIcon, BorderLayout.WEST);
 		add(infoTextArea);
+		add(link, BorderLayout.SOUTH);
+		link.setForegroundFont(infoTextArea.getFont().deriveFont(Font.PLAIN));
+		link.setSelectedForegroundFont(infoTextArea.getFont().deriveFont(Font.PLAIN));
+		link.setForegroundColor(Color.BLUE);
+		link.setSelectedForegroundColor(Color.BLUE);
+		link.setHorizontalAlignment(SwingConstants.RIGHT);
+		link.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					Desktop.getDesktop().browse(new URI(url));
+				}
+				catch (Exception ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+		});
 		setOpaque(true);
 		setBorder(new MatteBorder(1, 1, 1, 1, getBackground().darker().darker()));
 		setMessages(null);
@@ -72,6 +101,14 @@ public class MessageLabel extends JPanel
 		{
 			setIgnoreRepaint(true);
 			infoTextArea.setText(msg.getString());
+			if (msg.getURL() != null)
+			{
+				link.setVisible(true);
+				url = msg.getURL();
+				link.setText(msg.getURLText() == null ? url : msg.getURLText());
+			}
+			else
+				link.setVisible(false);
 			switch (msg.getType())
 			{
 				case Info:

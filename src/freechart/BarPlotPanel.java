@@ -12,16 +12,16 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import util.ArrayUtil;
 import util.SwingUtil;
 
-public class BarPlotPanel extends JPanel
+public class BarPlotPanel extends AbstractFreeChartPanel
 {
-	ChartPanel chartPanel;
-
 	Map<String, List<Double>> data = new HashMap<String, List<Double>>();
 
 	public BarPlotPanel(String title, String yAxisLabel, double values[], String names[])
@@ -57,6 +57,10 @@ public class BarPlotPanel extends JPanel
 		//		CategoryPlot plot = chart.getCategoryPlot();
 		//		((BarRenderer) plot.getRenderer()).setShadowVisible(false);
 		//		((NumberAxis) plot.getRangeAxis()).setTickUnit(new NumberTickUnit(1));
+
+		CategoryPlot categoryPlot = chart.getCategoryPlot();
+		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+		br.setMaximumBarWidth(.35);
 
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
 		chartPanel = new ChartPanel(chart);

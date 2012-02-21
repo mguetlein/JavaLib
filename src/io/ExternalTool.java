@@ -166,7 +166,8 @@ public class ExternalTool
 					}
 				}
 				if (child.exitValue() != 0)
-					throw new ExternalToolError(processName + " exited with error: " + child.exitValue(), getErrorOut());
+					throw new ExternalToolError(processName + " exited with error: " + child.exitValue(),
+							getErrorOut(), null);
 				if (tmpStdOutfile != null && !FileUtil.robustRenameTo(tmpStdOutfile, stdOutfile))
 					throw new Error("cannot rename tmp file");
 			}
@@ -183,9 +184,9 @@ public class ExternalTool
 	{
 		private String errorOut;
 
-		public ExternalToolError(String msg, String errorOut)
+		public ExternalToolError(String msg, String errorOut, Throwable cause)
 		{
-			super(msg);
+			super(msg, cause);
 			this.errorOut = errorOut;
 		}
 

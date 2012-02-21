@@ -1,11 +1,11 @@
 package gui;
 
-import gui.MessageType;
-
 public class Message
 {
 	String string;
 	MessageType type;
+	String url;
+	String urlText;
 
 	public Message(String string, MessageType type)
 	{
@@ -21,6 +21,14 @@ public class Message
 	public static Message slowMessage(String string)
 	{
 		return new Message(string, MessageType.Slow);
+	}
+
+	public static Message slowMessage(String string, String url, String urlText)
+	{
+		Message m = new Message(string, MessageType.Slow);
+		m.url = url;
+		m.urlText = urlText;
+		return m;
 	}
 
 	public static Message warningMessage(String string)
@@ -41,5 +49,15 @@ public class Message
 	public MessageType getType()
 	{
 		return type;
+	}
+
+	public String getURL()
+	{
+		return url;
+	}
+
+	public String getURLText()
+	{
+		return urlText;
 	}
 }

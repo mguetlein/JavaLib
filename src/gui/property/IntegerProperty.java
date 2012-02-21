@@ -74,7 +74,7 @@ public class IntegerProperty extends AbstractProperty
 		if (!this.value.equals(value))
 		{
 			if ((Integer) value < minValue || (Integer) value > maxValue)
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("is " + value + ", should be >= " + minValue + " and <= " + maxValue);
 			this.value = (Integer) value;
 			valueChanged(this.value);
 		}

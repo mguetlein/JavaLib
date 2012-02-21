@@ -9,16 +9,34 @@ public class DoubleProperty extends AbstractProperty
 	private Double value;
 	private Double defaultValue;
 
+	private Double minValue;
+	private Double maxValue;
+	private Double stepWidth;
+
 	public DoubleProperty(String name, Double value)
 	{
 		this(name, name, value);
 	}
 
+	public DoubleProperty(String name, Double value, Double minValue, Double maxValue, Double stepWidth)
+	{
+		this(name, name, value, minValue, maxValue, stepWidth);
+	}
+
 	public DoubleProperty(String name, String uniqueName, Double value)
+	{
+		this(name, uniqueName, value, 0.0, Double.MAX_VALUE, 0.01);
+	}
+
+	public DoubleProperty(String name, String uniqueName, Double value, Double minValue, Double maxValue,
+			Double stepWidth)
 	{
 		super(name, uniqueName);
 		this.defaultValue = value;
 		this.value = value;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		this.stepWidth = stepWidth;
 	}
 
 	@Override
@@ -55,6 +73,21 @@ public class DoubleProperty extends AbstractProperty
 			this.value = (Double) value;
 			valueChanged(this.value);
 		}
+	}
+
+	public Double getMinValue()
+	{
+		return minValue;
+	}
+
+	public Double getMaxValue()
+	{
+		return maxValue;
+	}
+
+	public Double getStepWidth()
+	{
+		return stepWidth;
 	}
 
 }

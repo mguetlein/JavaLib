@@ -105,6 +105,22 @@ public class HistogramPanel extends AbstractFreeChartPanel
 				}
 			}
 		}
+		if (max == min)
+		{
+			double e = Math.abs(min) * 0.1;
+			if (e == 0)
+				e = 1;
+			min -= e;
+			max += e;
+		}
+		else if (max - min < 0.001)
+		{
+			double e = Math.abs(min) * 0.0001;
+			if (e == 0)
+				e = 1;
+			min -= e;
+			max += e;
+		}
 
 		for (int i = values.size() - 1; i >= 0; i--)
 		{
@@ -165,12 +181,27 @@ public class HistogramPanel extends AbstractFreeChartPanel
 
 	public static void main(String args[])
 	{
-		HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4, 1,
-				2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 5, null, true);
-		p.setForegroundColor(Color.GREEN);
-		p.setShadowVisible(false);
-		SwingUtil.showInDialog(p);
+		double d[][] = new double[][] { { 11.850000000000003, 11.850000000000007, 11.849999999999998 } };
+		//, { -5 }, { 0.0001 }, { 4 }, { 2324323 }, { -0.45 }, { 0 } };
+
+		for (double[] e : d)
+		{
+			HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", "", e, 20, null, true);
+
+			//			Plot plot = p.getChart().getPlot();
+			//			XYPlot p2 = (XYPlot) plot;
+			//			Axis a = p2.getRangeAxis();
+
+			p.setIntegerTickUnits();
+
+			//		p.setForegroundColor(Color.GREEN);
+			p.setShadowVisible(false);
+			SwingUtil.showInDialog(p);
+		}
+		//		HistogramPanel p2 = new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4, 1,
+		//				2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 5, null, true);
+		//		p2.setShadowVisible(false);
+		//		SwingUtil.showInDialog(p2);
 
 	}
-
 }

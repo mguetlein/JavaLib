@@ -31,9 +31,46 @@ public class TimeFormatUtil
 		long o1 = t / t1;
 		long o2 = (t % t1) / t2;
 
-		String s = o1 + " " + (o1 == 1 ? s1.substring(0, s1.lastIndexOf("/")) : s1.replace("/", ""));
+		String s = o1 + "" + (o1 == 1 ? s1.substring(0, s1.lastIndexOf("/")) : s1.replace("/", ""));
 		if (o2 > 0)
-			s += " und " + o2 + " " + (o2 == 1 ? s2.substring(0, s2.lastIndexOf("/")) : s2.replace("/", ""));
+			s += ", " + o2 + "" + (o2 == 1 ? s2.substring(0, s2.lastIndexOf("/")) : s2.replace("/", ""));
 		return s;
+	}
+
+	public static String format(long d)
+	{
+		if (d >= YEAR)
+			return formatTime(d, YEAR, MONTH, "years", "months");
+		else if (d >= MONTH)
+			return formatTime(d, MONTH, DAY, "months", "days");
+		else if (d >= WEEK)
+			return formatTime(d, WEEK, DAY, "weeks", "d");
+		else if (d >= DAY)
+			return formatTime(d, DAY, HOUR, "d", "h");
+		else if (d >= HOUR)
+			return formatTime(d, HOUR, MINUTE, "h", "m");
+		else if (d >= MINUTE)
+			return formatTime(d, MINUTE, SECOND, "m", "s");
+		else if (d >= SECOND)
+			return (d / SECOND) + "s";
+		else
+			return "<1s";
+	}
+
+	private static String formatTime(long t, long t1, long t2, String s1, String s2)
+	{
+		long o1 = t / t1;
+		long o2 = (t % t1) / t2;
+		String s = o1 + "" + s1;
+		if (o2 > 0)
+			s += ", " + o2 + "" + s2;
+		return s;
+	}
+
+	public static void main(String args[])
+	{
+		long[] l = { 12L, 3456L, 10959L, 60000L, 61000L, 4398743L, };
+		for (long ll : l)
+			System.out.println(TimeFormatUtil.format(ll));
 	}
 }
