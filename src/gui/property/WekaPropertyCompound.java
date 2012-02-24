@@ -6,6 +6,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 
+import weka.core.DistanceFunction;
 import weka.gui.GenericObjectEditor;
 
 public class WekaPropertyCompound extends JPanel implements PropertyCompound
@@ -17,7 +18,10 @@ public class WekaPropertyCompound extends JPanel implements PropertyCompound
 	{
 		this.property = property;
 		editor = new GenericObjectEditor();
-		editor.setClassType(property.getValue().getClass());
+		if (property.getValue() instanceof DistanceFunction)
+			editor.setClassType(DistanceFunction.class);
+		else
+			throw new IllegalStateException("superclass unkonwn: " + property.getValue().getClass());
 		editor.setValue(property.getValue());
 
 		setLayout(new BorderLayout());

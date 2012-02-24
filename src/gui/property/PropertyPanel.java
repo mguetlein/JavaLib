@@ -10,7 +10,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import util.ArrayUtil;
 import util.SwingUtil;
+import weka.WekaPropertyUtil;
+import weka.clusterers.SimpleKMeans;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -101,6 +104,8 @@ public class PropertyPanel extends JPanel
 
 	public static void main(String args[])
 	{
+		//		Explorer.main(null);
+
 		Property[] props = new Property[5];
 
 		props[0] = new StringProperty("Test-Property", "default");
@@ -110,6 +115,8 @@ public class PropertyPanel extends JPanel
 		props[2] = new FileProperty("A file", null);
 		props[3] = new DoubleProperty("Double prop", 0.5);
 		props[4] = new DoubleProperty("Double prop small", 0.0001, 0.0, 1.0, 0.00001);
+
+		props = ArrayUtil.concat(Property.class, props, WekaPropertyUtil.getProperties(new SimpleKMeans()));
 
 		SwingUtil.showInDialog(new PropertyPanel(props));
 	}

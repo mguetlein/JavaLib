@@ -8,6 +8,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 
 public class ScreenUtil
 {
@@ -71,6 +75,25 @@ public class ScreenUtil
 		}
 	}
 
+	public static int getScreen(Window w)
+	{
+		try
+		{
+			int i = 0;
+			for (GraphicsDevice d : gs)
+			{
+				if (d.getConfigurations()[0].getBounds().contains(w.getLocation()))
+					return i;
+				i++;
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	public static void centerOnScreen(Window w, int screen)
 	{
 		Dimension size = getScreenSize(screen);
@@ -82,6 +105,17 @@ public class ScreenUtil
 
 	public static void main(String args[])
 	{
+		final JButton b = new JButton("which screen");
+		b.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				System.out.println(getScreen((Window) b.getTopLevelAncestor()));
+			}
+		});
+		SwingUtil.showInDialog(b);
+
 		for (int i = 0; i < getNumMonitors(); i++)
 		{
 			System.out.println(i + ":");

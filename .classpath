@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/swtgraphics2d.jar"/>
-	<classpathentry kind="lib" path="lib/weka-3-6-6/weka.jar" sourcepath="/home/martin/software/weka-3-6-6/weka-src.jar"/>
+	<classpathentry kind="lib" path="lib/weka-3-6-6/weka.jar" sourcepath="/home/martin/workspace/external/weka-3-6-6/weka-src.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.6/commons-codec-1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
