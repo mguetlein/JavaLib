@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -11,14 +12,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.SequenceInputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.jfree.io.IOUtils;
 
 public class FileUtil
@@ -162,43 +161,25 @@ public class FileUtil
 			throw new IllegalArgumentException();
 		if (f1.length() != f2.length())
 			return false;
-		return Arrays.equals(getMd5(file1), getMd5(file2));
+		return getMD5String(file1).equals(getMD5String(file2));
 	}
 
 	public static String getMD5String(String filename)
 	{
-		byte[] b = getMd5(filename);
-		String result = "";
-		for (int i = 0; i < b.length; i++)
-		{
-			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
-		}
-		return result;
-	}
-
-	public static byte[] getMd5(String filename)
-	{
-		MessageDigest md = null;
-		InputStream is = null;
 		try
 		{
-			md = MessageDigest.getInstance("MD5");
-			try
-			{
-				is = new FileInputStream(filename);
-				is = new DigestInputStream(is, md);
-			}
-			finally
-			{
-				if (is != null)
-					is.close();
-			}
+			FileInputStream fis = new FileInputStream(new File(filename));
+			return DigestUtils.md5Hex(fis);
 		}
-		catch (Exception e)
+		catch (FileNotFoundException e1)
 		{
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		return md.digest();
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+		return null;
 	}
 
 	public static String getFilename(String file)
@@ -355,7 +336,9 @@ public class FileUtil
 
 	public static void main(String args[])
 	{
-		System.out.println(getAbsolutePathEscaped(new File(".")));
+		//System.out.println(getAbsolutePathEscaped(new File(".")));
+
+		System.out.println(getMD5String("/home/martin/data/test8.csv"));
 
 		// String s = "C:\\bla\\blub";
 		// System.out.println(s);
