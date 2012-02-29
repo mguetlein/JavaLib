@@ -157,7 +157,7 @@ public class Task
 		{
 			System.err.println("Cancelling task!");
 			cancelled = true;
-			firePropertyChanageEvent(PROPERTY_CANCELLED, null, null);
+			firePropertyChanageEvent(PROPERTY_CANCELLED, "cancelling", null);
 		}
 	}
 
