@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,7 +46,6 @@ public class CheckBoxSelectDialog extends JDialog
 	{
 		setModal(true);
 		buildLayout(description);
-		pack();
 
 		for (Object o : values)
 			listModel.addElement(o);
@@ -55,9 +55,9 @@ public class CheckBoxSelectDialog extends JDialog
 			if (selection[i])
 				selected.add(i);
 		list.getCheckBoxSelection().setSelectedIndices(ArrayUtil.toPrimitiveIntArray(selected));
-
 		//System.out.println("selected: " + ArrayUtil.toString(list.getCheckBoxSelection().getSelectedIndices()));
 
+		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
 	}
@@ -70,6 +70,10 @@ public class CheckBoxSelectDialog extends JDialog
 		d.setBorder(null);
 		d.setWrapStyleWord(true);
 		d.setLineWrap(true);
+
+		//text-area hack to prevent pref-size to be sth like 0,2500 
+		d.setPreferredSize(null);
+		d.setSize(new Dimension(200, Integer.MAX_VALUE));
 
 		listModel = new DefaultListModel();
 		list = new MouseOverCheckBoxList(listModel);
