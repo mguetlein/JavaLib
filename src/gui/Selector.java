@@ -391,9 +391,13 @@ public abstract class Selector<T> extends JPanel
 	private static void addNodeToDefaultTreeModel(DefaultTreeModel treeModel, DefaultMutableTreeNode parentNode,
 			DefaultMutableTreeNode node)
 	{
-		treeModel.insertNodeInto(node, parentNode, parentNode.getChildCount());
-		if (parentNode == treeModel.getRoot())
-			treeModel.nodeStructureChanged((TreeNode) treeModel.getRoot());
+		DefaultMutableTreeNode alreadyExists = TreeUtil.getChild(parentNode, node.getUserObject());
+		if (alreadyExists == null)
+		{
+			treeModel.insertNodeInto(node, parentNode, parentNode.getChildCount());
+			if (parentNode == treeModel.getRoot())
+				treeModel.nodeStructureChanged((TreeNode) treeModel.getRoot());
+		}
 	}
 
 	public void clearElements()

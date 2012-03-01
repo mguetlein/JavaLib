@@ -783,6 +783,8 @@ public class ArrayUtil
 		{
 			if (array[i] == null || array[i].equals("null") || array[i].toString().trim().length() == 0)
 				d[i] = null;
+			else if (array[i].equals("nan"))
+				d[i] = Double.NaN;
 			else
 			{
 				Double doub = DoubleUtil.parseDouble(array[i].toString());
