@@ -19,7 +19,7 @@ public class ImageLoader
 	public static final ImageIcon TOOL = loadImageIcon("data/tool.png", ImageLoader.class);
 
 	public static final ImageIcon CHES_MAPPER = loadImageIcon("data/ches-mapper.png", ImageLoader.class);
-	public static final ImageIcon CHES_MAPPER_SMALL = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);
+	public static final ImageIcon CHES_MAPPER_ICON = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);
 	public static final ImageIcon OPENTOX = loadImageIcon("data/OpenTox_logo.png", ImageLoader.class);
 
 	public static ImageIcon loadImageIcon(String imagePath, Class<?> relativeTo)

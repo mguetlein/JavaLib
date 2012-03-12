@@ -5,6 +5,7 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -146,6 +147,34 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 
 		if (integerTick)
 			setIntegerTickUnits();
+	}
+
+	public void setFontSize(float size)
+	{
+		JFreeChart chart = chartPanel.getChart();
+		if (chart.getTitle() != null)
+			chart.getTitle().setFont(chart.getTitle().getFont().deriveFont(size + 4F));
+		if (chart.getLegend() != null)
+			chart.getLegend().setItemFont(chart.getLegend().getItemFont().deriveFont(size));
+		Plot plot = chartPanel.getChart().getPlot();
+		if (plot instanceof XYPlot)
+		{
+			XYPlot p = (XYPlot) plot;
+			p.getRangeAxis().setLabelFont(p.getRangeAxis().getLabelFont().deriveFont(size));
+			p.getRangeAxis().setTickLabelFont(p.getRangeAxis().getTickLabelFont().deriveFont(size));
+			p.getDomainAxis().setLabelFont(p.getDomainAxis().getLabelFont().deriveFont(size));
+			p.getDomainAxis().setTickLabelFont(p.getDomainAxis().getTickLabelFont().deriveFont(size));
+		}
+		else if (plot instanceof CategoryPlot)
+		{
+			CategoryPlot p = (CategoryPlot) plot;
+			p.getRangeAxis().setLabelFont(p.getRangeAxis().getLabelFont().deriveFont(size));
+			p.getRangeAxis().setTickLabelFont(p.getRangeAxis().getTickLabelFont().deriveFont(size));
+			p.getDomainAxis().setLabelFont(p.getDomainAxis().getLabelFont().deriveFont(size));
+			p.getDomainAxis().setTickLabelFont(p.getDomainAxis().getTickLabelFont().deriveFont(size));
+		}
+		else
+			throw new IllegalStateException("unknown plot " + plot.getClass());
 	}
 
 	public void setBarWidthLimited()

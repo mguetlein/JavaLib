@@ -131,7 +131,7 @@ public class WizardDialog extends BlockableFrame
 			public Dimension getPreferredSize()
 			{
 				Dimension dim = super.getPreferredSize();
-				return new Dimension(dim.width + 36, dim.height + 2);
+				return new Dimension(dim.width + (getFont().getSize() > 12 ? 52 : 36), dim.height + 2);
 			}
 		};
 		titleList.setBorder(null);

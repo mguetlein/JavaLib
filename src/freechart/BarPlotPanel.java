@@ -106,11 +106,11 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 
 		JPanel p = new JPanel(new BorderLayout());
 		p.setBackground(Color.YELLOW);
-		p.add(new BarPlotPanel("Title", "Axis-Name", new double[] { 3, 5, 7, 2 }, new String[] { "asdf", "ene", "mene",
-				"miste" }, false));
-
+		BarPlotPanel plot = new BarPlotPanel("Title", "Axis-Name", new double[] { 3, 5, 7, 2 }, new String[] { "asdf",
+				"ene", "mene", "miste" }, false);
+		plot.setFontSize(20);
+		p.add(plot);
 		SwingUtil.showInDialog(p, new Dimension(400, 300));
-
 		System.out.println("done");
 		System.exit(0);
 

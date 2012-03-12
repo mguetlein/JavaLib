@@ -228,6 +228,12 @@ public class SwingUtil
 	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
 			JFrame owner)
 	{
+		showInDialog(c, title, dim, runAfterVisible, owner, -1);
+	}
+
+	private static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
+			JFrame owner, int screenIndex)
+	{
 		final JDialog f = new JDialog(owner);
 		f.setModal(true);
 		f.setTitle(title);
@@ -250,7 +256,12 @@ public class SwingUtil
 			f.pack();
 		else
 			f.setSize(dim);
-		f.setLocationRelativeTo(owner);
+		if (owner != null)
+			f.setLocationRelativeTo(owner);
+		else if (screenIndex != -1)
+			ScreenUtil.centerOnScreen(f, screenIndex);
+		else
+			ScreenUtil.centerOnScreen(f, ScreenUtil.getLargestScreen());
 		if (runAfterVisible != null)
 		{
 			f.addWindowListener(new WindowAdapter()

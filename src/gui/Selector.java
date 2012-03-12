@@ -84,11 +84,11 @@ public abstract class Selector<T> extends JPanel
 	public static final String PROPERTY_EMPTY_ADD = "PROPERTY_EMPTY_ADD";
 	public static final String PROPERTY_EMPTY_REMOVE = "PROPERTY_EMPTY_REMOVE";
 
-	public Selector(Class<T> clazz, String rootName)
+	public Selector(Class<T> clazz, String rootName, int visibleRowCount)
 	{
 		this.clazz = clazz;
 		root.setUserObject(rootName);
-		buildLayout();
+		buildLayout(visibleRowCount);
 		addListeners();
 	}
 
@@ -110,7 +110,7 @@ public abstract class Selector<T> extends JPanel
 
 	public abstract ImageIcon getCategoryIcon(String name);
 
-	private void buildLayout()
+	private void buildLayout(int visibleRowCount)
 	{
 		//		searchListRenderer.setDescriptionSizeOffset(0);
 		//		searchListRenderer.setDescriptionSpaceTop(5);
@@ -156,8 +156,8 @@ public abstract class Selector<T> extends JPanel
 			}
 		});
 
-		searchTree.setVisibleRowCount(12);
-		selectList.setVisibleRowCount(12);
+		searchTree.setVisibleRowCount(visibleRowCount);
+		selectList.setVisibleRowCount(visibleRowCount);
 
 		selectList.setFont(searchTree.getFont());
 
@@ -447,7 +447,7 @@ public abstract class Selector<T> extends JPanel
 
 	public static void main(String args[])
 	{
-		final Selector<String> sel = new Selector<String>(String.class, "Tiere")
+		final Selector<String> sel = new Selector<String>(String.class, "Tiere", 12)
 		{
 			public ImageIcon getIcon(String renderable)
 			{
