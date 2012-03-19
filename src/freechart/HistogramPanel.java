@@ -121,7 +121,12 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			min -= e;
 			max += e;
 		}
-
+		if (max < min)
+		{
+			//no values
+			min = 0;
+			max = 0;
+		}
 		for (int i = values.size() - 1; i >= 0; i--)
 		{
 			String c = "Data" + (i + 1);

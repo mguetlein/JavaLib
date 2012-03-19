@@ -109,7 +109,7 @@ public class SDFUtil
 
 	public static void filter_exclude(String infile, String outfile, List<Integer> excludeIndices)
 	{
-		filter(infile, outfile, excludeIndices, false, null, null);
+		filter(infile, outfile, excludeIndices, false, null);
 	}
 
 	public static void filter(String infile, String outfile, int[] includeIndices)
@@ -119,23 +119,23 @@ public class SDFUtil
 
 	public static void filter(String infile, String outfile, List<Integer> includeIndices)
 	{
-		filter(infile, outfile, includeIndices, true, null, null);
+		filter(infile, outfile, includeIndices, true, null);
 	}
 
-	public static void filter(String infile, String outfile, int[] includeIndices, List<Object> featureNames,
+	public static void filter(String infile, String outfile, int[] includeIndices,
 			DoubleKeyHashMap<Integer, Object, Object> featureValues)
 	{
-		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureNames, featureValues);
+		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureValues);
 	}
 
-	public static void filter(String infile, String outfile, List<Integer> includeIndices, List<Object> featureNames,
+	public static void filter(String infile, String outfile, List<Integer> includeIndices,
 			DoubleKeyHashMap<Integer, Object, Object> featureValues)
 	{
-		filter(infile, outfile, includeIndices, true, featureNames, featureValues);
+		filter(infile, outfile, includeIndices, true, featureValues);
 	}
 
 	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
-			List<Object> featureNames, DoubleKeyHashMap<Integer, Object, Object> featureValues)
+			DoubleKeyHashMap<Integer, Object, Object> featureValues)
 	{
 		File in = new File(infile);
 		if (!in.exists())
@@ -159,7 +159,7 @@ public class SDFUtil
 				{
 					if (line.equals("$$$$"))
 					{
-						if (featureNames != null)
+						if (featureValues != null)
 						{
 							for (Object key : featureValues.keySet2(index))
 							{
@@ -306,7 +306,7 @@ public class SDFUtil
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		//reduce("/home/martin/data/cox2_3d_WithReals.sdf", "/home/martin/data/cox2_3d_WithReals.m.sdf", 0.33);
+		reduce("/home/martin/data/caco2.sdf", "/home/martin/data/basicTestSet.sdf", 0.2);
 
 		//		filter_exclude("/home/martin/data/3d/bzr/data/bzr_3d.sd", "/home/martin/data/3d/bzr/data/bzr.sdf", new int[] {
 		//				191, 192 });
@@ -315,9 +315,9 @@ public class SDFUtil
 		//				"/home/martin/workspace/external/moss/br_example.sdf", new String[] { "3-24", "3-36", "3-68", "3-78",
 		//						"4-42", "4-49", "9-44", "9-45" });
 
-		int include[] = { 103 };
-		SDFUtil.filter("/home/martin/data/CPDBAS_v5d_1547_20Nov2008.ob.sdf", "/home/martin/data/CPDBAS_104__.sdf",
-				include);
+		//		int include[] = { 103 };
+		//		SDFUtil.filter("/home/martin/data/CPDBAS_v5d_1547_20Nov2008.ob.sdf", "/home/martin/data/CPDBAS_104__.sdf",
+		//				include);
 
 		//		String f[] = { "newFeatureX" };
 		//		List<double[]> l = new ArrayList<double[]>();

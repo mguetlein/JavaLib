@@ -22,6 +22,19 @@ public class DoubleKeyHashMap<T1, T2, T3>
 		map.get(key1).put(key2, value);
 	}
 
+	public T3 remove(T1 key1, T2 key2)
+	{
+		if (!map.containsKey(key1))
+			return null;
+		else
+		{
+			T3 res = map.get(key1).remove(key2);
+			if (map.get(key1).size() == 0)
+				map.remove(key1);
+			return res;
+		}
+	}
+
 	public Set<T1> keySet1()
 	{
 		return map.keySet();

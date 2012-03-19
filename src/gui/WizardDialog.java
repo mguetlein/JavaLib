@@ -40,11 +40,11 @@ public class WizardDialog extends BlockableFrame
 	JLabel titleLabel;
 	JTextArea descriptionTextArea;
 
-	JButton next;
-	JButton prev;
-	JButton cancel;
-	JButton finish;
-	JButton help;
+	JButton buttonNext;
+	JButton buttonPrev;
+	JButton buttonCancel;
+	JButton buttonFinish;
+	JButton buttonHelp;
 
 	JPanel centerPanel;
 	Vector<WizardPanel> panels;
@@ -200,14 +200,14 @@ public class WizardDialog extends BlockableFrame
 				.darker()), new EmptyBorder(10, 10, 0, 10)));
 
 		// button panel is south
-		help = new JButton("Help");
+		buttonHelp = new JButton("Help");
 		if (helpURL == null)
-			help.setEnabled(false);
-		next = new JButton("Next");
-		prev = new JButton("Previous");
-		cancel = new JButton("Close");
-		finish = new JButton(getFinishText());
-		JPanel buttons = ButtonBarFactory.buildHelpBar(help, cancel, prev, next, finish);
+			buttonHelp.setEnabled(false);
+		buttonNext = new JButton("Next");
+		buttonPrev = new JButton("Previous");
+		buttonCancel = new JButton("Close");
+		buttonFinish = new JButton(getFinishText());
+		JPanel buttons = ButtonBarFactory.buildHelpBar(buttonHelp, buttonCancel, buttonPrev, buttonNext, buttonFinish);
 		buttons.setBackground(Color.WHITE);
 		buttons.setBorder(new CompoundBorder(
 				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 35, 10,
@@ -228,7 +228,7 @@ public class WizardDialog extends BlockableFrame
 
 	public void setCloseButtonText(String string)
 	{
-		cancel.setText(string);
+		buttonCancel.setText(string);
 	}
 
 	public void addClickLinkToIcon(String link)
@@ -252,7 +252,7 @@ public class WizardDialog extends BlockableFrame
 				proceedTo(titleList.locationToIndex(p));
 			}
 		});
-		help.addActionListener(new ActionListener()
+		buttonHelp.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -267,7 +267,7 @@ public class WizardDialog extends BlockableFrame
 				}
 			}
 		});
-		cancel.addActionListener(new ActionListener()
+		buttonCancel.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -275,7 +275,7 @@ public class WizardDialog extends BlockableFrame
 				WizardDialog.this.setVisible(false);
 			}
 		});
-		finish.addActionListener(new ActionListener()
+		buttonFinish.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -286,7 +286,7 @@ public class WizardDialog extends BlockableFrame
 				WizardDialog.this.setVisible(false);
 			}
 		});
-		next.addActionListener(new ActionListener()
+		buttonNext.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -295,7 +295,7 @@ public class WizardDialog extends BlockableFrame
 				update(status + 1);
 			}
 		});
-		prev.addActionListener(new ActionListener()
+		buttonPrev.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
@@ -365,9 +365,9 @@ public class WizardDialog extends BlockableFrame
 			validate();
 		}
 
-		prev.setEnabled(status > 0);
-		next.setEnabled(status < panels.size() - 1 && canProceed(status));
-		finish.setEnabled(errorPanel() == -1);
+		buttonPrev.setEnabled(status > 0);
+		buttonNext.setEnabled(status < panels.size() - 1 && canProceed(status));
+		buttonFinish.setEnabled(errorPanel() == -1);
 		//setTitle(title + " (" + (status + 1) + "/" + panels.size() + ")");
 		setTitle(title);
 		titleLabel.setText(panels.get(status).getTitle() + " (step " + (status + 1) + " of " + panels.size() + ")");
@@ -474,5 +474,10 @@ public class WizardDialog extends BlockableFrame
 		w.setVisible(true);
 		SwingUtil.waitWhileVisible(w);
 		System.exit(0);
+	}
+
+	public WizardPanel getCurrentPanel()
+	{
+		return panels.get(status);
 	}
 }

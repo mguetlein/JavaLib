@@ -64,7 +64,7 @@ public class PropertyPanel extends JPanel
 
 	public void store()
 	{
-		if (javaProperties != null && properties != null)
+		if (javaProperties != null && properties != null && propertyFile != null)
 			for (Property p : properties)
 				p.store(javaProperties, propertyFile);
 	}

@@ -5,6 +5,9 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
@@ -90,6 +93,13 @@ public abstract class Selector<T> extends JPanel
 		root.setUserObject(rootName);
 		buildLayout(visibleRowCount);
 		addListeners();
+	}
+
+	@Override
+	public synchronized void addKeyListener(KeyListener l)
+	{
+		searchTree.addKeyListener(l);
+		selectList.addKeyListener(l);
 	}
 
 	//	DescriptionListCellRenderer searchListRenderer = new DescriptionListCellRenderer()
@@ -488,6 +498,14 @@ public abstract class Selector<T> extends JPanel
 		sel.addElements(new String[] { "Übergruppe", "Untergruppe" }, "Herdentier 1", "Herdentier 2");
 		sel.addElements(new String[] { "Übergruppe", "Untergruppe2" }, "Herdentier 3");
 		sel.addElements("Insekten", "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5", "Ameise6", "Ameise7");
+		sel.addKeyListener(new KeyAdapter()
+		{
+			public void keyTyped(KeyEvent e)
+			{
+				System.out.println("tpyed: " + e.getKeyChar());
+			}
+
+		});
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
 	}
