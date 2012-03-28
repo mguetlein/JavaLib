@@ -75,6 +75,11 @@ public class ScreenUtil
 		}
 	}
 
+	public static GraphicsDevice getGraphicsDevice(int screen)
+	{
+		return gs[screen];
+	}
+
 	public static int getScreen(Window w)
 	{
 		try

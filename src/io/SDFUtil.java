@@ -159,7 +159,8 @@ public class SDFUtil
 				{
 					if (line.equals("$$$$"))
 					{
-						if (featureValues != null)
+						if (featureValues != null && featureValues.keySet1().size() > 0
+								&& featureValues.keySet2(index).size() > 0)
 						{
 							for (Object key : featureValues.keySet2(index))
 							{
@@ -306,7 +307,7 @@ public class SDFUtil
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		reduce("/home/martin/data/caco2.sdf", "/home/martin/data/basicTestSet.sdf", 0.2);
+		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.01);
 
 		//		filter_exclude("/home/martin/data/3d/bzr/data/bzr_3d.sd", "/home/martin/data/3d/bzr/data/bzr.sdf", new int[] {
 		//				191, 192 });

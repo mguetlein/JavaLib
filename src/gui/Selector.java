@@ -36,6 +36,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import util.ImageLoader;
+import util.ListUtil;
 import util.SwingUtil;
 
 public abstract class Selector<T> extends JPanel
@@ -232,38 +233,36 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				List<T> invalidTries = new ArrayList<T>();
-				boolean selected = false;
+				List<T> elements = new ArrayList<T>();
+
 				if (!searchTree.isSelectionEmpty())
 					for (TreePath elem : searchTree.getSelectionPaths())
 					{
 						DefaultMutableTreeNode node = (DefaultMutableTreeNode) elem.getLastPathComponent();
 						if (clazz.isInstance(node.getUserObject()))
-						{
-							selected = true;
-							if (isValid((T) node.getUserObject()))
-								setSelected((T) node.getUserObject(), true);
-							else
-								invalidTries.add((T) node.getUserObject());
-						}
+							elements.add((T) node.getUserObject());
 						else if (Category.class.isInstance(node.getUserObject()))
-						{
 							for (DefaultMutableTreeNode leaf : TreeUtil.getLeafs(node))
-							{
-								selected = true;
-								if (isValid((T) leaf.getUserObject()))
-									setSelected((T) leaf.getUserObject(), true);
-								else
-									invalidTries.add((T) leaf.getUserObject());
-							}
-						}
+								elements.add((T) leaf.getUserObject());
 					}
-				if (selected)
+
+				List<T> selected = new ArrayList<T>();
+				List<T> invalid = new ArrayList<T>();
+				for (T t : elements)
+					if (isValid(t))
+						selected.add(t);
+					else
+						invalid.add(t);
+				if (selected.size() > 0)
+					setSelected(ListUtil.toArray(selected));
+
+				if (elements.size() > 0)
 					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 				else
 					firePropertyChange(PROPERTY_EMPTY_ADD, true, false);
-				if (invalidTries.size() > 0)
-					firePropertyChange(PROPERTY_TRY_ADDING_INVALID, null, invalidTries);
+
+				if (invalid.size() > 0)
+					firePropertyChange(PROPERTY_TRY_ADDING_INVALID, null, invalid);
 			}
 		});
 		remButton.addActionListener(new ActionListener()
@@ -328,6 +327,21 @@ public abstract class Selector<T> extends JPanel
 	public String getHighlightedCategory()
 	{
 		return highlightedCategory;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setCategorySelected(String name, boolean fireAddEvent)
+	{
+		Category c = new Category(name);
+		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
+		if (parent == null)
+			return;
+		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
+		for (DefaultMutableTreeNode node : leafs)
+			if (isValid((T) node.getUserObject()) && selectListModel.indexOf(node.getUserObject()) == -1)
+				selectListModel.addElement(node.getUserObject());
+		if (fireAddEvent)
+			firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 	}
 
 	public void setSelected(T elem)
@@ -506,6 +520,7 @@ public abstract class Selector<T> extends JPanel
 			}
 
 		});
+		sel.setCategorySelected("Säugetiere", false);
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
 	}
