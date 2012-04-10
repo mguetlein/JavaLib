@@ -903,13 +903,138 @@ public class ArrayUtil
 		return c;
 	}
 
+	private static class Permutation<T>
+	{
+		T[] input;
+		int outputIndex = 0;
+		List<T[]> output;
+
+		@SuppressWarnings("unchecked")
+		private Permutation(T[] input)
+		{
+			this.input = input;
+			int faculty = faculty(input.length);
+			output = new ArrayList<T[]>(faculty);
+			for (int i = 0; i < faculty; i++)
+				output.add((T[]) Array.newInstance(input[0].getClass(), input.length));
+			permutations(0);
+		}
+
+		private void permutations(int offset)
+		{
+			if (input.length - offset == 1)
+			{
+				// Input now contains a permutation, here I store it in output,
+				// but you can do anything you like with it
+				System.arraycopy(input, 0, output.get(outputIndex++), 0, input.length);
+				return;
+			}
+			T a = input[offset];
+			for (int i = offset; i < input.length; i++)
+			{
+				// Swap elements
+				T b = input[i];
+				input[i] = a;
+				input[offset] = b;
+
+				permutations(offset + 1);
+				// Restore element
+				input[i] = b;
+			}
+			input[offset] = a;
+		}
+
+		private static int faculty(int n)
+		{
+			return n == 1 ? n : n * faculty(n - 1);
+		}
+	}
+
+	public static <T> List<T[]> permute(T input[])
+	{
+		Permutation<T> p = new Permutation<T>(input);
+		return p.output;
+	}
+
+	/**
+	 * returns ordering to sort input array2
+	 * 
+	 * Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
+	 * Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
+	 * int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
+	 * {
+	 * 	public int compare(Integer o1, Integer o2)
+	 * 	{
+	 * 		return Math.abs(o1 - o2);
+	 * 	}
+	 * });
+	 * System.out.println(toString(ordering) + "\n");
+	 * System.out.println(toString(input1));
+	 * System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
+	 * 
+	 * @param input1
+	 * @param input2
+	 * @param comp
+	 * @return
+	 */
+	public static <T> int[] naiveMap(T input1[], T input2[], Comparator<T> comp)
+	{
+		if (input1.length != input2.length)
+			throw new IllegalArgumentException();
+		int[] ordering = new int[input1.length];
+		Arrays.fill(ordering, -1);
+		for (int i = 0; i < input1.length; i++)
+		{
+			for (int j = 0; j < input2.length; j++)
+			{
+				if (indexOf(ordering, j) == -1 && comp.compare(input1[i], input2[j]) == 0)
+				{
+					ordering[i] = j;
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < input1.length; i++)
+		{
+			if (ordering[i] != -1)
+				continue;
+			for (int j = 0; j < input2.length; j++)
+			{
+				if (indexOf(ordering, j) != -1)
+					continue;
+				ordering[i] = j;
+				break;
+			}
+		}
+		return ordering;
+	}
+
 	public static void main(String args[])
 	{
+		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
+		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
+		{
+			public int compare(Integer o1, Integer o2)
+			{
+				return Math.abs(o1 - o2);
+			}
+		});
+		System.out.println(toString(ordering) + "\n");
+		System.out.println(toString(input1));
+		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
+
+		//		Integer[] input = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		//		List<Integer[]> output = permute(input);
+
+		//		for (Integer[] a : output)
+		//			System.out.println(toString(a));
+
 		//		Object o[] = { "a", "b", "a", "c", "b", "b" };
 		//		System.out.println(toString(normalize(o)));
 
-		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
-		System.out.println(toString(normalize(d, false)));
+		//		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
+		//		System.out.println(toString(normalize(d, false)));
 
 		//		Object s[] = { new Double(5), new Double(3) };
 		//		Double o[] = ArrayUtil.cast(Double.class, s);
@@ -938,5 +1063,4 @@ public class ArrayUtil
 		// System.out.println(" ]");
 		// }
 	}
-
 }
