@@ -1,6 +1,7 @@
 package task;
 
 import gui.MessagePanel;
+import io.Logger;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import task.TaskImpl.DetailMessage;
 import util.ScreenUtil;
 import util.SwingUtil;
+import util.ThreadUtil;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -34,6 +36,7 @@ public class TaskDialog
 
 	JDialog dialog;
 	private JButton cancelButton;
+	private JButton showLogButton;
 	private JLabel infoLabel;
 	private JLabel verboseLabel;
 	Window warningDialogOwner;
@@ -55,6 +58,7 @@ public class TaskDialog
 	private void buildDialog(Window owner)
 	{
 		cancelButton = new JButton("Abort");
+		showLogButton = new JButton("Show log");
 		infoLabel = new JLabel(task.getUpdateMessage() == null ? " " : task.getUpdateMessage());
 		infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
 		verboseLabel = new JLabel(task.getVerboseMessage() == null ? " " : task.getVerboseMessage());
@@ -62,7 +66,8 @@ public class TaskDialog
 		CellConstraints cc = new CellConstraints();
 		JPanel p = new JPanel(f);
 		cancelButton.setVisible(true);
-		JPanel buttonBar = ButtonBarFactory.buildLeftAlignedBar(cancelButton);
+		showLogButton.setVisible(false);
+		JPanel buttonBar = ButtonBarFactory.buildLeftAlignedBar(cancelButton, showLogButton);
 		p.add(infoLabel, cc.xy(1, 1));
 		p.add(verboseLabel, cc.xy(1, 3));
 		p.add(buttonBar, cc.xy(1, 5));
@@ -134,6 +139,16 @@ public class TaskDialog
 					dialog.dispose();
 			}
 		});
+		showLogButton.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if (((TaskImpl) task).getLogger() != null)
+					((TaskImpl) task).getLogger().showDialog(dialog);
+			}
+		});
 		task.addListener(new TaskListener()
 		{
 			@Override
@@ -154,10 +169,12 @@ public class TaskDialog
 					case failed:
 						updateTitle();
 						cancelButton.setText("Close");
+						showLogButton.setVisible(true);
 						infoLabel.setText(task.getError().message);
 						verboseLabel.setText(task.getError().detail);
 						pack();
 						SwingUtil.waitWhileVisible(dialog);
+						dialog.dispose();
 						break;
 					case finished:
 						dialog.dispose();
@@ -184,7 +201,6 @@ public class TaskDialog
 		final JButton b = new JButton("start task");
 		b.addActionListener(new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
@@ -192,8 +208,14 @@ public class TaskDialog
 				{
 					public void run()
 					{
-						TaskImpl t = new TaskImpl("test");
+						TaskImpl t = new TaskImpl("test", new Logger(null, true));
 						new TaskDialog(t, (Window) b.getTopLevelAncestor());
+						t.update("bla");
+						ThreadUtil.sleep(500);
+						t.update("bla2");
+						ThreadUtil.sleep(500);
+						t.update("bla3");
+						t.failed("some error", "no details");
 						t.finish();
 					}
 				});

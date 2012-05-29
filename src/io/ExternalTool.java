@@ -10,6 +10,20 @@ import util.FileUtil;
 
 public class ExternalTool
 {
+	private Logger logger;
+
+	public ExternalTool(Logger logger)
+	{
+		this.logger = logger;
+	}
+
+	private void println(String msg)
+	{
+		if (logger != null)
+			logger.info(msg);
+		else
+			System.out.println(msg);
+	}
 
 	public void run(final String processName, String command)
 	{
@@ -63,7 +77,7 @@ public class ExternalTool
 			if (arrayOrString instanceof String)
 			{
 				String command = (String) arrayOrString;
-				System.out.println(processName + " > " + command);
+				println(processName + " > " + command);
 				if (env == null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(command);
 				else if (env != null && workingDirectory == null)
@@ -74,7 +88,7 @@ public class ExternalTool
 			else if (arrayOrString instanceof String[])
 			{
 				String[] cmdArray = (String[]) arrayOrString;
-				System.out.println(processName + " > " + ArrayUtil.toString(cmdArray, " ", "", ""));
+				println(processName + " > " + ArrayUtil.toString(cmdArray, " ", "", ""));
 				if (env == null && workingDirectory == null)
 					child = Runtime.getRuntime().exec(cmdArray);
 				else if (env != null && workingDirectory == null)

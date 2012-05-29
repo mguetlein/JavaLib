@@ -1,5 +1,7 @@
 package task;
 
+import io.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,8 @@ public class TaskImpl implements Task
 	private boolean finished = false;
 	private List<TaskListener> listeners = new ArrayList<TaskListener>();
 
+	private Logger logger;
+
 	static class DetailMessage
 	{
 		String message;
@@ -31,16 +35,35 @@ public class TaskImpl implements Task
 		this(name, 100);
 	}
 
+	public TaskImpl(String name, Logger logger)
+	{
+		this(name, 100, logger);
+	}
+
 	public TaskImpl(String name, int maxStatus)
+	{
+		this(name, maxStatus, null);
+	}
+
+	public TaskImpl(String name, int maxStatus, Logger logger)
 	{
 		this.name = name;
 		this.maxStatus = maxStatus;
+		this.logger = logger;
+	}
+
+	private void println(String msg)
+	{
+		if (logger != null)
+			logger.info(msg);
+		else
+			System.out.println(msg);
 	}
 
 	@Override
 	public void update(String update)
 	{
-		System.out.println(name + "> " + update);
+		println(name + "> " + update);
 		this.update = update;
 		fire(TaskEvent.update);
 	}
@@ -55,7 +78,7 @@ public class TaskImpl implements Task
 	@Override
 	public void update(double status, String update)
 	{
-		System.out.println(name + "> " + update);
+		println(name + "> " + update);
 		this.status = status;
 		this.update = update;
 		fire(TaskEvent.update);
@@ -70,7 +93,7 @@ public class TaskImpl implements Task
 	public void verbose(String verbose)
 	{
 		if (PRINT_VERBOSE)
-			System.out.println(name + "> " + verbose);
+			println(name + "> " + verbose);
 		this.verbose = verbose;
 		fire(TaskEvent.verbose);
 	}
@@ -133,7 +156,7 @@ public class TaskImpl implements Task
 	{
 		if (!isRunning())
 			return;
-		System.out.println(name + "> CANCELLED");
+		println(name + "> CANCELLED");
 		cancelled = true;
 		fire(TaskEvent.cancelled);
 	}
@@ -148,7 +171,7 @@ public class TaskImpl implements Task
 	{
 		if (!isRunning())
 			return;
-		System.out.println(name + "> finished");
+		println(name + "> finished");
 		finished = true;
 		fire(TaskEvent.finished);
 	}
@@ -188,6 +211,11 @@ public class TaskImpl implements Task
 	public boolean isRunning()
 	{
 		return !isFailed() && !isCancelled() && !isFinished();
+	}
+
+	Logger getLogger()
+	{
+		return logger;
 	}
 
 }
