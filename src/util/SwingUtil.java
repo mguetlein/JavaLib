@@ -19,20 +19,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -200,6 +206,62 @@ public class SwingUtil
 		// SwingUtil.waitWhileVisible(f);
 	}
 
+	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel, JFrame owner)
+	{
+		return selectFromListWithDialog(list, selected, titel, owner, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel, JFrame owner,
+			ListCellRenderer renderer)
+	{
+		final JDialog d = new JDialog(owner, titel);
+		d.setModal(owner != null);
+		DefaultListModel m = new DefaultListModel();
+		final JList l = new JList(m);
+		for (T t : list)
+			m.addElement(t);
+		if (renderer != null)
+			l.setCellRenderer(renderer);
+		l.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JScrollPane s = new JScrollPane(l);
+		JPanel p = new JPanel(new BorderLayout(10, 10));
+		p.add(s);
+		final JButton ok = new JButton("Select");
+		JButton cancel = new JButton("Cancel");
+		ActionListener al = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if (e.getSource() != ok)
+					l.clearSelection();
+				d.setVisible(false);
+			}
+		};
+		l.setSelectedValue(selected, true);
+		l.addListSelectionListener(new ListSelectionListener()
+		{
+			@Override
+			public void valueChanged(ListSelectionEvent e)
+			{
+				ok.setEnabled(l.getSelectedIndex() != -1);
+			}
+		});
+		ok.addActionListener(al);
+		ok.setEnabled(l.getSelectedIndex() != -1);
+		cancel.addActionListener(al);
+		p.add(ButtonBarFactory.buildOKCancelBar(ok, cancel), BorderLayout.SOUTH);
+		p.setBorder(new EmptyBorder(10, 10, 10, 10));
+		d.getContentPane().add(p);
+		d.pack();
+		d.setLocationRelativeTo(null);
+		d.setVisible(true);
+		if (!d.isModal())
+			waitWhileVisible(d);
+		return (T) l.getSelectedValue();
+	}
+
 	public static void showInDialog(JComponent c)
 	{
 		showInDialog(c, "test dialog", null);
@@ -293,10 +355,13 @@ public class SwingUtil
 		//		values.add(v2);
 		//		SwingUtil.showTable("test", names, values, -1, null, false, null);
 
-		JLabel s = new JLabel();
-		loadingLabel(s);
-		showInDialog(s);
+		//		JLabel s = new JLabel();
+		//		loadingLabel(s);
+		//		showInDialog(s);
 
+		String s[] = { "ene", "mene", "miste" };
+		System.out.println(selectFromListWithDialog(ArrayUtil.toList(s), null, "select please", null, null));
+		System.exit(0);
 	}
 
 	public static void setDebugBorder(JComponent comp)
