@@ -29,9 +29,12 @@ public abstract class AbstractProperty implements Property
 		this.displayName = name;
 		this.uniqueName = uniqueName;
 
-		if (uniqueSaveNames.contains(uniqueName))
-			throw new Error(uniqueName + " not unique!!");
-		uniqueSaveNames.add(uniqueName);
+		if (this.uniqueName != null)
+		{
+			if (uniqueSaveNames.contains(uniqueName))
+				throw new Error(uniqueName + " not unique!!");
+			uniqueSaveNames.add(uniqueName);
+		}
 	}
 
 	@Override
