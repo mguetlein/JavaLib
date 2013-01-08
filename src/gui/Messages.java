@@ -78,4 +78,14 @@ public class Messages
 	{
 		return map.size();
 	}
+
+	public void clear()
+	{
+		map.clear();
+	}
+
+	public Message getMessage(MessageType type)
+	{
+		return map.get(type);
+	}
 }

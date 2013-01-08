@@ -131,6 +131,13 @@ public class SelectionModel
 		setSelectedIndices(indices, b, true);
 	}
 
+	public void setSelectedIndices(int[] indices, boolean exclusiveSelection)
+	{
+		boolean b[] = new boolean[indices.length];
+		Arrays.fill(b, true);
+		setSelectedIndices(indices, b, exclusiveSelection);
+	}
+
 	private void setSelectedIndices(int[] indices, boolean selected[], boolean exclusiveSelection)
 	{
 		int[] oldSelection = getSelectedIndices();

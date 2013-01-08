@@ -13,4 +13,13 @@ public interface FreeChartPanel
 	public void setSeriesColor(int index, Color c);
 
 	public void setIntegerTickUnits();
+
+	public static interface ChartMouseSelectionListener
+	{
+		public void hoverEvent();
+
+		public void clickEvent(boolean ctrlDown);
+	}
+
+	public void addSelectionListener(ChartMouseSelectionListener l);
 }

@@ -8,9 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.CategoryItemEntity;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.StackedBarRenderer;
@@ -28,13 +35,13 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 	{
 		CategoryDataset dataset = createDataset(data, categories);
 
-		JFreeChart chart = ChartFactory.createStackedBarChart(title, // chart title
+		final JFreeChart chart = ChartFactory.createStackedBarChart(title, // chart title
 				xCaption, // domain axis label
 				yCaption, // range axis label
 				dataset, // data
 				PlotOrientation.VERTICAL, // the plot orientation
 				true, // legend
-				false, // tooltips
+				true, // tooltips
 				false // urls
 				);
 		//		CategoryPlot plot = chart.getCategoryPlot();
@@ -65,8 +72,49 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 			}
 		});
 
+		chartPanel.addChartMouseListener(new ChartMouseListener()
+		{
+			@Override
+			public void chartMouseMoved(ChartMouseEvent chartMouseEvent)
+			{
+				selectedCategory = getSelected(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
+				fireHoverEvent();
+			}
+
+			@Override
+			public void chartMouseClicked(ChartMouseEvent chartMouseEvent)
+			{
+				if (SwingUtilities.isLeftMouseButton(chartMouseEvent.getTrigger()))
+				{
+					selectedCategory = getSelected(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger()
+							.getY());
+					fireClickEvent(chartMouseEvent.getTrigger().isControlDown());
+				}
+			}
+		});
+
 		setLayout(new BorderLayout());
 		add(chartPanel);
+	}
+
+	private String getSelected(int x, int y)
+	{
+		String sel = null;
+		EntityCollection entities = chartPanel.getChartRenderingInfo().getEntityCollection();
+		if (entities != null)
+		{
+			ChartEntity entity = entities.getEntity(x, y);
+			if (entity != null && entity instanceof CategoryItemEntity)
+				sel = ((CategoryItemEntity) entity).getColumnKey().toString();
+		}
+		return sel;
+	}
+
+	String selectedCategory;
+
+	public String getSelectedCategory()
+	{
+		return selectedCategory;
 	}
 
 	private CategoryDataset createDataset(Map<String, List<Double>> data, String[] categories)
@@ -101,12 +149,11 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 
 		StackedBarPlot demo = new StackedBarPlot("Stacked Bar Chart Demo 3", "xCaption", "yCaption", data, categories);
 
-		demo.setOpaqueFalse();
-		demo.setForegroundColor(Color.GREEN.darker());
-		demo.setShadowVisible(false);
-		demo.setSeriesColor(0, Color.CYAN);
-
-		demo.setSeriesCategoryColors(1, new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA });
+		//		demo.setOpaqueFalse();
+		//		demo.setForegroundColor(Color.GREEN.darker());
+		//		demo.setShadowVisible(false);
+		//		demo.setSeriesColor(0, Color.CYAN);
+		//		demo.setSeriesCategoryColors(1, new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.MAGENTA });
 
 		SwingUtil.showInDialog(demo, new Dimension(400, 300));
 

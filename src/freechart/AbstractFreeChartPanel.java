@@ -1,6 +1,8 @@
 package freechart;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -21,6 +23,25 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 {
 	protected ChartPanel chartPanel;
 	protected boolean integerTick = false;
+	protected List<ChartMouseSelectionListener> listeners = new ArrayList<ChartMouseSelectionListener>();
+
+	@Override
+	public void addSelectionListener(ChartMouseSelectionListener l)
+	{
+		listeners.add(l);
+	}
+
+	protected void fireHoverEvent()
+	{
+		for (ChartMouseSelectionListener listener : listeners)
+			listener.hoverEvent();
+	}
+
+	protected void fireClickEvent(boolean ctrlDown)
+	{
+		for (ChartMouseSelectionListener listener : listeners)
+			listener.clickEvent(ctrlDown);
+	}
 
 	@Override
 	public void setShadowVisible(boolean b)

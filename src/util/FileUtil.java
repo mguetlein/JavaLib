@@ -260,13 +260,16 @@ public class FileUtil
 	{
 		try
 		{
-			String res = "";
+			StringBuffer res = new StringBuffer();
 			String line;
 			BufferedReader r = new BufferedReader(new FileReader(file));
 			while ((line = r.readLine()) != null)
-				res += line + "\n";
+			{
+				res.append(line);
+				res.append("\n");
+			}
 			r.close();
-			return res;
+			return res.toString();
 		}
 		catch (IOException e)
 		{
