@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.apache.commons.math.geometry.Vector3D;
 
+import util.ArrayUtil;
 import util.DistanceMatrix;
-import util.ListUtil;
 
 public class RUtil
 {
@@ -125,6 +125,47 @@ public class RUtil
 
 	}
 
+	public static double[][] readMatrix(String matrixFile, double valueForNA)
+	{
+		File f = new File(matrixFile);
+		if (!f.exists())
+			throw new IllegalStateException("matrix file not found: " + f.getAbsolutePath());
+		double dist[][] = null;
+		try
+		{
+			BufferedReader bf = new BufferedReader(new FileReader(f));
+			String line;
+			boolean firstline = true;
+			int count = 0;
+			while ((line = bf.readLine()) != null)
+			{
+				String s[] = line.split(" ");
+				if (firstline)
+					firstline = false;
+				else
+				{
+					if (dist == null)
+						dist = new double[s.length - 1][s.length - 1];
+					for (int i = 1; i < s.length; i++)
+						if (s[i].equals("NA"))
+							dist[count][i - 1] = valueForNA;
+						else
+							dist[count][i - 1] = Double.parseDouble(s[i]);
+					count++;
+				}
+			}
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return dist;
+	}
+
 	public static List<Vector3D> readRVectorMatrix(String matrixFile)
 	{
 		File f = new File(matrixFile);
@@ -178,6 +219,8 @@ public class RUtil
 		// { 1, 1, 0, 0 } };
 		// toRTable(h, d, "/home/martin/tmp/delme");
 
-		System.out.println(ListUtil.toString(readRVectorMatrix("/home/martin/software/R/delme_dist")));
+		//System.out.println(ListUtil.toString(readRVectorMatrix("/home/martin/software/R/delme_dist")));
+
+		System.out.println(ArrayUtil.toString(readMatrix("/tmp/testmatrix", 0)));
 	}
 }
