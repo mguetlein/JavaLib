@@ -401,20 +401,12 @@ public class ArrayUtil
 		return getOrdering(array, comp, true);
 	}
 
-	/**
-	 * not tested
-	 * 
-	 * @param <T>
-	 * @param array
-	 * @param comp
-	 * @return
-	 */
 	public static <T> int[] getOrdering(T[] array, Comparator<T> comp, boolean ascending)
 	{
 		int order[] = new int[array.length];
 		for (int i = 0; i < order.length; i++)
 			order[i] = i;
-		int invert = ascending ? 1 : -1;
+		int invert = ascending ? -1 : 1;
 		for (int i = 0; i < order.length - 1; i++)
 			for (int j = i + 1; j < order.length; j++)
 			{
@@ -1011,18 +1003,32 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
-		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
-		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
+		//		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		//		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
+		//		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
+		//		{
+		//			public int compare(Integer o1, Integer o2)
+		//			{
+		//				return Math.abs(o1 - o2);
+		//			}
+		//		});
+		//		System.out.println(toString(ordering) + "\n");
+		//		System.out.println(toString(input1));
+		//		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
+
+		String s[] = { "ene", "miste", "mene" };
+		Integer[] rank = new Integer[] { 1, 3, 2 };
+		int order[] = getOrdering(rank, new Comparator<Integer>()
 		{
+			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				return Math.abs(o1 - o2);
+				return o1.compareTo(o2);
 			}
-		});
-		System.out.println(toString(ordering) + "\n");
-		System.out.println(toString(input1));
-		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
+		}, true);
+		System.out.println(toString(order) + "\n");
+		System.out.println(toString(sortAccordingToOrdering(order, rank)) + "\n");
+		System.out.println(toString(sortAccordingToOrdering(order, s)) + "\n");
 
 		//		Integer[] input = new Integer[] { 1, 2, 3, 4, 5, 6 };
 		//		List<Integer[]> output = permute(input);
