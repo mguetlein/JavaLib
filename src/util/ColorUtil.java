@@ -55,7 +55,21 @@ public class ColorUtil
 	{
 		int rgbNum = (int) ((c.getRed() + c.getGreen() + c.getBlue()) / 3.0);
 		return new Color(rgbNum, rgbNum, rgbNum);
-
 	}
 
+	public static Color getColorGradient(double ratio, Color from, Color to)
+	{
+		int red = (int) (ratio * from.getRed()) + (int) ((1 - ratio) * to.getRed());
+		int green = (int) (ratio * from.getGreen()) + (int) ((1 - ratio) * to.getGreen());
+		int blue = (int) (ratio * from.getBlue()) + (int) ((1 - ratio) * to.getBlue());
+		return new Color(red, green, blue);
+	}
+
+	public static Color getThreeColorGradient(double ratio, Color from, Color over, Color to)
+	{
+		if (ratio >= 0.5)
+			return getColorGradient((ratio - 0.5) * 2, from, over);
+		else
+			return getColorGradient(((1 - ratio) - 0.5) * 2, to, over);
+	}
 }

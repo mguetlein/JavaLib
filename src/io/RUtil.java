@@ -83,12 +83,12 @@ public class RUtil
 		}
 	}
 
-	public static List<Integer> readCluster(String matrixFile)
+	public static List<Integer[]> readCluster(String matrixFile)
 	{
 		File f = new File(matrixFile);
 		if (!f.exists())
 			throw new IllegalStateException("matrix file not found: " + f.getAbsolutePath());
-		List<Integer> l = new ArrayList<Integer>();
+		List<Integer[]> l = new ArrayList<Integer[]>();
 		try
 		{
 			BufferedReader bf = new BufferedReader(new FileReader(f));
@@ -104,10 +104,23 @@ public class RUtil
 					firstline = false;
 				else
 				{
-					Integer c = null;
+					Integer c[] = null;
 					for (int i = 0; i < s.length; i++)
 						if (i == 1)
-							c = new Integer(s[i]);
+						{
+							String ss = s[i].replaceAll("^\"|\"$", "");
+							if (ss.length() == 0)
+								c = new Integer[0];
+							else if (ss.contains("#"))
+							{
+								String vals[] = ss.split("#");
+								c = new Integer[vals.length];
+								for (int j = 0; j < vals.length; j++)
+									c[j] = new Integer(vals[j]);
+							}
+							else
+								c = new Integer[] { new Integer(ss) };
+						}
 					l.add(c);
 				}
 			}

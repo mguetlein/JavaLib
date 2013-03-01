@@ -34,6 +34,8 @@ public class TimeFormatUtil
 		String s = o1 + "" + (o1 == 1 ? s1.substring(0, s1.lastIndexOf("/")) : s1.replace("/", ""));
 		if (o2 > 0)
 			s += ", " + o2 + "" + (o2 == 1 ? s2.substring(0, s2.lastIndexOf("/")) : s2.replace("/", ""));
+		else
+			s = "genau " + s;
 		return s;
 	}
 

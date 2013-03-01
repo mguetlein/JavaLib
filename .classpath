@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-6-openjdk"/>
 	<classpathentry kind="lib" path="lib/commons-math-1.2/commons-math-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/forms-1.2.1/forms-1.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/gnujaxp.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/iText-2.1.5.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/jfreechart-1.0.13-experimental.jar"/>
@@ -13,7 +12,9 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/swtgraphics2d.jar"/>
-	<classpathentry kind="lib" path="lib/weka-3-6-6/weka.jar" sourcepath="/home/martin/workspace/external/weka-3-6-6/weka-src.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.6/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/commons-net-3.1/commons-net-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/weka-3-6-6/weka.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.13/lib/gnujaxp.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

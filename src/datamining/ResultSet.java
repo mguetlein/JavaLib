@@ -1,5 +1,7 @@
 package datamining;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,12 +13,17 @@ import java.util.Random;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.TTestImpl;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
 
 import util.ArrayUtil;
 import util.DoubleUtil;
 import util.ListUtil;
 import util.StringUtil;
+import util.SwingUtil;
 import util.TimeFormatUtil;
+import freechart.BarPlotPanel;
 
 public class ResultSet
 {
@@ -970,6 +977,70 @@ public class ResultSet
 		ResultSet winLoss = diff.winLoss(equalProperties3, null);
 		System.out.println(winLoss.toNiceString());
 		System.out.println();
+	}
+
+	public void remove(String prop, Object val)
+	{
+		List<Result> rem = new ArrayList<Result>();
+		for (Result res : results)
+			if (res.getValue(prop).equals(val))
+				rem.add(res);
+		for (Result res : rem)
+			results.remove(res);
+	}
+
+	public BarPlotPanel createBarPlot(String title, String yAxis, String seriesProperty,
+			List<String> categoryProperties, double[] range, Color[] cols)
+	{
+		List<String> seriesNames = new ArrayList<String>();
+		ArrayList<?>[] values = new ArrayList<?>[getNumResults()];
+
+		for (int i = 0; i < getNumResults(); i++)
+		{
+			seriesNames.add(getResultValue(i, seriesProperty).toString());
+			ArrayList<Double> list = new ArrayList<Double>();
+			for (String string : categoryProperties)
+				list.add(Double.parseDouble(getResultValue(i, string).toString()));
+			values[i] = list;
+		}
+
+		@SuppressWarnings("unchecked")
+		BarPlotPanel p = new BarPlotPanel(title, yAxis, categoryProperties, seriesNames, true,
+				(ArrayList<Double>[]) values);
+
+		CategoryPlot categoryPlot = p.getChartPanel().getChart().getCategoryPlot();
+		if (range != null)
+		{
+			NumberAxis rangeAxis = (NumberAxis) categoryPlot.getRangeAxis();
+			rangeAxis.setRange(range[0], range[1]);
+		}
+
+		//		CategoryAxis domainAxis = categoryPlot.getDomainAxis();
+		//		domainAxis.setCategoryMargin(0.4f);
+
+		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+		br.setItemMargin(0.0f);
+
+		if (cols != null)
+			for (int i = 0; i < cols.length; i++)
+				br.setSeriesPaint(i, cols[i]);
+
+		return p;
+	}
+
+	public void showBarPlot(String title, String yAxis, String seriesProperty, List<String> categoryProperties,
+			double[] range, Color[] cols)
+	{
+		BarPlotPanel p = createBarPlot(title, yAxis, seriesProperty, categoryProperties, range, cols);
+		//		try
+		//		{
+		//			ChartUtilities.saveChartAsPNG(new File("/home/martin/tmp/pic.png"), p.getChartPanel().getChart(), 800, 600);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			e.printStackTrace();
+		//		}
+		SwingUtil.showInDialog(p, new Dimension(800, 600));
 	}
 
 }

@@ -18,6 +18,7 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import util.ArrayUtil;
+import util.ListUtil;
 import util.SwingUtil;
 
 public class BarPlotPanel extends AbstractFreeChartPanel
@@ -39,28 +40,55 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 		this(title, yAxisLabel, values, names, true);
 	}
 
+	@SuppressWarnings("unchecked")
 	public BarPlotPanel(String title, String yAxisLabel, List<Double> values, List<String> names, boolean opaque)
 	{
+		this(title, yAxisLabel, names, opaque, values);
+	}
+
+	public BarPlotPanel(String title, String yAxisLabel, List<String> categoryNames, boolean opaque,
+			List<Double>... values)
+	{
+		this(title, yAxisLabel, categoryNames, null, opaque, values);
+	}
+
+	public BarPlotPanel(String title, String yAxisLabel, List<String> categoryNames, List<String> seriesNames,
+			boolean opaque, List<Double>... values)
+	{
+		if (seriesNames != null && seriesNames.size() != values.length)
+			throw new IllegalArgumentException(ListUtil.toString(seriesNames) + " length != " + values.length);
+		//		System.out.println(ListUtil.toString(categoryNames));
+		for (List<Double> vals : values)
+		{
+			//			System.out.println(ListUtil.toString(vals));
+			if (vals.size() != categoryNames.size())
+				throw new IllegalArgumentException();
+		}
+
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		for (int i = 0; i < names.size(); i++)
-			dataset.setValue(values.get(i), "", names.get(i) + "");
+		int count = 0;
+		for (List<Double> vals : values)
+		{
+			String rowKey = (seriesNames != null ? seriesNames.get(count) : count + "");
+			for (int i = 0; i < categoryNames.size(); i++)
+			{
+				dataset.addValue(vals.get(i), rowKey, categoryNames.get(i) + "");
+			}
+			count++;
+		}
 
 		JFreeChart chart = ChartFactory.createBarChart(title, // chart title
 				null, // domain axis label
 				yAxisLabel, // range axis label
 				dataset, // data
 				PlotOrientation.VERTICAL, // the plot orientation
-				false, // legend
+				seriesNames != null, // legend
 				false, // tooltips
 				false // urls
 				);
 		//		CategoryPlot plot = chart.getCategoryPlot();
 		//		((BarRenderer) plot.getRenderer()).setShadowVisible(false);
 		//		((NumberAxis) plot.getRangeAxis()).setTickUnit(new NumberTickUnit(1));
-
-		CategoryPlot categoryPlot = chart.getCategoryPlot();
-		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
-		br.setMaximumBarWidth(.35);
 
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
 		chartPanel = new ChartPanel(chart);
@@ -80,6 +108,13 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 		}
 	}
 
+	public void setMaximumBarWidth(double d)
+	{
+		CategoryPlot categoryPlot = getChartPanel().getChart().getCategoryPlot();
+		BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+		br.setMaximumBarWidth(d);
+	}
+
 	public ChartPanel getChartPanel()
 	{
 		return chartPanel;
@@ -97,6 +132,7 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 	// rangeAxis.setLowerMargin(0.15);
 	// rangeAxis.setUpperMargin(0.15);
 
+	@SuppressWarnings("unchecked")
 	public static void main(final String[] args)
 	{
 		// BarPlot demo = new BarPlot("Stacked Bar Chart Demo 3");
@@ -106,8 +142,9 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 
 		JPanel p = new JPanel(new BorderLayout());
 		p.setBackground(Color.YELLOW);
-		BarPlotPanel plot = new BarPlotPanel("Title", "Axis-Name", new double[] { 3, 5, 7, 2 }, new String[] { "asdf",
-				"ene", "mene", "miste" }, false);
+		BarPlotPanel plot = new BarPlotPanel("Title", "Axis-Name", ArrayUtil.toList(new String[] { "asdf", "ene",
+				"mene", "miste" }), ArrayUtil.toList(new String[] { "first", "second" }), false,
+				ArrayUtil.toList(new double[] { 3, 5, 7, 2 }), ArrayUtil.toList(new double[] { 4, 3, 7, 1 }));
 		plot.setFontSize(20);
 		p.add(plot);
 		SwingUtil.showInDialog(p, new Dimension(400, 300));
@@ -115,5 +152,4 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 		System.exit(0);
 
 	}
-
 }

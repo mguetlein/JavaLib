@@ -2,6 +2,8 @@ package freechart;
 
 import java.awt.Color;
 
+import org.jfree.chart.ChartPanel;
+
 public interface FreeChartPanel
 {
 	public void setShadowVisible(boolean b);
@@ -22,4 +24,6 @@ public interface FreeChartPanel
 	}
 
 	public void addSelectionListener(ChartMouseSelectionListener l);
+
+	public ChartPanel getChartPanel();
 }

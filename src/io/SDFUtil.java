@@ -302,12 +302,127 @@ public class SDFUtil
 		filter(sdfFile, outfile, list);
 	}
 
+	public static interface SDChecker
+	{
+		public boolean invalid(String moleculeString);
+	}
+
+	public static class NanSDChecker implements SDChecker
+	{
+		@Override
+		public boolean invalid(String moleculeString)
+		{
+			return moleculeString.matches("(?s).*nan.*nan.*nan.*");
+		}
+	}
+
+	public static void checkForNans(String search, String replace, String result)
+	{
+		checkSDFile(search, replace, result, new NanSDChecker());
+	}
+
+	public static void checkSDFile(String search, String replace, String result, SDChecker sdChecker)
+	{
+		String sear[] = readSdf(search);
+		String repl[] = readSdf(replace);
+		if (repl.length != sear.length)
+		{
+			System.err.println("no equal number of compounds");
+			return;
+		}
+		try
+		{
+			boolean replaceIndices[] = new boolean[repl.length];
+			int count = 0;
+			for (int i = 0; i < sear.length; i++)
+				if (sdChecker.invalid(sear[i]))
+				{
+					replaceIndices[i] = true;
+					count++;
+				}
+			if (count > 0)
+			{
+				BufferedWriter bw = new BufferedWriter(new FileWriter(new File(result)));
+				for (int i = 0; i < sear.length; i++)
+				{
+					if (replaceIndices[i])
+						bw.write(repl[i]);
+					else
+						bw.write(sear[i]);
+					bw.write("$$$$\n");
+				}
+				bw.close();
+				System.err.println("replaced " + count + " molecules with invalid coordinates");
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	public static void main(String args[])
 	{
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.01);
+		//		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.01);
+
+		//		SDChecker sdCheck = new SDChecker()
+		//		{
+		//			@Override
+		//			public boolean invalid(String moleculeString)
+		//			{
+		//				try
+		//				{
+		//					String s[] = moleculeString.split("\n");
+		//					int numAtoms = -1;
+		//					for (String line : s)
+		//						if (line.contains("V2000"))
+		//						{
+		//							numAtoms = Integer.parseInt(line.substring(0, 3).trim());
+		//							break;
+		//						}
+		//					if (numAtoms == -1)
+		//						throw new Exception("could not parse num atoms");
+		//					MDLV2000Reader reader = new MDLV2000Reader(new InputStreamReader(new ByteArrayInputStream(
+		//							moleculeString.getBytes())));
+		//					IChemFile content = (IChemFile) reader.read((IChemObject) new ChemFile());
+		//					List<IAtomContainer> list = ChemFileManipulator.getAllAtomContainers(content);
+		//					if (list.size() != 1)
+		//						throw new Exception("Cannot parse molecule");
+		//					if (list.get(0).getAtomCount() != numAtoms)
+		//						throw new Exception("Num atoms " + list.get(0).getAtomCount() + " != " + numAtoms);
+		//					for (int i = 0; i < list.get(0).getBondCount(); i++)
+		//					{
+		//						if (list.get(0).getBond(i).getAtomCount() != 2)
+		//							throw new Exception("Num atoms for bond is " + list.get(0).getBond(i).getAtomCount());
+		//						IAtom a = list.get(0).getBond(i).getAtom(0);
+		//						IAtom b = list.get(0).getBond(i).getAtom(1);
+		//						Point3d pa = a.getPoint3d();
+		//						if (pa == null)
+		//							pa = new Point3d(a.getPoint2d().x, a.getPoint2d().y, 0.0);
+		//						Point3d pb = b.getPoint3d();
+		//						if (pb == null)
+		//							pb = new Point3d(b.getPoint2d().x, b.getPoint2d().y, 0.0);
+		//						double d = pa.distance(pb);
+		//						if (d > 2.5 || d < 0.9)
+		//							throw new Exception("Distance between atoms is " + d);
+		//					}
+		//					return false;
+		//				}
+		//				catch (Exception e)
+		//				{
+		//					e.printStackTrace();
+		//					return true;
+		//				}
+		//			}
+		//		};
+		checkSDFile(
+				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
+				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.sdf",
+				//"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
+				"/tmp/test.sdf", null);
 
 		//		filter_exclude("/home/martin/data/3d/bzr/data/bzr_3d.sd", "/home/martin/data/3d/bzr/data/bzr.sdf", new int[] {
 		//				191, 192 });

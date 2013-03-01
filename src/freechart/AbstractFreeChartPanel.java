@@ -26,6 +26,12 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 	protected List<ChartMouseSelectionListener> listeners = new ArrayList<ChartMouseSelectionListener>();
 
 	@Override
+	public ChartPanel getChartPanel()
+	{
+		return chartPanel;
+	}
+
+	@Override
 	public void addSelectionListener(ChartMouseSelectionListener l)
 	{
 		listeners.add(l);
