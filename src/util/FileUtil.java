@@ -113,14 +113,35 @@ public class FileUtil
 			return f.getAbsolutePath();
 	}
 
+	public static boolean concat(File dest, List<File> source)
+	{
+		return concat(dest, source, false);
+	}
+
+	public static boolean concat(File dest, List<File> source, boolean append)
+	{
+		if (dest.exists() && !append)
+			if (!dest.delete())
+				return false;
+		for (File s : source)
+			if (!copy(s, dest, true))
+				return false;
+		return true;
+	}
+
 	public static boolean copy(File source, File dest)
+	{
+		return copy(source, dest, false);
+	}
+
+	public static boolean copy(File source, File dest, boolean append)
 	{
 		FileInputStream from = null;
 		FileOutputStream to = null;
 		try
 		{
 			from = new FileInputStream(source);
-			to = new FileOutputStream(dest);
+			to = new FileOutputStream(dest, append);
 			byte[] buffer = new byte[4096];
 			int bytesRead;
 			while ((bytesRead = from.read(buffer)) != -1)
