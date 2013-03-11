@@ -24,15 +24,18 @@ public class ArrayUtil
 	public static String toCSVString(Object a[], boolean addQuotes)
 	{
 		String s = "";
-		for (Object st : a)
-		{
-			if ((st + "").contains(","))
-				throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
-			if (addQuotes)
-				s += "\"" + st + "\",";
-			else
-				s += st + ",";
-		}
+		if (a == null || a.length == 0)
+			s = ",";
+		else
+			for (Object st : a)
+			{
+				if ((st + "").contains(","))
+					throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
+				if (addQuotes)
+					s += "\"" + st + "\",";
+				else
+					s += st + ",";
+			}
 		return s;
 	}
 
