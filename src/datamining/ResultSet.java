@@ -2,6 +2,7 @@ package datamining;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,11 +14,20 @@ import java.util.Random;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.inference.TTestImpl;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 
 import util.ArrayUtil;
+import util.CountedSet;
+import util.DoubleKeyHashMap;
 import util.DoubleUtil;
 import util.ListUtil;
 import util.StringUtil;
@@ -1028,6 +1038,84 @@ public class ResultSet
 		return p;
 	}
 
+	public void showBoxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+			List<String> categoryProperties)
+	{
+		showBoxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
+	}
+
+	public void showBoxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+			List<String> categoryProperties, List<String> displayCategories)
+	{
+		if (displayCategories == null)
+			displayCategories = categoryProperties;
+
+		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+
+		DoubleKeyHashMap<String, String, List<Double>> vals = new DoubleKeyHashMap<String, String, List<Double>>();
+
+		for (int i = 0; i < categoryProperties.size(); i++)
+			for (Result r : results)
+			{
+				String key1 = displayCategories.get(i);
+				String seriesVal = r.getValue(seriesProperty) + "";
+				if (!vals.containsKeyPair(key1, seriesVal))
+					vals.put(key1, seriesVal, new ArrayList<Double>());
+				vals.get(key1, seriesVal).add(Double.parseDouble(r.getValue(categoryProperties.get(i)) + ""));
+			}
+		int size = -1;
+		for (String key1 : vals.keySet1())
+			for (String key2 : vals.keySet2(key1))
+			{
+				dataset.add(vals.get(key1, key2), key2, key1);
+				int s = vals.get(key1, key2).size();
+				System.out.println(key2 + " " + key1 + " " + s);
+				if (size != -1 && size != s)
+					throw new IllegalArgumentException(size + " != " + s);
+				else
+					size = s;
+			}
+
+		String sizeStr[] = { "#results per plot: " + size };
+		if (subtitle == null)
+			subtitle = sizeStr;
+		else
+			subtitle = ArrayUtil.concat(String.class, subtitle, sizeStr);
+
+		final CategoryAxis xAxis = new CategoryAxis(seriesProperty);
+		final NumberAxis yAxis = new NumberAxis(yAxisLabel);
+		yAxis.setAutoRangeIncludesZero(false);
+		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
+		renderer.setFillBox(true);
+
+		renderer.setMeanVisible(false);
+
+		final CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
+
+		final JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
+		final ChartPanel chartPanel = new ChartPanel(chart);
+		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
+
+		if (subtitle != null)
+		{
+			List<Title> subtitles = new ArrayList<Title>();
+			for (String s : subtitle)
+			{
+				if (s != null)
+				{
+					Title t = new TextTitle(s);
+					subtitles.add(t);
+				}
+			}
+			if (subtitles.size() > 0)
+			{
+				subtitles.add(chart.getLegend());
+				chart.setSubtitles(subtitles);
+			}
+		}
+		SwingUtil.showInDialog(chartPanel, new Dimension(800, 600));
+	}
+
 	public void showBarPlot(String title, String yAxis, String seriesProperty, List<String> categoryProperties,
 			double[] range, Color[] cols)
 	{
@@ -1041,6 +1129,22 @@ public class ResultSet
 		//			e.printStackTrace();
 		//		}
 		SwingUtil.showInDialog(p, new Dimension(800, 600));
+	}
+
+	public CountedSet<Object> getResultValues(String prop)
+	{
+		CountedSet<Object> o = new CountedSet<Object>();
+		for (Result r : results)
+			o.add(r.getValue(prop));
+		return o;
+	}
+
+	public Object getUniqueValue(String prop)
+	{
+		CountedSet<Object> o = getResultValues(prop);
+		if (o.size() != 1)
+			throw new IllegalStateException("not unique: " + o);
+		return o.values().get(0);
 	}
 
 }
