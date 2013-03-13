@@ -10,6 +10,11 @@ public class StringLineAdder
 		return b.toString();
 	}
 
+	public void add()
+	{
+		b.append("\n");
+	}
+
 	public void add(String s)
 	{
 		b.append(s);
