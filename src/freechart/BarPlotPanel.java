@@ -62,7 +62,8 @@ public class BarPlotPanel extends AbstractFreeChartPanel
 		{
 			//			System.out.println(ListUtil.toString(vals));
 			if (vals.size() != categoryNames.size())
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(vals.size() + " != " + categoryNames.size() + "\n"
+						+ ListUtil.toString(vals) + "\n" + ListUtil.toString(categoryNames));
 		}
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();

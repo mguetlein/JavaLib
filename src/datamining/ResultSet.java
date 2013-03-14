@@ -1,7 +1,6 @@
 package datamining;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +47,16 @@ public class ResultSet
 	public static final String SIGNIFICANCE_SUFFIX = "_significance";
 
 	private static HashMap<String, String> niceProperties = new HashMap<String, String>();
+
+	public ResultSet copy()
+	{
+		ResultSet rs = new ResultSet();
+		for (String p : properties)
+			rs.properties.add(p);
+		for (Result r : results)
+			rs.results.add(r);
+		return rs;
+	}
 
 	public void toLong(String p)
 	{
@@ -560,6 +569,18 @@ public class ResultSet
 		}
 	}
 
+	public void excludeProperties(List<String> list)
+	{
+		List<String> toDel = new ArrayList<String>();
+		for (String p : properties)
+		{
+			if (!list.contains(p))
+				toDel.add(p);
+		}
+		for (String p : toDel)
+			removePropery(p);
+	}
+
 	public void sortProperties(String[] sortedProps)
 	{
 		ListUtil.sort(properties, Arrays.asList(sortedProps));
@@ -871,6 +892,11 @@ public class ResultSet
 
 	public static void main(String args[])
 	{
+
+		testBoxPlot();
+		if (true == true)
+			System.exit(0);
+
 		//		ResultSet set1 = new ResultSet();
 		//		String datasetName = "Dataset";
 		//		String openBabel3D = "OpenBabel 3D";
@@ -999,8 +1025,18 @@ public class ResultSet
 			results.remove(res);
 	}
 
-	public BarPlotPanel createBarPlot(String title, String yAxis, String seriesProperty,
-			List<String> categoryProperties, double[] range, Color[] cols)
+	public void exclude(String prop, Object val)
+	{
+		List<Result> rem = new ArrayList<Result>();
+		for (Result res : results)
+			if (!res.getValue(prop).equals(val))
+				rem.add(res);
+		for (Result res : rem)
+			results.remove(res);
+	}
+
+	public ChartPanel barPlot(String title, String yAxis, String seriesProperty, List<String> categoryProperties,
+			double[] range, Color[] cols)
 	{
 		List<String> seriesNames = new ArrayList<String>();
 		ArrayList<?>[] values = new ArrayList<?>[getNumResults()];
@@ -1035,16 +1071,16 @@ public class ResultSet
 			for (int i = 0; i < cols.length; i++)
 				br.setSeriesPaint(i, cols[i]);
 
-		return p;
+		return p.getChartPanel();
 	}
 
-	public void showBoxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties)
 	{
-		showBoxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
+		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
 	}
 
-	public void showBoxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties, List<String> displayCategories)
 	{
 		if (displayCategories == null)
@@ -1069,7 +1105,7 @@ public class ResultSet
 			{
 				dataset.add(vals.get(key1, key2), key2, key1);
 				int s = vals.get(key1, key2).size();
-				System.out.println(key2 + " " + key1 + " " + s);
+				//				System.out.println(key2 + " " + key1 + " " + s);
 				if (size != -1 && size != s)
 					throw new IllegalArgumentException(size + " != " + s);
 				else
@@ -1088,13 +1124,18 @@ public class ResultSet
 		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
 		renderer.setFillBox(true);
 
-		renderer.setMeanVisible(false);
+		renderer.setItemMargin(0.05);
 
-		final CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
+		//		renderer.setMeanVisible(false);
 
-		final JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
-		final ChartPanel chartPanel = new ChartPanel(chart);
+		CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
+
+		JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
+		ChartPanel chartPanel = new ChartPanel(chart);
 		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
+
+		CategoryAxis domainAxis = plot.getDomainAxis();
+		domainAxis.setCategoryMargin(0.3);
 
 		if (subtitle != null)
 		{
@@ -1113,22 +1154,7 @@ public class ResultSet
 				chart.setSubtitles(subtitles);
 			}
 		}
-		SwingUtil.showInDialog(chartPanel, new Dimension(800, 600));
-	}
-
-	public void showBarPlot(String title, String yAxis, String seriesProperty, List<String> categoryProperties,
-			double[] range, Color[] cols)
-	{
-		BarPlotPanel p = createBarPlot(title, yAxis, seriesProperty, categoryProperties, range, cols);
-		//		try
-		//		{
-		//			ChartUtilities.saveChartAsPNG(new File("/home/martin/tmp/pic.png"), p.getChartPanel().getChart(), 800, 600);
-		//		}
-		//		catch (Exception e)
-		//		{
-		//			e.printStackTrace();
-		//		}
-		SwingUtil.showInDialog(p, new Dimension(800, 600));
+		return chartPanel;
 	}
 
 	public CountedSet<Object> getResultValues(String prop)
@@ -1145,6 +1171,23 @@ public class ResultSet
 		if (o.size() != 1)
 			throw new IllegalStateException("not unique: " + o);
 		return o.values().get(0);
+	}
+
+	public static void testBoxPlot()
+	{
+		ResultSet rs = new ResultSet();
+		for (int run = 0; run < 10; run++)
+			for (String ser : new String[] { "eins", "zwei", "drei" })
+			{
+				int x = rs.addResult();
+				rs.setResultValue(x, "run", run);
+				rs.setResultValue(x, "ser", ser);
+				rs.setResultValue(x, "val1", new Random().nextDouble());
+				rs.setResultValue(x, "val2", new Random().nextDouble());
+				rs.setResultValue(x, "val3", new Random().nextDouble());
+			}
+		SwingUtil.showInDialog(rs.boxPlot("test", "yLabel", new String[] { "subtitle1" }, "ser",
+				ArrayUtil.toList(new String[] { "val1", "val2", "val3" })));
 	}
 
 }

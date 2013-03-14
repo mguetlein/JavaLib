@@ -1,11 +1,16 @@
 package freechart;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
 import org.jfree.chart.ChartColor;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 
 import util.ArrayUtil;
 import util.SwingUtil;
@@ -30,6 +35,21 @@ public class FreeChartUtil
 			ChartColor.VERY_DARK_YELLOW, ChartColor.VERY_DARK_MAGENTA, ChartColor.VERY_DARK_CYAN,
 			ChartColor.VERY_LIGHT_RED, ChartColor.VERY_LIGHT_BLUE, ChartColor.VERY_LIGHT_GREEN,
 			ChartColor.VERY_LIGHT_YELLOW, ChartColor.VERY_LIGHT_MAGENTA, ChartColor.VERY_LIGHT_CYAN };
+
+	public static File toTmpFile(ChartPanel cp, Dimension dim)
+	{
+		try
+		{
+			File f = File.createTempFile("pic", "png");
+			ChartUtilities.saveChartAsPNG(f, cp.getChart(), dim.width, dim.height);
+			return f;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	public static void main(String args[])
 	{
