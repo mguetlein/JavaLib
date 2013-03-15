@@ -35,7 +35,7 @@ public class FileUtil
 				throw new IllegalArgumentException();
 			CSVFile newCsv = new CSVFile();
 			for (int i = 0; i < content.size(); i++)
-				newCsv.content.add(ArrayUtil.concat(content.get(i), csvFile.content.get(i)));
+				newCsv.content.add(ArrayUtil.concat(String.class, content.get(i), csvFile.content.get(i)));
 			return newCsv;
 		}
 
