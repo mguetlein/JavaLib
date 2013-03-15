@@ -164,9 +164,13 @@ public class SDFUtil
 						{
 							for (Object key : featureValues.keySet2(index))
 							{
-								w.write(">  <" + key + ">\n");
-								w.write(featureValues.get(index, key) + "\n");
-								w.write("\n");
+								if (featureValues.get(index, key) != null
+										&& featureValues.get(index, key).toString().trim().length() > 0)
+								{
+									w.write(">  <" + key + ">\n");
+									w.write(featureValues.get(index, key) + "\n");
+									w.write("\n");
+								}
 							}
 						}
 						index++;
@@ -335,11 +339,13 @@ public class SDFUtil
 			boolean replaceIndices[] = new boolean[repl.length];
 			int count = 0;
 			for (int i = 0; i < sear.length; i++)
+			{
 				if (sdChecker.invalid(sear[i]))
 				{
 					replaceIndices[i] = true;
 					count++;
 				}
+			}
 			if (count > 0)
 			{
 				BufferedWriter bw = new BufferedWriter(new FileWriter(new File(result)));
@@ -354,6 +360,8 @@ public class SDFUtil
 				bw.close();
 				System.err.println("replaced " + count + " molecules with invalid coordinates");
 			}
+			else
+				System.err.println("all " + sear.length + " passed the check");
 		}
 		catch (IOException e)
 		{
@@ -418,11 +426,30 @@ public class SDFUtil
 		//				}
 		//			}
 		//		};
-		checkSDFile(
-				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
-				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.sdf",
-				//"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
-				"/tmp/test.sdf", null);
+		//		checkSDFile("/home/martin/data/repdose/repdose.cdk.endpoints.ob3d.sdf",
+		//				"/home/martin/data/repdose/repdose.cdk.endpoints.sdf", "/tmp/test.sdf", sdCheck);
+
+		//		try
+		//		{
+		//			io.MDLV2000Reader reader = new io.MDLV2000Reader(new FileReader(new File(
+		//					"/home/martin/data/repdose/repdose.cdk.endpoints.ob3d.sdf")));
+		//			IChemFile content = (IChemFile) reader.read((IChemObject) new ChemFile());
+		//			int count = 0;
+		//			for (IAtomContainer ac : ChemFileManipulator.getAllAtomContainers(content))
+		//			{
+		//				count++;
+		//			}
+		//			System.out.println(count);
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			e.printStackTrace();
+		//		}
+		//		checkSDFile(
+		//				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
+		//				"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.sdf",
+		//				//"/home/martin/.ches-mapper/home/martin/workspace/BMBF/ILLEGAL_RepDoseNeustoff.csv_pc_descriptors_2013-01-28_17-24-01.IDs.clean.SMILES.68fbb9012df539adc642383d08ef2285.ob3d.sdf",
+		//				"/tmp/test.sdf", null);
 
 		//		filter_exclude("/home/martin/data/3d/bzr/data/bzr_3d.sd", "/home/martin/data/3d/bzr/data/bzr.sdf", new int[] {
 		//				191, 192 });

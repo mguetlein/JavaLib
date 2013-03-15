@@ -32,10 +32,11 @@ public class ArrayUtil
 				if ((st + "").contains(","))
 					throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
 				if (addQuotes)
-					s += "\"" + st + "\",";
+					s += "\"" + (st == null ? "" : st.toString()) + "\",";
 				else
-					s += st + ",";
+					s += (st == null ? "" : st.toString()) + ",";
 			}
+		s = s.substring(0, s.length() - 1);
 		return s;
 	}
 
@@ -44,6 +45,7 @@ public class ArrayUtil
 		String s = "";
 		for (int i : a)
 			s += i + ",";
+		s = s.substring(0, s.length() - 1);
 		return s;
 	}
 
@@ -52,6 +54,7 @@ public class ArrayUtil
 		String s = "";
 		for (boolean i : a)
 			s += i + ",";
+		s = s.substring(0, s.length() - 1);
 		return s;
 	}
 
@@ -155,6 +158,11 @@ public class ArrayUtil
 	public static <T> T[] toArray(List<T> list)
 	{
 		return ListUtil.toArray(list);
+	}
+
+	public static <T> T[] toArray(Class<T> type, List<T> list)
+	{
+		return ListUtil.toArray(type, list);
 	}
 
 	public static <T> T[] toArray(Set<T> set)

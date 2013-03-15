@@ -24,8 +24,64 @@ public class FileUtil
 {
 	public static class CSVFile
 	{
-		public List<String> comments;
-		public List<String[]> content;
+		public List<String> comments = new ArrayList<String>();
+		public List<String[]> content = new ArrayList<String[]>();
+
+		public CSVFile merge(CSVFile csvFile)
+		{
+			if (comments.size() > 0 || csvFile.comments.size() > 0)
+				throw new Error("merging comments not yet implemented");
+			if (content.size() != csvFile.content.size())
+				throw new IllegalArgumentException();
+			CSVFile newCsv = new CSVFile();
+			for (int i = 0; i < content.size(); i++)
+				newCsv.content.add(ArrayUtil.concat(content.get(i), csvFile.content.get(i)));
+			return newCsv;
+		}
+
+		public String toString()
+		{
+			StringLineAdder s = new StringLineAdder();
+			for (String st : comments)
+				s.add(st);
+			for (String[] st : content)
+				s.add(ArrayUtil.toCSVString(st));
+			return s.toString();
+		}
+	}
+
+	public static void writeCSV(String file, CSVFile csv, boolean append)
+	{
+		if (csv.comments.size() > 0)
+			throw new Error("merging comments not yet implemented");
+
+		try
+		{
+			BufferedWriter w = new BufferedWriter(new FileWriter(file, append));
+			for (String s[] : csv.content)
+			{
+				boolean first = true;
+				for (String string : s)
+				{
+					if (first)
+						first = false;
+					else
+						w.write(",");
+					if (string != null)
+					{
+						w.write("\"");
+						w.write(string);
+						w.write("\"");
+					}
+				}
+				w.write("\n");
+			}
+			w.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public static CSVFile readCSV(String filename)
@@ -44,7 +100,13 @@ public class FileUtil
 				if (s.startsWith("#"))
 					c.add(s);
 				else
-					l.add(ArrayUtil.cast(String.class, VectorUtil.fromCSVString(s, false).toArray()));
+				{
+					Vector<String> line = VectorUtil.fromCSVString(s, false);
+					if (l.size() > 0 && l.get(0).length != line.size())
+						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
+								+ line.size());
+					l.add(ArrayUtil.toArray(line));
+				}
 			}
 			b.close();
 

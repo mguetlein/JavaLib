@@ -50,8 +50,16 @@ public class VectorUtil
 			{
 				s = StringUtil.trimQuotes(s).trim();
 				if (!skipEmptyFields || s.length() > 0)
-					res.add(s);
+					res.add(s.length() == 0 ? null : s);
 			}
+			if (!skipEmptyFields)
+				for (int i = csv.length() - 1; i > 0; i--)
+				{
+					if (csv.charAt(i) == ',')
+						res.add(null);
+					else
+						break;
+				}
 			//			StringTokenizer tok = new StringTokenizer(csv, ",");
 			//			while (tok.hasMoreElements())
 			//			{

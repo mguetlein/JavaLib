@@ -138,6 +138,13 @@ public class ListUtil
 		return list.toArray(a);
 	}
 
+	public static <T> T[] toArray(Class<T> type, List<T> list)
+	{
+		@SuppressWarnings("unchecked")
+		T a[] = (T[]) Array.newInstance(type, list.size());
+		return list.toArray(a);
+	}
+
 	public static void main(String[] args)
 	{
 		List<String> l = new ArrayList<String>();
