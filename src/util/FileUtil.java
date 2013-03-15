@@ -105,7 +105,7 @@ public class FileUtil
 					if (l.size() > 0 && l.get(0).length != line.size())
 						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
 								+ line.size());
-					l.add(ArrayUtil.toArray(line));
+					l.add(ArrayUtil.toArray(String.class, line));
 				}
 			}
 			b.close();
