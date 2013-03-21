@@ -37,10 +37,15 @@ public class VectorUtil
 
 	public static Vector<String> fromCSVString(String csv)
 	{
-		return fromCSVString(csv, true);
+		return fromCSVString(csv, true, -1);
 	}
 
-	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields)
+	public static Vector<String> fromCSVString(String csv, int expectedSize)
+	{
+		return fromCSVString(csv, true, expectedSize);
+	}
+
+	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedSize)
 	{
 		Vector<String> res = new Vector<String>();
 		if (csv != null)
@@ -67,6 +72,14 @@ public class VectorUtil
 			//				if (!skipEmptyFields || s.trim().length() > 0)
 			//					res.add(s.trim());
 			//			}
+		}
+		if (expectedSize != -1)
+		{
+			if (res.size() == expectedSize + 1 && res.get(res.size() - 1) == null)
+				res.remove(res.size() - 1);
+			if (res.size() != expectedSize)
+				throw new IllegalStateException("csv string has not the expected length: " + res.size() + " != "
+						+ expectedSize);
 		}
 		return res;
 	}

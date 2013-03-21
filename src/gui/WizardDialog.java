@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -32,7 +33,6 @@ import util.ImageLoader;
 import util.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class WizardDialog extends BlockableFrame
@@ -45,6 +45,7 @@ public class WizardDialog extends BlockableFrame
 	JButton buttonCancel;
 	JButton buttonFinish;
 	JButton buttonHelp;
+	JButton buttonImport;
 
 	JPanel centerPanel;
 	Vector<WizardPanel> panels;
@@ -203,14 +204,35 @@ public class WizardDialog extends BlockableFrame
 		buttonHelp = new JButton("Help");
 		if (helpURL == null)
 			buttonHelp.setEnabled(false);
+		buttonImport = new JButton("Import...");
+		buttonImport.setVisible(false);
 		buttonNext = new JButton("Next");
 		buttonPrev = new JButton("Previous");
 		buttonCancel = new JButton("Close");
 		buttonFinish = new JButton(getFinishText());
-		JPanel buttons = ButtonBarFactory.buildHelpBar(buttonHelp, buttonCancel, buttonPrev, buttonNext, buttonFinish);
+		JPanel buttons = new JPanel(new BorderLayout());
+		JPanel buttonsLeft = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		buttonsLeft.setOpaque(false);
+		buttonsLeft.add(buttonHelp);
+		buttonsLeft.add(buttonImport);
+		buttons.add(buttonsLeft, BorderLayout.WEST);
+		JPanel buttonsRight = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		buttonsRight.setOpaque(false);
+		buttonsRight.add(buttonCancel);
+		buttonsRight.add(buttonPrev);
+		buttonsRight.add(buttonNext);
+		buttonsRight.add(buttonFinish);
+		int maxWidth = 0;
+		for (JButton b : new JButton[] { buttonHelp, buttonImport, buttonCancel, buttonPrev, buttonNext, buttonFinish })
+			maxWidth = Math.max(maxWidth, b.getPreferredSize().width);
+		for (JButton b : new JButton[] { buttonHelp, buttonImport, buttonCancel, buttonPrev, buttonNext, buttonFinish })
+			b.setPreferredSize(new Dimension(maxWidth, b.getPreferredSize().height));
+		buttons.add(buttonsRight, BorderLayout.EAST);
+		//		JPanel buttons = ButtonBarFactory.buildHelpBar(buttonHelp, new JButton[] { buttonImport, buttonCancel,
+		//				buttonPrev, buttonNext, buttonFinish });
 		buttons.setBackground(Color.WHITE);
 		buttons.setBorder(new CompoundBorder(
-				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 35, 10,
+				new MatteBorder(0, 0, 0, 0, centerPanel.getBackground().darker().darker()), new EmptyBorder(15, 10, 10,
 						10)));
 
 		centerPanelContainer.add(northPanel, BorderLayout.NORTH);
@@ -303,6 +325,25 @@ public class WizardDialog extends BlockableFrame
 				update(status - 1);
 			}
 		});
+		buttonImport.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				doImport();
+			}
+		});
+	}
+
+	protected void setImportActive(boolean b)
+	{
+		buttonImport.setVisible(b);
+	}
+
+	protected void doImport()
+	{
+
 	}
 
 	public void proceedTo(int index)

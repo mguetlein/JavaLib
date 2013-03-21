@@ -19,6 +19,10 @@ public interface Property
 
 	public void load(Properties javaProperties);
 
+	public void loadOrResetToDefault(Properties javaProperties);
+
+	public void put(Properties javaProperties);
+
 	public void store(Properties javaProperties, String propertyFilename);
 
 	public void addPropertyChangeListener(PropertyChangeListener l);

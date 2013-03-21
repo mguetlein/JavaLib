@@ -86,6 +86,11 @@ public class FileUtil
 
 	public static CSVFile readCSV(String filename)
 	{
+		return readCSV(filename, -1);
+	}
+
+	public static CSVFile readCSV(String filename, int expectedSize)
+	{
 		try
 		{
 			List<String[]> l = new ArrayList<String[]>();
@@ -101,7 +106,7 @@ public class FileUtil
 					c.add(s);
 				else
 				{
-					Vector<String> line = VectorUtil.fromCSVString(s, false);
+					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedSize);
 					if (l.size() > 0 && l.get(0).length != line.size())
 						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
 								+ line.size());

@@ -72,6 +72,16 @@ public abstract class AbstractProperty implements Property
 	}
 
 	@Override
+	public void loadOrResetToDefault(Properties javaProperties)
+	{
+		String v = loadVal(javaProperties);
+		if (v == null)
+			setValue(getDefaultValue());
+		else
+			load(javaProperties);
+	}
+
+	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l)
 	{
 		listeners.add(l);
@@ -81,6 +91,11 @@ public abstract class AbstractProperty implements Property
 	{
 		for (PropertyChangeListener l : listeners)
 			l.propertyChange(new PropertyChangeEvent(this, "valueChanged", null, newVal));
+	}
+
+	public void put(Properties javaProperties)
+	{
+		javaProperties.put("property-" + uniqueName, valueToString());
 	}
 
 	public void store(Properties javaProperties, String propertyFilename)

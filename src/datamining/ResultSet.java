@@ -1087,7 +1087,6 @@ public class ResultSet
 			displayCategories = categoryProperties;
 
 		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-
 		DoubleKeyHashMap<String, String, List<Double>> vals = new DoubleKeyHashMap<String, String, List<Double>>();
 
 		for (int i = 0; i < categoryProperties.size(); i++)
@@ -1097,22 +1096,41 @@ public class ResultSet
 				String seriesVal = r.getValue(seriesProperty) + "";
 				if (!vals.containsKeyPair(key1, seriesVal))
 					vals.put(key1, seriesVal, new ArrayList<Double>());
-				vals.get(key1, seriesVal).add(Double.parseDouble(r.getValue(categoryProperties.get(i)) + ""));
+				Double d = Double.parseDouble(r.getValue(categoryProperties.get(i)) + "");
+				if (!d.isNaN())
+					vals.get(key1, seriesVal).add(d);
 			}
-		int size = -1;
+		int minSize = Integer.MAX_VALUE;
+		int maxSize = 0;
+		CountedSet<String> key1Counter = new CountedSet<String>();
+
 		for (String key1 : vals.keySet1())
 			for (String key2 : vals.keySet2(key1))
 			{
-				dataset.add(vals.get(key1, key2), key2, key1);
+				List<Double> v = vals.get(key1, key2);
+				dataset.add(v, key2, key1);
 				int s = vals.get(key1, key2).size();
-				//				System.out.println(key2 + " " + key1 + " " + s);
-				if (size != -1 && size != s)
-					throw new IllegalArgumentException(size + " != " + s);
+
+				if (key1Counter.contains(key1))
+				{
+					if (key1Counter.getCount(key1) != s)
+						throw new IllegalArgumentException("size within categories has to be equal!! "
+								+ key1Counter.getCount(key1) + " != " + s + ", " + key2);
+				}
 				else
-					size = s;
+					key1Counter.add(key1, s);
+
+				//				System.out.println(key2 + " " + key1 + " " + s);
+				minSize = Math.min(s, minSize);
+				maxSize = Math.max(s, maxSize);
 			}
 
-		String sizeStr[] = { "#results per plot: " + size };
+		if (maxSize > minSize)
+			for (String key1 : vals.keySet1())
+				if (key1Counter.getCount(key1) == maxSize)
+					key1Counter.delete(key1);
+
+		String sizeStr[] = { "#results per plot: " + maxSize + (maxSize > minSize ? (" " + key1Counter) : "") };
 		if (subtitle == null)
 			subtitle = sizeStr;
 		else
@@ -1169,7 +1187,7 @@ public class ResultSet
 	{
 		CountedSet<Object> o = getResultValues(prop);
 		if (o.size() != 1)
-			throw new IllegalStateException("not unique: " + o);
+			throw new IllegalStateException("'" + prop + "' not unique: " + o);
 		return o.values().get(0);
 	}
 

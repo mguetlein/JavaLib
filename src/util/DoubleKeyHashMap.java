@@ -53,4 +53,9 @@ public class DoubleKeyHashMap<T1, T2, T3>
 			return false;
 		return map.get(key1).containsKey(key2);
 	}
+
+	public void clear()
+	{
+		map.clear();
+	}
 }

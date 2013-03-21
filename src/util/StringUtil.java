@@ -71,7 +71,20 @@ public class StringUtil
 		return indicesOf(s, search).length;
 	}
 
-	public static int compareTo(String s1, String s2)
+	public static int compare(String s1, String s2)
+	{
+		if (s1 == null)
+			if (s2 == null)
+				return 0;
+			else
+				return -1;
+		else if (s2 == null)
+			return 1;
+		else
+			return s1.compareTo(s2);
+	}
+
+	public static int compareFilenames(String s1, String s2)
 	{
 		if (s1 == null || s2 == null)
 			throw new NullPointerException();

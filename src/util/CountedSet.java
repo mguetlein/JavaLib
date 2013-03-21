@@ -24,6 +24,12 @@ public class CountedSet<T> implements ArraySummary
 			map.put(elem, map.get(elem) + 1);
 	}
 
+	public void add(T elem, int times)
+	{
+		for (int i = 0; i < times; i++)
+			add(elem);
+	}
+
 	public int size()
 	{
 		return map.size();
@@ -101,5 +107,15 @@ public class CountedSet<T> implements ArraySummary
 			return 0;
 		else
 			return map.get(null);
+	}
+
+	public boolean contains(String key)
+	{
+		return map.containsKey(key);
+	}
+
+	public void delete(String key)
+	{
+		map.remove(key);
 	}
 }
