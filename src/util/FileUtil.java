@@ -13,7 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.SequenceInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -22,6 +25,16 @@ import org.jfree.io.IOUtils;
 
 public class FileUtil
 {
+	public static interface ColumnExclude
+	{
+		public boolean exclude(int columnIndex, String columnName);
+	}
+
+	public static interface RowRemove
+	{
+		public boolean remove(int rowIndex, String row[]);
+	}
+
 	public static class CSVFile
 	{
 		public List<String> comments = new ArrayList<String>();
@@ -37,6 +50,71 @@ public class FileUtil
 			for (int i = 0; i < content.size(); i++)
 				newCsv.content.add(ArrayUtil.concat(String.class, content.get(i), csvFile.content.get(i)));
 			return newCsv;
+		}
+
+		public String[] getHeader()
+		{
+			return content.get(0);
+		}
+
+		public CSVFile removeRow(RowRemove remove)
+		{
+			Set<Integer> rowIndex = new HashSet<Integer>();
+			for (int i = 1; i < content.size(); i++)
+				if (remove.remove(i, content.get(i)))
+					rowIndex.add(i);
+			return removeRow(ArrayUtil.toPrimitiveIntArray(rowIndex));
+		}
+
+		public CSVFile removeRow(int... rows)
+		{
+			CSVFile csv = new CSVFile();
+			csv.comments = ListUtil.clone(comments);
+			csv.content = ListUtil.clone(content);
+			Arrays.sort(rows);
+			for (int i = rows.length - 1; i >= 0; i--)
+				csv.content.remove(rows[i]);
+			return csv;
+		}
+
+		public CSVFile exclude(ColumnExclude exclude)
+		{
+			Set<Integer> colIndex = new HashSet<Integer>();
+			for (int i = 0; i < getHeader().length; i++)
+				if (exclude.exclude(i, getHeader()[i]))
+					colIndex.add(i);
+			return exclude(ArrayUtil.toPrimitiveIntArray(colIndex));
+		}
+
+		public CSVFile exclude(String... columns)
+		{
+			List<Integer> colIndex = new ArrayList<Integer>();
+			for (String s : columns)
+			{
+				int i = ArrayUtil.indexOf(getHeader(), s);
+				if (i == -1)
+					throw new IllegalArgumentException("not found: " + columns);
+				colIndex.add(i);
+			}
+			return exclude(ArrayUtil.toPrimitiveIntArray(colIndex));
+		}
+
+		public CSVFile exclude(int... columns)
+		{
+			CSVFile csv = new CSVFile();
+			csv.comments = ListUtil.clone(comments);
+			csv.content = ListUtil.clone(content);
+			Arrays.sort(columns);
+			for (int i = columns.length - 1; i >= 0; i--)
+			{
+				//				System.err.println(ArrayUtil.toString(csv.getHeader()));
+				//				System.err.println("remove " + columns[i] + ", length: " + csv.getHeader().length);
+				List<String[]> contentNew = new ArrayList<String[]>();
+				for (String s[] : csv.content)
+					contentNew.add(ArrayUtil.removeAt(String.class, s, columns[i]));
+				csv.content = contentNew;
+			}
+			return csv;
 		}
 
 		public String toString()

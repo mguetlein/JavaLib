@@ -895,6 +895,20 @@ public class ArrayUtil
 	}
 
 	@SuppressWarnings("unchecked")
+	public static <T> T[] removeAt(Class<T> type, T[] a, int index)
+	{
+		if (a == null || a.length == 0)
+			throw new IllegalArgumentException();
+		if (a.length == 1)
+			return (T[]) Array.newInstance(type, 0);
+		if (index == 0)
+			return Arrays.copyOfRange(a, 1, a.length);
+		if (index == a.length - 1)
+			return Arrays.copyOfRange(a, 0, a.length - 1);
+		return ArrayUtil.concat(type, Arrays.copyOfRange(a, 0, index), Arrays.copyOfRange(a, index + 1, a.length));
+	}
+
+	@SuppressWarnings("unchecked")
 	public static <T> T[] remove(Class<T> type, T[] a1, T[] a2)
 	{
 		List<T> rem = new ArrayList<T>();
