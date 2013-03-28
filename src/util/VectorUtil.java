@@ -47,10 +47,15 @@ public class VectorUtil
 
 	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedSize)
 	{
+		return fromCSVString(csv, true, expectedSize, ',');
+	}
+
+	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedSize, char sep)
+	{
 		Vector<String> res = new Vector<String>();
 		if (csv != null)
 		{
-			String split[] = csv.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+			String split[] = csv.split(sep + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 			for (String s : split)
 			{
 				s = StringUtil.trimQuotes(s).trim();
@@ -60,7 +65,7 @@ public class VectorUtil
 			if (!skipEmptyFields)
 				for (int i = csv.length() - 1; i > 0; i--)
 				{
-					if (csv.charAt(i) == ',')
+					if (csv.charAt(i) == sep)
 						res.add(null);
 					else
 						break;

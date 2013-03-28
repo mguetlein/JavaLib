@@ -169,6 +169,13 @@ public class FileUtil
 
 	public static CSVFile readCSV(String filename, int expectedSize)
 	{
+		return readCSV(filename, -1, null);
+	}
+
+	public static CSVFile readCSV(String filename, int expectedSize, String sep)
+	{
+		if (sep != null && sep.length() != 1)
+			throw new IllegalArgumentException("seperator must have length 1");
 		try
 		{
 			List<String[]> l = new ArrayList<String[]>();
@@ -176,6 +183,8 @@ public class FileUtil
 
 			BufferedReader b = new BufferedReader(new FileReader(new File(filename)));
 			String s = "";
+			char seperator = ',';
+
 			while ((s = b.readLine()) != null)
 			{
 				if (s.trim().length() == 0)
@@ -184,7 +193,19 @@ public class FileUtil
 					c.add(s);
 				else
 				{
-					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedSize);
+					if (l.size() == 0)
+					{
+						if (sep != null)
+							seperator = sep.charAt(0);
+						else
+						{
+							if (StringUtil.numOccurences(s, ";") > StringUtil.numOccurences(s, ","))
+								seperator = ';';
+							else
+								seperator = ',';
+						}
+					}
+					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedSize, seperator);
 					if (l.size() > 0 && l.get(0).length != line.size())
 						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
 								+ line.size());
