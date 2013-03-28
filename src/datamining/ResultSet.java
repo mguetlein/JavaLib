@@ -17,6 +17,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
@@ -1083,6 +1084,12 @@ public class ResultSet
 	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties, List<String> displayCategories)
 	{
+		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null);
+	}
+
+	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+			List<String> categoryProperties, List<String> displayCategories, Double yTickUnit)
+	{
 		if (displayCategories == null)
 			displayCategories = categoryProperties;
 
@@ -1138,6 +1145,10 @@ public class ResultSet
 
 		final CategoryAxis xAxis = new CategoryAxis(seriesProperty);
 		final NumberAxis yAxis = new NumberAxis(yAxisLabel);
+
+		if (yTickUnit != null)
+			yAxis.setTickUnit(new NumberTickUnit(yTickUnit));
+
 		yAxis.setAutoRangeIncludesZero(false);
 		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
 		renderer.setFillBox(true);

@@ -294,7 +294,7 @@ public class WizardDialog extends BlockableFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				WizardDialog.this.setVisible(false);
+				close(WizardDialog.RETURN_VALUE_CLOSE);
 			}
 		});
 		buttonFinish.addActionListener(new ActionListener()
@@ -305,7 +305,7 @@ public class WizardDialog extends BlockableFrame
 				for (int i = status; i < panels.size(); i++)
 					panels.get(i).proceed();
 				finish();
-				WizardDialog.this.setVisible(false);
+				close(WizardDialog.RETURN_VALUE_FINISH);
 			}
 		});
 		buttonNext.addActionListener(new ActionListener()
@@ -334,6 +334,21 @@ public class WizardDialog extends BlockableFrame
 				doImport();
 			}
 		});
+	}
+
+	public static final int RETURN_VALUE_FINISH = 0;
+	public static final int RETURN_VALUE_CLOSE = 1;
+	private int returnValue = -1;
+
+	protected void close(int returnValue)
+	{
+		this.returnValue = returnValue;
+		setVisible(false);
+	}
+
+	public int getReturnValue()
+	{
+		return returnValue;
 	}
 
 	protected void setImportActive(boolean b)

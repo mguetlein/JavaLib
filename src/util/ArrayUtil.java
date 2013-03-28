@@ -29,7 +29,7 @@ public class ArrayUtil
 		else
 			for (Object st : a)
 			{
-				if ((st + "").contains(","))
+				if (addQuotes == false && (st + "").contains(","))
 					throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
 				if (addQuotes)
 					s += "\"" + (st == null ? "" : st.toString()) + "\",";
