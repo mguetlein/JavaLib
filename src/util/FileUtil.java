@@ -199,7 +199,8 @@ public class FileUtil
 							seperator = sep.charAt(0);
 						else
 						{
-							if (StringUtil.numOccurences(s, ";") > StringUtil.numOccurences(s, ","))
+							if (s.split(";(?=([^\"]*\"[^\"]*\")*[^\"]*$)").length > s
+									.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").length)
 								seperator = ';';
 							else
 								seperator = ',';
