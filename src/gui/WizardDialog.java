@@ -204,7 +204,7 @@ public class WizardDialog extends BlockableFrame
 		buttonHelp = new JButton("Help");
 		if (helpURL == null)
 			buttonHelp.setEnabled(false);
-		buttonImport = new JButton("Import...");
+		buttonImport = new JButton("Import");
 		buttonImport.setVisible(false);
 		buttonNext = new JButton("Next");
 		buttonPrev = new JButton("Previous");
