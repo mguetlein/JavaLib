@@ -57,6 +57,33 @@ public class FileUtil
 			return content.get(0);
 		}
 
+		public String[] getColumn(String colName)
+		{
+			int colIndex = ArrayUtil.indexOf(getHeader(), colName);
+			if (colIndex == -1)
+				throw new IllegalArgumentException();
+			String s[] = new String[content.size() - 1];
+			for (int i = 0; i < s.length; i++)
+				s[i] = content.get(i + 1)[colIndex];
+			return s;
+		}
+
+		public Double[] getDoubleColumn(String colName)
+		{
+			String s[] = getColumn(colName);
+			Double d[] = new Double[s.length];
+			for (int i = 0; i < d.length; i++)
+			{
+				Double v;
+				if (s[i] == null || s[i].length() == 0)
+					v = null;
+				else
+					v = Double.parseDouble(s[i]);
+				d[i] = v;
+			}
+			return d;
+		}
+
 		public CSVFile removeRow(RowRemove remove)
 		{
 			Set<Integer> rowIndex = new HashSet<Integer>();
@@ -126,6 +153,19 @@ public class FileUtil
 				s.add(ArrayUtil.toCSVString(st));
 			return s.toString();
 		}
+
+		public CSVFile addColumn(String col, String[] values)
+		{
+			if (values.length != content.size() - 1)
+				throw new IllegalArgumentException();
+			CSVFile csv = new CSVFile();
+			csv.comments = ListUtil.clone(comments);
+			csv.content = new ArrayList<String[]>();
+			csv.content.add(ArrayUtil.concat(String.class, content.get(0), new String[] { col }));
+			for (int i = 1; i < content.size(); i++)
+				csv.content.add(ArrayUtil.concat(String.class, content.get(i), new String[] { values[i - 1] }));
+			return csv;
+		}
 	}
 
 	public static void writeCSV(String file, CSVFile csv, boolean append)
@@ -169,7 +209,7 @@ public class FileUtil
 
 	public static CSVFile readCSV(String filename, int expectedSize)
 	{
-		return readCSV(filename, -1, null);
+		return readCSV(filename, expectedSize, null);
 	}
 
 	public static CSVFile readCSV(String filename, int expectedSize, String sep)
