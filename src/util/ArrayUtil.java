@@ -183,7 +183,10 @@ public class ArrayUtil
 	{
 		String[] a = new String[array.length];
 		for (int i = 0; i < a.length; i++)
-			a[i] = array[i] + "";
+			if (array[i] == null)
+				a[i] = null;
+			else
+				a[i] = array[i] + "";
 		return a;
 	}
 
@@ -583,6 +586,15 @@ public class ArrayUtil
 			start += array.length;
 		}
 		return (T[]) mergedArray;
+	}
+
+	public static <T> List<T> compact(T[] array)
+	{
+		List<T> list = new ArrayList<T>();
+		for (int i = 0; i < array.length; i++)
+			if (array[i] != null)
+				list.add(array[i]);
+		return list;
 	}
 
 	public static <T> List<T[]> split(T[] array, int n)

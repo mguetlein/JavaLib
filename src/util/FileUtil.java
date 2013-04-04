@@ -35,6 +35,14 @@ public class FileUtil
 		public boolean remove(int rowIndex, String row[]);
 	}
 
+	public static class UnexpectedNumColsException extends Exception
+	{
+		public UnexpectedNumColsException(String msg)
+		{
+			super(msg);
+		}
+	}
+
 	public static class CSVFile
 	{
 		public List<String> comments = new ArrayList<String>();
@@ -204,15 +212,27 @@ public class FileUtil
 
 	public static CSVFile readCSV(String filename)
 	{
-		return readCSV(filename, -1);
+		return readCSV(filename, null);
 	}
 
-	public static CSVFile readCSV(String filename, int expectedSize)
+	public static CSVFile readCSV(String filename, String sep)
 	{
-		return readCSV(filename, expectedSize, null);
+		try
+		{
+			return readCSV(filename, -1, sep);
+		}
+		catch (UnexpectedNumColsException e)
+		{
+			throw new Error("should never happen");
+		}
 	}
 
-	public static CSVFile readCSV(String filename, int expectedSize, String sep)
+	public static CSVFile readCSV(String filename, int expectedNumCols) throws UnexpectedNumColsException
+	{
+		return readCSV(filename, expectedNumCols, null);
+	}
+
+	public static CSVFile readCSV(String filename, int expectedNumCols, String sep) throws UnexpectedNumColsException
 	{
 		if (sep != null && sep.length() != 1)
 			throw new IllegalArgumentException("seperator must have length 1");
@@ -246,7 +266,7 @@ public class FileUtil
 								seperator = ',';
 						}
 					}
-					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedSize, seperator);
+					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedNumCols, seperator);
 					if (l.size() > 0 && l.get(0).length != line.size())
 						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
 								+ line.size());

@@ -3,6 +3,7 @@ package util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,11 +12,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -50,6 +55,8 @@ public class SwingUtil
 {
 	public static void waitWhileVisible(Window f)
 	{
+		if (Thread.currentThread().getName().contains("AWT-EventQueue"))
+			throw new Error("do not wait in awt event thread");
 		while (f.isVisible())
 		{
 			try
@@ -337,6 +344,42 @@ public class SwingUtil
 			});
 		}
 		f.setVisible(true);
+	}
+
+	private static HashMap<Component, MouseListener[]> ml = new HashMap<Component, MouseListener[]>();
+	private static HashMap<Component, MouseWheelListener[]> mw = new HashMap<Component, MouseWheelListener[]>();
+	private static HashMap<Component, MouseMotionListener[]> mm = new HashMap<Component, MouseMotionListener[]>();
+
+	public static void removeMouseListeners(Component c, boolean removeFromChildren)
+	{
+		ml.put(c, c.getMouseListeners());
+		mm.put(c, c.getMouseMotionListeners());
+		mw.put(c, c.getMouseWheelListeners());
+		for (MouseListener l : c.getMouseListeners())
+			c.removeMouseListener(l);
+		for (MouseMotionListener l : c.getMouseMotionListeners())
+			c.removeMouseMotionListener(l);
+		for (MouseWheelListener l : c.getMouseWheelListeners())
+			c.removeMouseWheelListener(l);
+		if (removeFromChildren && c instanceof Container)
+			for (int i = 0; i < ((Container) c).getComponentCount(); i++)
+				removeMouseListeners(((Container) c).getComponent(i), true);
+	}
+
+	public static void restoreMouseListeners(Component c, boolean restoreInChildren)
+	{
+		if (ml.containsKey(c))
+			for (MouseListener l : ml.get(c))
+				c.addMouseListener(l);
+		if (mm.containsKey(c))
+			for (MouseMotionListener l : mm.get(c))
+				c.addMouseMotionListener(l);
+		if (mw.containsKey(c))
+			for (MouseWheelListener l : mw.get(c))
+				c.addMouseWheelListener(l);
+		if (restoreInChildren && c instanceof Container)
+			for (int i = 0; i < ((Container) c).getComponentCount(); i++)
+				restoreMouseListeners(((Container) c).getComponent(i), true);
 	}
 
 	public static void main(String args[])

@@ -145,6 +145,15 @@ public class ListUtil
 		return list.toArray(a);
 	}
 
+	public static <T> List<T> compact(List<T> list)
+	{
+		List<T> l = new ArrayList<T>();
+		for (T t : list)
+			if (t != null)
+				l.add(t);
+		return l;
+	}
+
 	public static void main(String[] args)
 	{
 		List<String> l = new ArrayList<String>();
@@ -164,4 +173,5 @@ public class ListUtil
 		ListUtil.sort(l, o);
 		System.out.println(l);
 	}
+
 }

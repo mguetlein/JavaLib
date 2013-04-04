@@ -95,6 +95,13 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 		});
 	}
 
+	public int getRowHeight()
+	{
+		if (l2.getText().length() == 0)
+			l2.setText(" ");
+		return l2.getPreferredSize().height;
+	}
+
 	private void updateLeftLabelSize()
 	{
 		JLabel l = new JLabel();

@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Paint;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,12 +27,47 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import util.ArrayUtil;
+import util.ListUtil;
 import util.SwingUtil;
 
 public class StackedBarPlot extends AbstractFreeChartPanel
 {
 
-	public StackedBarPlot(String title, String xCaption, String yCaption, Map<String, List<Double>> data,
+	/**
+	 * this is to transform data with total values to additive data 
+	 * i.e.
+	 * bar "category=active" will have height 5, if input is 
+	 * "category=active","series=cluster","value=5" and 
+	 * "category=active","series=selected-compound","value=1" 
+	 */
+	public static LinkedHashMap<String, List<Double>> convertTotalToAdditive(LinkedHashMap<String, List<Double>> data)
+	{
+		LinkedHashMap<String, List<Double>> additive = new LinkedHashMap<String, List<Double>>();
+		int seriesCount = 0;
+		for (String key : data.keySet())
+		{
+			@SuppressWarnings("unused")
+			List<Double> additiveVals = ListUtil.clone(data.get(key));
+			for (int i = 0; i < seriesCount; i++)
+			{
+				String oldKey = new ArrayList<String>(data.keySet()).get(i);
+				for (int j = 0; j < additiveVals.size(); j++)
+					additiveVals.set(j, additiveVals.get(j) - additive.get(oldKey).get(j));
+			}
+			additive.put(key, additiveVals);
+			seriesCount++;
+		}
+		return additive;
+	}
+
+	/**
+	 * data = additive 
+	 * i.e.
+	 * bar "category=active" will have height 5, if input is 
+	 * "category=active","series=cluster","value=4" and 
+	 * "category=active","series=selected-compound","value=1" 
+	 */
+	public StackedBarPlot(String title, String xCaption, String yCaption, LinkedHashMap<String, List<Double>> data,
 			String[] categories)
 	{
 		CategoryDataset dataset = createDataset(data, categories);
@@ -142,12 +179,13 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 
 	public static void main(final String[] args)
 	{
-		Map<String, List<Double>> data = new HashMap<String, List<Double>>();
+		LinkedHashMap<String, List<Double>> data = new LinkedHashMap<String, List<Double>>();
 		data.put("test", ArrayUtil.toList(new double[] { 0, 1, 3, 2, 0 }));
-		data.put("test2", ArrayUtil.toList(new double[] { 2, 1, 0.5, 9, 2 }));
+		data.put("test2", ArrayUtil.toList(new double[] { 2, 1, 3.5, 9, 2 }));
 		String[] categories = new String[] { "ene", "mene", "miste", "xy", "z" };
 
-		StackedBarPlot demo = new StackedBarPlot("Stacked Bar Chart Demo 3", "xCaption", "yCaption", data, categories);
+		StackedBarPlot demo = new StackedBarPlot("Stacked Bar Chart Demo 3", "xCaption", "yCaption",
+				convertTotalToAdditive(data), categories);
 
 		//		demo.setOpaqueFalse();
 		//		demo.setForegroundColor(Color.GREEN.darker());

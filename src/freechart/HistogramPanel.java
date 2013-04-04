@@ -195,7 +195,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		for (double[] d : values)
 			for (double e : d)
 				unique.put(e, null);
-		bins = Math.max(5, Math.min(20, unique.size()));
+		bins = Math.max(5, Math.min(bins, unique.size()));
 		for (int i = values.size() - 1; i >= 0; i--)
 		{
 			String c = "Data" + (i + 1);
@@ -243,7 +243,11 @@ public class HistogramPanel extends AbstractFreeChartPanel
 				}
 			}
 			if (subtitles.size() > 0)
+			{
+				subtitles.add(chart.getLegend());
 				chart.setSubtitles(subtitles);
+			}
+
 		}
 		//		if (dataset.getSeriesCount() > 1)
 		//			chart.getXYPlot().setForegroundAlpha(0.33f);
@@ -262,7 +266,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		List<double[]> vals = new ArrayList<double[]>();
 		List<String> captions = new ArrayList<String>();
 		captions.add("a");
-		vals.add(new double[] { 1, 2, 3, 1, 2, 3, 4, 5, 5, 4, 2, 4, 4, 5, 6, 3, 2, 1, 2, 3, 4, 5, 6, 5, 4, 3, 1 });
+		vals.add(new double[] { 1, 2, 2 });
 		captions.add("b");
 		vals.add(new double[] { 1, 2, 7 });
 

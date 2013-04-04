@@ -2,6 +2,8 @@ package util;
 
 import java.util.Vector;
 
+import util.FileUtil.UnexpectedNumColsException;
+
 public class VectorUtil
 {
 	public static Vector<?> cut(Vector<?> v1, Vector<?> v2)
@@ -37,20 +39,29 @@ public class VectorUtil
 
 	public static Vector<String> fromCSVString(String csv)
 	{
-		return fromCSVString(csv, true, -1);
+		try
+		{
+			return fromCSVString(csv, true, -1);
+		}
+		catch (UnexpectedNumColsException e)
+		{
+			throw new Error("should never happen");
+		}
 	}
 
-	public static Vector<String> fromCSVString(String csv, int expectedSize)
+	public static Vector<String> fromCSVString(String csv, int expectedNumCols) throws UnexpectedNumColsException
 	{
-		return fromCSVString(csv, true, expectedSize);
+		return fromCSVString(csv, true, expectedNumCols);
 	}
 
-	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedSize)
+	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedNumCols)
+			throws UnexpectedNumColsException
 	{
-		return fromCSVString(csv, true, expectedSize, ',');
+		return fromCSVString(csv, true, expectedNumCols, ',');
 	}
 
-	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedSize, char sep)
+	public static Vector<String> fromCSVString(String csv, boolean skipEmptyFields, int expectedNumCols, char sep)
+			throws UnexpectedNumColsException
 	{
 		Vector<String> res = new Vector<String>();
 		if (csv != null)
@@ -78,13 +89,13 @@ public class VectorUtil
 			//					res.add(s.trim());
 			//			}
 		}
-		if (expectedSize != -1)
+		if (expectedNumCols != -1)
 		{
-			if (res.size() == expectedSize + 1 && res.get(res.size() - 1) == null)
+			if (res.size() == expectedNumCols + 1 && res.get(res.size() - 1) == null)
 				res.remove(res.size() - 1);
-			if (res.size() != expectedSize)
-				throw new IllegalStateException("csv string has not the expected length: " + res.size() + " != "
-						+ expectedSize);
+			if (res.size() != expectedNumCols)
+				throw new UnexpectedNumColsException("csv string has not the expected length: " + res.size() + " != "
+						+ expectedNumCols);
 		}
 		return res;
 	}
