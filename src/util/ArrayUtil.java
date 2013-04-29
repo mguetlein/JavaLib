@@ -176,6 +176,12 @@ public class ArrayUtil
 		return values.toArray(i);
 	}
 
+	public static Double[] toDoubleArray(List<Double> values)
+	{
+		Double[] i = new Double[values.size()];
+		return values.toArray(i);
+	}
+
 	/**
 	 * no casting, +"" !
 	 */
@@ -1105,5 +1111,13 @@ public class ArrayUtil
 		// }
 		// System.out.println(" ]");
 		// }
+	}
+
+	public static int[] indexArray(int size)
+	{
+		int array[] = new int[size];
+		for (int i = 0; i < array.length; i++)
+			array[i] = i;
+		return array;
 	}
 }

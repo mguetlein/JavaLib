@@ -420,6 +420,11 @@ public class SwingUtil
 
 	public static void waitForAWTEventThread()
 	{
+		waitForAWTEventThread(100);
+	}
+
+	public static void waitForAWTEventThread(final long sleep)
+	{
 		final StringBuffer clear = new StringBuffer();
 		SwingUtilities.invokeLater(new Runnable()
 		{
@@ -433,7 +438,7 @@ public class SwingUtil
 		{
 			try
 			{
-				Thread.sleep(100);
+				Thread.sleep(sleep);
 			}
 			catch (InterruptedException e)
 			{

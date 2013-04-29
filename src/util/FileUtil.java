@@ -69,7 +69,8 @@ public class FileUtil
 		{
 			int colIndex = ArrayUtil.indexOf(getHeader(), colName);
 			if (colIndex == -1)
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("column '" + colName + "' not found, available: "
+						+ ArrayUtil.toString(getHeader()));
 			String s[] = new String[content.size() - 1];
 			for (int i = 0; i < s.length; i++)
 				s[i] = content.get(i + 1)[colIndex];
@@ -259,14 +260,13 @@ public class FileUtil
 							seperator = sep.charAt(0);
 						else
 						{
-							if (s.split(";(?=([^\"]*\"[^\"]*\")*[^\"]*$)").length > s
-									.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)").length)
+							if (StringUtil.split(s, ';').size() > StringUtil.split(s, ',').size())
 								seperator = ';';
 							else
 								seperator = ',';
 						}
 					}
-					Vector<String> line = VectorUtil.fromCSVString(s, false, expectedNumCols, seperator);
+					List<String> line = StringUtil.split(s, false, expectedNumCols, seperator);
 					if (l.size() > 0 && l.get(0).length != line.size())
 						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
 								+ line.size());

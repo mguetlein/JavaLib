@@ -1103,7 +1103,10 @@ public class ResultSet
 				String seriesVal = r.getValue(seriesProperty) + "";
 				if (!vals.containsKeyPair(key1, seriesVal))
 					vals.put(key1, seriesVal, new ArrayList<Double>());
-				Double d = Double.parseDouble(r.getValue(categoryProperties.get(i)) + "");
+				Object v = r.getValue(categoryProperties.get(i));
+				if (v == null)
+					throw new Error("no value for " + key1);
+				Double d = Double.parseDouble(v + "");
 				if (!d.isNaN())
 					vals.get(key1, seriesVal).add(d);
 			}
@@ -1122,7 +1125,7 @@ public class ResultSet
 				{
 					if (key1Counter.getCount(key1) != s)
 						throw new IllegalArgumentException("size within categories has to be equal!! "
-								+ key1Counter.getCount(key1) + " != " + s + ", " + key2);
+								+ key1Counter.getCount(key1) + " != " + s + ", " + key2 + " " + key1);
 				}
 				else
 					key1Counter.add(key1, s);

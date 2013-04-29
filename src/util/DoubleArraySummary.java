@@ -52,7 +52,7 @@ public class DoubleArraySummary implements ArraySummary
 					+ StringUtil.formatDouble(median);
 	}
 
-	public double getNum()
+	public int getNum()
 	{
 		return num;
 	}

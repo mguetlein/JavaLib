@@ -24,6 +24,8 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
 
+import util.FileUtil.UnexpectedNumColsException;
+
 public class StringUtil
 {
 	public static String trimQuotes(String value)
@@ -33,6 +35,8 @@ public class StringUtil
 
 		value = value.trim();
 		if (value.startsWith("\"") && value.endsWith("\""))
+			return value.substring(1, value.length() - 1);
+		else if (value.startsWith("\'") && value.endsWith("\'"))
 			return value.substring(1, value.length() - 1);
 
 		return value;
@@ -173,6 +177,105 @@ public class StringUtil
 			if (!Character.isDigit(s.charAt(i)))
 				break;
 		return s.substring(0, i + 1);
+	}
+
+	public static List<String> split(String input)
+	{
+		return split(input, ',');
+	}
+
+	public static List<String> split(String input, char sep)
+	{
+		try
+		{
+			return split(input, false, -1, sep);
+		}
+		catch (UnexpectedNumColsException e)
+		{
+			throw new Error("should never happen");
+		}
+	}
+
+	public static List<String> split(String input, boolean skipEmptyFields, int expectedNumCols, char sep)
+			throws UnexpectedNumColsException
+	{
+		//		Vector<String> res = new Vector<String>();
+		//		if (csv != null)
+		//		{
+		//			String split[] = csv.split(sep + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+		//			//List<String> split = StringUtil.split(csv, sep);
+		//			for (String s : split)
+		//			{
+		//				s = StringUtil.trimQuotes(s).trim();
+		//				if (!skipEmptyFields || s.length() > 0)
+		//					res.add(s.length() == 0 ? null : s);
+		//			}
+		//			if (!skipEmptyFields)
+		//				for (int i = csv.length() - 1; i > 0; i--)
+		//				{
+		//					if (csv.charAt(i) == sep)
+		//						res.add(null);
+		//					else
+		//						break;
+		//				}
+		//			//			StringTokenizer tok = new StringTokenizer(csv, ",");
+		//			//			while (tok.hasMoreElements())
+		//			//			{
+		//			//				String s = (String) tok.nextElement();
+		//			//				if (!skipEmptyFields || s.trim().length() > 0)
+		//			//					res.add(s.trim());
+		//			//			}
+		//		}
+		//		if (expectedNumCols != -1)
+		//		{
+		//			if (res.size() == expectedNumCols + 1 && res.get(res.size() - 1) == null)
+		//				res.remove(res.size() - 1);
+		//			if (res.size() != expectedNumCols)
+		//				throw new UnexpectedNumColsException("csv string has not the expected length: " + res.size() + " != "
+		//						+ expectedNumCols);
+		//		}
+		//		return res;
+		List<String> result = new ArrayList<String>();
+		int start = 0;
+		boolean inQuotes = false;
+		for (int current = 0; current < input.length(); current++)
+		{
+			if (input.charAt(current) == '\"' || input.charAt(current) == '\'')
+				inQuotes = !inQuotes;
+
+			if (current == input.length() - 1)//last symbol
+			{
+				if (input.charAt(current) != sep)
+					result.add(trimQuotes(input.substring(start)).trim());
+				else
+				{
+					result.add(trimQuotes(input.substring(start, current)).trim());
+					result.add("");
+				}
+			}
+			else if (input.charAt(current) == sep && !inQuotes)
+			{
+				result.add(trimQuotes(input.substring(start, current).trim()));
+				start = current + 1;
+			}
+		}
+		if (skipEmptyFields)
+		{
+			List<String> tmp = new ArrayList<String>();
+			for (String string : result)
+				if (string != null && string.length() > 0)
+					tmp.add(string);
+			result = tmp;
+		}
+		if (expectedNumCols != -1)
+		{
+			if (result.size() == expectedNumCols + 1 && result.get(result.size() - 1) == null)
+				result.remove(result.size() - 1);
+			if (result.size() != expectedNumCols)
+				throw new UnexpectedNumColsException("csv string has not the expected length: " + result.size()
+						+ " != " + expectedNumCols);
+		}
+		return result;
 	}
 
 	public static String[] splitString(String s, String delim)
@@ -400,6 +503,8 @@ public class StringUtil
 
 	public static void main(String[] args)
 	{
+		System.out.println(ListUtil.toString(StringUtil.split(",1,2,,3,4,,")));
+		System.exit(1);
 
 		String string = "#---No Comment---\n"
 				+ "#Mon Jan 09 15:39:24 CET 2012\n"

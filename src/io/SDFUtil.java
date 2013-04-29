@@ -13,6 +13,8 @@ import java.util.Random;
 
 import util.ArrayUtil;
 import util.DoubleKeyHashMap;
+import util.FileUtil;
+import util.FileUtil.CSVFile;
 import util.ListUtil;
 
 public class SDFUtil
@@ -245,6 +247,15 @@ public class SDFUtil
 
 	public static void addFeatures(String infile, String outfile, String[] featureNames, List<double[]> featureValues)
 	{
+		List<String[]> values = new ArrayList<String[]>();
+		for (double[] ds : featureValues)
+			values.add(ArrayUtil.toStringArray(ArrayUtil.toDoubleArray(ds)));
+		addStringFeatures(infile, outfile, featureNames, values);
+	}
+
+	public static void addStringFeatures(String infile, String outfile, String[] featureNames,
+			List<String[]> featureValues)
+	{
 		File in = new File(infile);
 		if (!in.exists())
 			throw new IllegalArgumentException("file not found" + infile);
@@ -369,8 +380,28 @@ public class SDFUtil
 		}
 	}
 
+	public static void joinCSVProps(String sdfInFile, String csvInFile, String[] csvProps, String outfile)
+	{
+		CSVFile csv = FileUtil.readCSV(csvInFile);
+		List<String[]> featureValues = new ArrayList<String[]>();
+		for (int i = 0; i < csv.content.size() - 1; i++)
+			featureValues.add(new String[csvProps.length]);
+		int colIndex = 0;
+		for (String prop : csvProps)
+		{
+			String[] s = csv.getColumn(prop);
+			for (int i = 0; i < s.length; i++)
+				featureValues.get(i)[colIndex] = s[i];
+			colIndex++;
+		}
+		addStringFeatures(sdfInFile, outfile, csvProps, featureValues);
+	}
+
 	public static void main(String args[])
 	{
+		joinCSVProps("/home/martin/data/caco2.sdf", "/home/martin/documents/diss/visu_vali/data/caco2data.csv",
+				new String[] { "caco2-prediction", "set" }, "/home/martin/documents/diss/visu_vali/data/caco2.ext.sdf");
+
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
