@@ -4,7 +4,9 @@ import java.awt.FontMetrics;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -25,6 +27,8 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.codec.binary.Base64;
 
 import util.FileUtil.UnexpectedNumColsException;
+
+import com.csvreader.CsvReader;
 
 public class StringUtil
 {
@@ -199,65 +203,18 @@ public class StringUtil
 	public static List<String> split(String input, boolean skipEmptyFields, int expectedNumCols, char sep)
 			throws UnexpectedNumColsException
 	{
-		//		Vector<String> res = new Vector<String>();
-		//		if (csv != null)
-		//		{
-		//			String split[] = csv.split(sep + "(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-		//			//List<String> split = StringUtil.split(csv, sep);
-		//			for (String s : split)
-		//			{
-		//				s = StringUtil.trimQuotes(s).trim();
-		//				if (!skipEmptyFields || s.length() > 0)
-		//					res.add(s.length() == 0 ? null : s);
-		//			}
-		//			if (!skipEmptyFields)
-		//				for (int i = csv.length() - 1; i > 0; i--)
-		//				{
-		//					if (csv.charAt(i) == sep)
-		//						res.add(null);
-		//					else
-		//						break;
-		//				}
-		//			//			StringTokenizer tok = new StringTokenizer(csv, ",");
-		//			//			while (tok.hasMoreElements())
-		//			//			{
-		//			//				String s = (String) tok.nextElement();
-		//			//				if (!skipEmptyFields || s.trim().length() > 0)
-		//			//					res.add(s.trim());
-		//			//			}
-		//		}
-		//		if (expectedNumCols != -1)
-		//		{
-		//			if (res.size() == expectedNumCols + 1 && res.get(res.size() - 1) == null)
-		//				res.remove(res.size() - 1);
-		//			if (res.size() != expectedNumCols)
-		//				throw new UnexpectedNumColsException("csv string has not the expected length: " + res.size() + " != "
-		//						+ expectedNumCols);
-		//		}
-		//		return res;
+		CsvReader csv = new CsvReader(new StringReader(input), sep);
 		List<String> result = new ArrayList<String>();
-		int start = 0;
-		boolean inQuotes = false;
-		for (int current = 0; current < input.length(); current++)
+		try
 		{
-			if (input.charAt(current) == '\"' || input.charAt(current) == '\'')
-				inQuotes = !inQuotes;
-
-			if (current == input.length() - 1)//last symbol
-			{
-				if (input.charAt(current) != sep)
-					result.add(trimQuotes(input.substring(start)).trim());
-				else
-				{
-					result.add(trimQuotes(input.substring(start, current)).trim());
-					result.add("");
-				}
-			}
-			else if (input.charAt(current) == sep && !inQuotes)
-			{
-				result.add(trimQuotes(input.substring(start, current).trim()));
-				start = current + 1;
-			}
+			csv.readRecord();
+			for (int i = 0; i < csv.getColumnCount(); i++)
+				result.add(csv.get(i));
+		}
+		catch (IOException e)
+		{
+			//should not throw io exception, as parsed from local string
+			e.printStackTrace();
 		}
 		if (skipEmptyFields)
 		{
@@ -503,7 +460,7 @@ public class StringUtil
 
 	public static void main(String[] args)
 	{
-		System.out.println(ListUtil.toString(StringUtil.split(",1,2,,3,4,,")));
+		System.out.println(ListUtil.toString(StringUtil.split(",1,\"2','3\",3,4,,")));
 		System.exit(1);
 
 		String string = "#---No Comment---\n"

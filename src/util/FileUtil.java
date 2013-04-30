@@ -587,9 +587,18 @@ public class FileUtil
 
 	public static void main(String args[])
 	{
+		//CSVFile csv = FileUtil.readCSV("/home/martin/.ches-mapper/structural_fragments/ToxTree_CramerRules.csv");
+		CSVFile csv = FileUtil
+				.readCSV("/home/martin/workspace/MLC/data/RepDoseNeustoff-2013-03-28.fp34MACCSLin.obDesc.ID.csv");
+
+		System.out.println("comment");
+		System.out.println(ListUtil.toString(csv.comments));
+		System.out.println("content");
+		for (String string[] : csv.content)
+			System.out.println(ArrayUtil.toString(string));
 		//System.out.println(getAbsolutePathEscaped(new File(".")));
 
-		System.out.println(getMD5String("/home/martin/data/test8.csv"));
+		//		System.out.println(getMD5String("/home/martin/data/test8.csv"));
 
 		// String s = "C:\\bla\\blub";
 		// System.out.println(s);
