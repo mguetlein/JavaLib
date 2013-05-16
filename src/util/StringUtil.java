@@ -200,29 +200,44 @@ public class StringUtil
 		}
 	}
 
+	public static List<String> split(String input, boolean skipEmptyFields)
+	{
+		try
+		{
+			return split(input, skipEmptyFields, -1, ',');
+		}
+		catch (UnexpectedNumColsException e)
+		{
+			throw new Error("should never happen");
+		}
+	}
+
 	public static List<String> split(String input, boolean skipEmptyFields, int expectedNumCols, char sep)
 			throws UnexpectedNumColsException
 	{
-		CsvReader csv = new CsvReader(new StringReader(input), sep);
 		List<String> result = new ArrayList<String>();
-		try
+		if (input != null && input.trim().length() > 0)
 		{
-			csv.readRecord();
-			for (int i = 0; i < csv.getColumnCount(); i++)
-				result.add(csv.get(i));
-		}
-		catch (IOException e)
-		{
-			//should not throw io exception, as parsed from local string
-			e.printStackTrace();
-		}
-		if (skipEmptyFields)
-		{
-			List<String> tmp = new ArrayList<String>();
-			for (String string : result)
-				if (string != null && string.length() > 0)
-					tmp.add(string);
-			result = tmp;
+			CsvReader csv = new CsvReader(new StringReader(input), sep);
+			csv.setSkipEmptyRecords(skipEmptyFields);
+			csv.setTrimWhitespace(true);
+			try
+			{
+				csv.readRecord();
+				for (int i = 0; i < csv.getColumnCount(); i++)
+				{
+					String v = csv.get(i);
+					if (v.length() == 0 && !skipEmptyFields)
+						result.add(null);
+					else
+						result.add(v);
+				}
+			}
+			catch (IOException e)
+			{
+				//should not throw io exception, as parsed from local string
+				e.printStackTrace();
+			}
 		}
 		if (expectedNumCols != -1)
 		{

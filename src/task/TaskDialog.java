@@ -196,6 +196,11 @@ public class TaskDialog
 		});
 	}
 
+	public Task getTask()
+	{
+		return task;
+	}
+
 	public static void main(String args[])
 	{
 		final JButton b = new JButton("start task");

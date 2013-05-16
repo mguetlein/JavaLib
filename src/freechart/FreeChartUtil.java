@@ -41,8 +41,21 @@ public class FreeChartUtil
 		try
 		{
 			File f = File.createTempFile("pic", "png");
-			ChartUtilities.saveChartAsPNG(f, cp.getChart(), dim.width, dim.height);
-			return f;
+			return toFile(f, cp, dim);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static File toFile(File pngFile, ChartPanel cp, Dimension dim)
+	{
+		try
+		{
+			ChartUtilities.saveChartAsPNG(pngFile, cp.getChart(), dim.width, dim.height);
+			return pngFile;
 		}
 		catch (IOException e)
 		{

@@ -268,8 +268,10 @@ public class FileUtil
 					}
 					List<String> line = StringUtil.split(s, false, expectedNumCols, seperator);
 					if (l.size() > 0 && l.get(0).length != line.size())
-						throw new IllegalArgumentException("error reading csv " + l.get(0).length + " != "
-								+ line.size());
+						throw new IllegalArgumentException("error reading csv '" + filename + "', line no1 #"
+								+ l.get(0).length + " != line no" + (l.size() + 1) + " #" + line.size()
+								+ "\nfirst-line-parsed:\n" + ArrayUtil.toString(l.get(0)) + "\norig-string:\n" + s
+								+ "\nparsed:\n" + line);
 					l.add(ArrayUtil.toArray(String.class, line));
 				}
 			}
@@ -513,8 +515,9 @@ public class FileUtil
 			BufferedReader r = new BufferedReader(new FileReader(file));
 			while ((line = r.readLine()) != null)
 			{
+				if (res.length() > 0)
+					res.append("\n");
 				res.append(line);
-				res.append("\n");
 			}
 			r.close();
 			return res.toString();

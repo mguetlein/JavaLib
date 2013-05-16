@@ -40,6 +40,13 @@ public class VectorUtil
 		String s = "";
 		for (String st : v)
 			s += st + ",";
+		if (v.size() > 0)
+			s = s.substring(0, s.length() - 1);
 		return s;
+	}
+
+	public static void main(String[] args)
+	{
+		System.out.println(toCSVString(new Vector<String>(ArrayUtil.toList(new String[] { "a", "b" }))));
 	}
 }
