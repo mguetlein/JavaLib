@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -15,11 +16,26 @@ import javax.swing.JButton;
 
 public class ScreenUtil
 {
-	private static GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	private static GraphicsDevice[] gs = ge.getScreenDevices();
+	private static GraphicsEnvironment ge = null;
+	private static GraphicsDevice[] gs = null;
+
+	static
+	{
+		try
+		{
+			ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			gs = ge.getScreenDevices();
+		}
+		catch (HeadlessException e)
+		{
+			System.err.println("no screen!");
+		}
+	}
 
 	public static int getNumMonitors()
 	{
+		if (gs == null)
+			return 0;
 		return gs.length;
 	}
 
@@ -47,6 +63,8 @@ public class ScreenUtil
 
 	public static Dimension getScreenSize(int screen)
 	{
+		if (gs == null)
+			return new Dimension(0, 0);
 		try
 		{
 			DisplayMode mode = gs[screen].getDisplayMode();
@@ -62,6 +80,8 @@ public class ScreenUtil
 
 	public static Point getScreenLocation(int screen)
 	{
+		if (gs == null)
+			return new Point(0, 0);
 		try
 		{
 			Rectangle r = gs[screen].getConfigurations()[0].getBounds();
@@ -77,11 +97,15 @@ public class ScreenUtil
 
 	public static GraphicsDevice getGraphicsDevice(int screen)
 	{
+		if (gs == null)
+			return null;
 		return gs[screen];
 	}
 
 	public static int getScreen(Window w)
 	{
+		if (gs == null)
+			return 0;
 		try
 		{
 			int i = 0;
