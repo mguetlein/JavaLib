@@ -16,6 +16,8 @@ public interface FreeChartPanel
 
 	public void setIntegerTickUnits();
 
+	public void setIntegerTickUnitsOnYAxis();
+
 	public static interface ChartMouseSelectionListener
 	{
 		public void hoverEvent();

@@ -140,6 +140,30 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 	}
 
 	@Override
+	public void setIntegerTickUnitsOnYAxis()
+	{
+		Plot plot = chartPanel.getChart().getPlot();
+
+		Axis a2;
+		if (plot instanceof XYPlot)
+		{
+			XYPlot p = (XYPlot) plot;
+			a2 = p.getDomainAxis();
+		}
+		else if (plot instanceof CategoryPlot)
+		{
+			CategoryPlot p = (CategoryPlot) plot;
+			a2 = p.getDomainAxis();
+		}
+		else
+			throw new IllegalStateException("unknown plot " + plot.getClass());
+
+		if (!(a2 instanceof NumberAxis))
+			throw new IllegalStateException("cannot set a non-number-axis to numeric");
+		((NumberAxis) a2).setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+	}
+
+	@Override
 	public void setSeriesColor(int index, Color c)
 	{
 		AbstractRenderer renderer;

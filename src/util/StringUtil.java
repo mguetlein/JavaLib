@@ -300,7 +300,10 @@ public class StringUtil
 	{
 		char[] dec = new char[numDecimalPlaces];
 		Arrays.fill(dec, '0');
-		DecimalFormat df = new DecimalFormat("0." + new String(dec));
+		String decString = new String(dec);
+		if (dec.length > 0)
+			decString = "." + decString;
+		DecimalFormat df = new DecimalFormat("0" + decString);
 		if (completeStringSize != -1)
 			return StringUtil.concatWhitespace(df.format(d), completeStringSize, false);
 		else

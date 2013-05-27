@@ -57,6 +57,7 @@ public class BlockableFrame extends JFrame implements Blockable
 			System.out.println("BLOCK (" + block.size() + ") '" + blocker + "' ------------------");
 		coverPanel.setVisible(true);
 		coverPanel.requestFocus();
+		firePropertyChange(BLOCKED, null, blocker);
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class BlockableFrame extends JFrame implements Blockable
 	}
 
 	@Override
-	public synchronized void unblock(String blocker)
+	public synchronized void unblock(final String blocker)
 	{
 		if (!block.contains(blocker))
 			throw new Error("use block first for " + blocker);
@@ -81,6 +82,7 @@ public class BlockableFrame extends JFrame implements Blockable
 				public void run()
 				{
 					coverPanel.setVisible(false);
+					firePropertyChange(UN_BLOCKED, null, blocker);
 					if (DEBUG)
 						System.out.println("---------------- UNBLOCK");
 				}

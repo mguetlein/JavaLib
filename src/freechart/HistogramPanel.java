@@ -92,6 +92,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		if (hideLegend)
 			chart.removeLegend();
 		add(chartPanel);
+		if (yValuesInteger)
+			setIntegerTickUnitsOnYAxis();
 	}
 
 	private double[] getInterval(int x, int y)
@@ -143,6 +145,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 	{
 		return createDataset(captions, values, bins, null);
 	}
+
+	boolean yValuesInteger;
 
 	private IntervalXYDataset createDataset(List<String> captions, List<double[]> values, int bins, double[] minMax)
 	{
@@ -196,6 +200,15 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			for (double e : d)
 				unique.put(e, null);
 		bins = Math.max(5, Math.min(bins, unique.size()));
+		yValuesInteger = true;
+		for (Double d : unique.keySet())
+			if (Math.round(d) != d)
+			{
+				yValuesInteger = false;
+				break;
+			}
+		if (yValuesInteger)
+			bins = Math.min((int) (max - min) + 1, bins);
 		for (int i = values.size() - 1; i >= 0; i--)
 		{
 			String c = "Data" + (i + 1);
@@ -268,8 +281,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		captions.add("a");
 		vals.add(new double[] { 1, 2, 2 });
 		captions.add("b");
-		vals.add(new double[] { 1, 2, 7 });
-
+		vals.add(new double[] { 1, 2, 4 });
 		{
 			HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", captions, vals, 20);
 
@@ -278,6 +290,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			//			Axis a = p2.getRangeAxis();
 
 			p.setIntegerTickUnits();
+			p.setIntegerTickUnitsOnYAxis();
 
 			//		p.setForegroundColor(Color.GREEN);
 			p.setShadowVisible(false);

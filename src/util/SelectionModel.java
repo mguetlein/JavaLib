@@ -65,7 +65,7 @@ public class SelectionModel
 
 	public void setSelected(int index, boolean exclusiveSelection)
 	{
-		setSelected(index, true, true);
+		setSelected(index, exclusiveSelection, true);
 	}
 
 	public void setSelected(int index, boolean exclusiveSelection, boolean selected)
