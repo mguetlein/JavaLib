@@ -319,15 +319,15 @@ public class SDFUtil
 
 	public static interface SDChecker
 	{
-		public boolean invalid(String moleculeString);
+		public boolean invalid(String compoundString);
 	}
 
 	public static class NanSDChecker implements SDChecker
 	{
 		@Override
-		public boolean invalid(String moleculeString)
+		public boolean invalid(String compoundString)
 		{
-			return moleculeString.matches("(?s).*nan.*nan.*nan.*");
+			return compoundString.matches("(?s).*nan.*nan.*nan.*");
 		}
 	}
 
@@ -369,7 +369,7 @@ public class SDFUtil
 					bw.write("$$$$\n");
 				}
 				bw.close();
-				System.err.println("replaced " + count + " molecules with invalid coordinates");
+				System.err.println("replaced " + count + " compounds with invalid coordinates");
 			}
 			else
 				System.err.println("all " + sear.length + " passed the check");
@@ -410,11 +410,11 @@ public class SDFUtil
 		//		SDChecker sdCheck = new SDChecker()
 		//		{
 		//			@Override
-		//			public boolean invalid(String moleculeString)
+		//			public boolean invalid(String compoundString)
 		//			{
 		//				try
 		//				{
-		//					String s[] = moleculeString.split("\n");
+		//					String s[] = compoundString.split("\n");
 		//					int numAtoms = -1;
 		//					for (String line : s)
 		//						if (line.contains("V2000"))
@@ -425,11 +425,11 @@ public class SDFUtil
 		//					if (numAtoms == -1)
 		//						throw new Exception("could not parse num atoms");
 		//					MDLV2000Reader reader = new MDLV2000Reader(new InputStreamReader(new ByteArrayInputStream(
-		//							moleculeString.getBytes())));
+		//							compoundString.getBytes())));
 		//					IChemFile content = (IChemFile) reader.read((IChemObject) new ChemFile());
 		//					List<IAtomContainer> list = ChemFileManipulator.getAllAtomContainers(content);
 		//					if (list.size() != 1)
-		//						throw new Exception("Cannot parse molecule");
+		//						throw new Exception("Cannot parse compound");
 		//					if (list.get(0).getAtomCount() != numAtoms)
 		//						throw new Exception("Num atoms " + list.get(0).getAtomCount() + " != " + numAtoms);
 		//					for (int i = 0; i < list.get(0).getBondCount(); i++)
