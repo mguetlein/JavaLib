@@ -118,6 +118,8 @@ public class ArrayUtil
 	@SuppressWarnings("unchecked")
 	public static <T, T2> T[] cast(Class<T> type, T2[] array)
 	{
+		if (array == null)
+			return null;
 		T a[] = (T[]) Array.newInstance(type, array.length);
 		for (int i = 0; i < array.length; i++)
 			a[i] = (T) array[i];

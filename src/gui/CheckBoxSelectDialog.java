@@ -103,18 +103,45 @@ public class CheckBoxSelectDialog extends JDialog
 		getContentPane().add(p);
 	}
 
-	public static int[] select(Window owner, String title, String info, Object[] values, boolean allSelected)
+	public static Object[] select(Window owner, String title, String info, Object[] values, boolean allSelected)
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, allSelected);
+		return selected(d);
+	}
+
+	public static Object[] select(Window owner, String title, String info, Object[] values, boolean selected[])
+	{
+		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, selected);
+		return selected(d);
+	}
+
+	private static Object[] selected(CheckBoxSelectDialog d)
+	{
 		if (d.okPressed)
-			return d.list.getCheckBoxSelection().getSelectedIndices();
+		{
+			if (d.list.getCheckBoxSelection().getSelected() == -1) // return length 0 if empty selection
+				return new Object[0];
+			else
+				return d.list.getCheckboxSelectedValues();
+		}
 		else
 			return null;
 	}
 
-	public static int[] select(Window owner, String title, String info, Object[] values, boolean selected[])
+	public static int[] selectIndices(Window owner, String title, String info, Object[] values, boolean allSelected)
+	{
+		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, allSelected);
+		return selectedIndices(d);
+	}
+
+	public static int[] selectIndices(Window owner, String title, String info, Object[] values, boolean selected[])
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, selected);
+		return selectedIndices(d);
+	}
+
+	private static int[] selectedIndices(CheckBoxSelectDialog d)
+	{
 		if (d.okPressed)
 			return d.list.getCheckBoxSelection().getSelectedIndices();
 		else
@@ -124,7 +151,7 @@ public class CheckBoxSelectDialog extends JDialog
 	public static void main(String args[])
 	{
 		String s[] = { "ene", "mene", "miste" };
-		int ss[] = CheckBoxSelectDialog.select(null, "test-select-dialog", "description text", s, true);
+		int ss[] = CheckBoxSelectDialog.selectIndices(null, "test-select-dialog", "description text", s, true);
 		if (ss != null)
 			System.out.println(ArrayUtil.toString(ss));
 	}
