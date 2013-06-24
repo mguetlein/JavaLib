@@ -18,7 +18,7 @@ public class ArrayUtil
 {
 	public static String toCSVString(Object a[])
 	{
-		return toCSVString(a, false);
+		return toCSVString(a, true);
 	}
 
 	public static String toCSVString(Object a[], boolean addQuotes)
@@ -364,7 +364,7 @@ public class ArrayUtil
 	{
 		Double a[] = new Double[array.length];
 		for (int i = 0; i < a.length; i++)
-			a[i] = Math.log10(array[i]);
+			a[i] = array[i] == null ? null : Math.log10(array[i]);
 		return a;
 	}
 
@@ -709,11 +709,17 @@ public class ArrayUtil
 
 	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket)
 	{
+		return toString(array, seperator, openingBracket, closingBracket, " ");
+	}
+
+	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket,
+			String space)
+	{
 		String s = openingBracket;
 		for (int i = 0; i < array.length; i++)
-			s += array[i] + seperator + " ";
+			s += array[i] + seperator + space;
 		if (array.length > 0)
-			s = s.substring(0, s.length() - (1 + seperator.length()));
+			s = s.substring(0, s.length() - (space.length() + seperator.length()));
 		s += closingBracket;
 		return s;
 	}
@@ -1121,5 +1127,16 @@ public class ArrayUtil
 		for (int i = 0; i < array.length; i++)
 			array[i] = i;
 		return array;
+	}
+
+	public static <T> T uniqValue(T[] array)
+	{
+		if (array.length == 0)
+			throw new IllegalArgumentException();
+		T tmp = array[0];
+		for (int i = 1; i < array.length; i++)
+			if (!ObjectUtil.equals(tmp, array[i]))
+				return null;
+		return tmp;
 	}
 }

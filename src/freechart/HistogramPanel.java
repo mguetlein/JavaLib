@@ -37,6 +37,13 @@ public class HistogramPanel extends AbstractFreeChartPanel
 	}
 
 	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
+			List<String> captions, List<double[]> values, int bins, double[] minMax)
+	{
+		IntervalXYDataset dataset = createDataset(captions, values, bins, minMax);
+		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, false);
+	}
+
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
 			String caption, double[] values, int bins)
 	{
 		this(chartTitle, subtitle, xAxisLabel, yAxisLabel, caption, values, bins, null);

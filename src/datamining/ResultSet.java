@@ -7,12 +7,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.stat.inference.TTestImpl;
+import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -705,7 +706,7 @@ public class ResultSet
 		}
 
 		// calculate ttest value
-		TTestImpl ttest = new TTestImpl();
+		TTest ttest = new TTest();
 
 		for (int i = 0; i < compareProps.length; i++)
 		{
@@ -738,10 +739,6 @@ public class ResultSet
 					}
 				}
 				catch (IllegalArgumentException e)
-				{
-					e.printStackTrace();
-				}
-				catch (MathException e)
 				{
 					e.printStackTrace();
 				}
@@ -1087,6 +1084,37 @@ public class ResultSet
 		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null);
 	}
 
+	private static class KeyCounter
+	{
+		LinkedHashMap<String, Integer[]> map = new LinkedHashMap<String, Integer[]>();
+
+		public void add(String key, int count)
+		{
+			if (map.containsKey(key))
+				map.put(key, ArrayUtil.concat(map.get(key), new Integer[] { count }));
+			else
+				map.put(key, new Integer[] { count });
+		}
+
+		public String toString(int norm)
+		{
+			Set<String> keys = map.keySet();
+			String s = "( ";
+			for (String k : keys)
+			{
+				Integer[] count = map.get(k);
+				Integer u = ArrayUtil.uniqValue(count);
+				if (u == null)
+					s += k + " #" + ArrayUtil.toString(count) + ", ";
+				else if (u != norm)
+					s += k + " #" + u + ", ";
+			}
+			s = s.substring(0, s.length() - 2);
+			s += " )";
+			return s;
+		}
+	}
+
 	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties, List<String> displayCategories, Double yTickUnit)
 	{
@@ -1112,35 +1140,26 @@ public class ResultSet
 			}
 		int minSize = Integer.MAX_VALUE;
 		int maxSize = 0;
-		CountedSet<String> key1Counter = new CountedSet<String>();
+
+		KeyCounter keyCounter = new KeyCounter();
 
 		for (String key1 : vals.keySet1())
+		{
+			System.out.println("1 " + key1);
 			for (String key2 : vals.keySet2(key1))
 			{
+				System.out.println(" 2 " + key2);
 				List<Double> v = vals.get(key1, key2);
 				dataset.add(v, key2, key1);
 				int s = vals.get(key1, key2).size();
 
-				if (key1Counter.contains(key1))
-				{
-					if (key1Counter.getCount(key1) != s)
-						throw new IllegalArgumentException("size within categories has to be equal!! "
-								+ key1Counter.getCount(key1) + " != " + s + ", " + key2 + " " + key1);
-				}
-				else
-					key1Counter.add(key1, s);
-
-				//				System.out.println(key2 + " " + key1 + " " + s);
+				keyCounter.add(key1, s);
 				minSize = Math.min(s, minSize);
 				maxSize = Math.max(s, maxSize);
 			}
-
-		if (maxSize > minSize)
-			for (String key1 : vals.keySet1())
-				if (key1Counter.getCount(key1) == maxSize)
-					key1Counter.delete(key1);
-
-		String sizeStr[] = { "#results per plot: " + maxSize + (maxSize > minSize ? (" " + key1Counter) : "") };
+		}
+		String sizeStr[] = { "#results per plot: " + maxSize
+				+ (maxSize > minSize ? (" " + keyCounter.toString(maxSize)) : "") };
 		if (subtitle == null)
 			subtitle = sizeStr;
 		else

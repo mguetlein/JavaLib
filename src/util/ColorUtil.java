@@ -59,6 +59,8 @@ public class ColorUtil
 
 	public static Color getColorGradient(double ratio, Color from, Color to)
 	{
+		if (ratio < 0 || ratio > 1)
+			throw new IllegalArgumentException(ratio + "");
 		int red = (int) (ratio * from.getRed()) + (int) ((1 - ratio) * to.getRed());
 		int green = (int) (ratio * from.getGreen()) + (int) ((1 - ratio) * to.getGreen());
 		int blue = (int) (ratio * from.getBlue()) + (int) ((1 - ratio) * to.getBlue());

@@ -12,6 +12,11 @@ public class ExternalTool
 {
 	private Logger logger;
 
+	public ExternalTool()
+	{
+		this(null);
+	}
+
 	public ExternalTool(Logger logger)
 	{
 		this.logger = logger;

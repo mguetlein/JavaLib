@@ -7,6 +7,7 @@ import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +18,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -267,6 +272,88 @@ public class SwingUtil
 		if (!d.isModal())
 			waitWhileVisible(d);
 		return (T) l.getSelectedValue();
+	}
+
+	public static File toTmpFile(JComponent c)
+	{
+		return toTmpFile(c, null);
+	}
+
+	public static File toTmpFile(final JComponent c, Dimension dim)
+	{
+		try
+		{
+			final File file = File.createTempFile("pic", "png");
+			final JFrame f = new JFrame();
+			f.add(c);
+			if (dim != null)
+				c.setSize(dim);
+			f.pack();
+			f.pack();
+			f.setVisible(true);
+			SwingUtilities.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					BufferedImage bi = new BufferedImage(c.getSize().width, c.getSize().height,
+							BufferedImage.TYPE_INT_ARGB);
+					Graphics g = bi.createGraphics();
+					c.paint(g);
+					g.dispose();
+					try
+					{
+						ImageIO.write(bi, "png", file);
+						//						System.out.println("image stored at " + file);
+						//						Thread.sleep(30000);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+					f.setVisible(false);
+				}
+			});
+			waitWhileVisible(f);
+			return file;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static JFrame showInFrame(final JComponent c, String title)
+	{
+		return showInFrame(c, title, false);
+	}
+
+	public static JFrame showInFrame(final JComponent c, String title, boolean wait)
+	{
+		final JFrame f = new JFrame(title);
+		JPanel p = new JPanel(new BorderLayout(10, 10));
+		p.add(c);
+		p.setBorder(new EmptyBorder(10, 10, 10, 10));
+		f.getContentPane().add(p);
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		JButton close = new JButton("Close");
+		close.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				f.setVisible(false);
+			}
+		});
+		p.add(ButtonBarFactory.buildCloseBar(close), BorderLayout.SOUTH);
+		f.pack();
+		f.pack();
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+		if (wait)
+			waitWhileVisible(f);
+		return f;
 	}
 
 	public static void showInDialog(JComponent c)

@@ -64,16 +64,19 @@ public class CheckBoxSelectDialog extends JDialog
 
 	private void buildLayout(String description)
 	{
-		JTextArea d = new JTextArea(description);
-		d.setEditable(false);
-		d.setOpaque(false);
-		d.setBorder(null);
-		d.setWrapStyleWord(true);
-		d.setLineWrap(true);
-
-		//text-area hack to prevent pref-size to be sth like 0,2500 
-		d.setPreferredSize(null);
-		d.setSize(new Dimension(200, Integer.MAX_VALUE));
+		JTextArea d = null;
+		if (description != null)
+		{
+			d = new JTextArea(description);
+			d.setEditable(false);
+			d.setOpaque(false);
+			d.setBorder(null);
+			d.setWrapStyleWord(true);
+			d.setLineWrap(true);
+			//text-area hack to prevent pref-size to be sth like 0,2500 
+			d.setPreferredSize(null);
+			d.setSize(new Dimension(200, Integer.MAX_VALUE));
+		}
 
 		listModel = new DefaultListModel();
 		list = new MouseOverCheckBoxList(listModel);
@@ -96,14 +99,16 @@ public class CheckBoxSelectDialog extends JDialog
 		JPanel buttons = ButtonBarFactory.buildOKCancelBar(ok, cancel);
 
 		JPanel p = new JPanel(new BorderLayout(0, 10));
-		p.add(d, BorderLayout.NORTH);
+		if (description != null)
+			p.add(d, BorderLayout.NORTH);
 		p.add(listPanel);
 		p.add(buttons, BorderLayout.SOUTH);
 		p.setBorder(new EmptyBorder(10, 10, 10, 10));
 		getContentPane().add(p);
 	}
 
-	public static Object[] select(Window owner, String title, String info, Object[] values, boolean allSelected)
+	public static Object[] select(final Window owner, final String title, final String info, final Object[] values,
+			final boolean allSelected)
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, allSelected);
 		return selected(d);
@@ -154,5 +159,7 @@ public class CheckBoxSelectDialog extends JDialog
 		int ss[] = CheckBoxSelectDialog.selectIndices(null, "test-select-dialog", "description text", s, true);
 		if (ss != null)
 			System.out.println(ArrayUtil.toString(ss));
+		else
+			System.out.println("nothing");
 	}
 }

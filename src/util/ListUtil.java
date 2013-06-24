@@ -91,13 +91,18 @@ public class ListUtil
 
 	public static String toString(List<?> l, String seperator)
 	{
-		String s = "[ ";
-		for (Object object : l)
-			s += object + seperator;
-		if (l.size() > 0)
-			s = s.substring(0, s.length() - seperator.length());
-		s += " ]";
-		return s;
+		if (l == null)
+			return "null";
+		else
+		{
+			String s = "[ ";
+			for (Object object : l)
+				s += object + seperator;
+			if (l.size() > 0)
+				s = s.substring(0, s.length() - seperator.length());
+			s += " ]";
+			return s;
+		}
 	}
 
 	public static String toString(List<?> l)
