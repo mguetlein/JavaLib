@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,9 +20,10 @@ public class DoubleArraySummary implements ArraySummary
 	double median;
 	int numZero;
 	int numNull;
+	int numDistinct;
 
 	private DoubleArraySummary(int num, double min, double max, double sum, double mean, double median, int numZero,
-			int numNull)
+			int numNull, int numDistinct)
 	{
 		this.num = num;
 		this.min = min;
@@ -31,6 +33,7 @@ public class DoubleArraySummary implements ArraySummary
 		this.median = median;
 		this.numZero = numZero;
 		this.numNull = numNull;
+		this.numDistinct = numDistinct;
 	}
 
 	public String toString()
@@ -55,6 +58,11 @@ public class DoubleArraySummary implements ArraySummary
 	public int getNum()
 	{
 		return num;
+	}
+
+	public int getNumDistinct()
+	{
+		return numDistinct;
 	}
 
 	public double getMin()
@@ -153,6 +161,7 @@ public class DoubleArraySummary implements ArraySummary
 
 		int i = additionalZeros;
 		List<Double> l = new ArrayList<Double>();
+		HashSet<Double> uniq = new HashSet<Double>();
 
 		while (numbers.hasNext())
 		{
@@ -173,6 +182,7 @@ public class DoubleArraySummary implements ArraySummary
 					max = d;
 				sum += d;
 				l.add(d);
+				uniq.add(d);
 			}
 			i++;
 		}
@@ -187,7 +197,7 @@ public class DoubleArraySummary implements ArraySummary
 			else
 				median = (l.get(l.size() / 2) + l.get((l.size() - 2) / 2)) / 2.0;
 		}
-		return new DoubleArraySummary(i, min, max, sum, avg, median, numZero, numNull);
+		return new DoubleArraySummary(i, min, max, sum, avg, median, numZero, numNull, uniq.size());
 	}
 
 	public void addToResult(ResultSet set, String description)

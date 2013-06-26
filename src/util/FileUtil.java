@@ -65,6 +65,11 @@ public class FileUtil
 			return content.get(0);
 		}
 
+		public int getColumnIndex(String colName)
+		{
+			return ArrayUtil.indexOf(getHeader(), colName);
+		}
+
 		public String[] getColumn(String colName)
 		{
 			int colIndex = ArrayUtil.indexOf(getHeader(), colName);
@@ -129,7 +134,7 @@ public class FileUtil
 			{
 				int i = ArrayUtil.indexOf(getHeader(), s);
 				if (i == -1)
-					throw new IllegalArgumentException("not found: " + columns);
+					throw new IllegalArgumentException("not found: " + s + " in " + ArrayUtil.toString(getHeader()));
 				colIndex.add(i);
 			}
 			return exclude(ArrayUtil.toPrimitiveIntArray(colIndex));

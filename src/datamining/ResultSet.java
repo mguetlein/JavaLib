@@ -1145,10 +1145,10 @@ public class ResultSet
 
 		for (String key1 : vals.keySet1())
 		{
-			System.out.println("1 " + key1);
+			//			System.out.println("1 " + key1);
 			for (String key2 : vals.keySet2(key1))
 			{
-				System.out.println(" 2 " + key2);
+				//				System.out.println(" 2 " + key2);
 				List<Double> v = vals.get(key1, key2);
 				dataset.add(v, key2, key1);
 				int s = vals.get(key1, key2).size();
