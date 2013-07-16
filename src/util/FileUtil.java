@@ -206,7 +206,7 @@ public class FileUtil
 						w.write("\"");
 					}
 				}
-				w.write("\n");
+				w.newLine();
 			}
 			w.close();
 		}
@@ -294,6 +294,11 @@ public class FileUtil
 		}
 	}
 
+	public static boolean robustRenameTo(String source, String dest)
+	{
+		return robustRenameTo(new File(source), new File(dest));
+	}
+
 	/**
 	 * renameto is not reliable to windows
 	 * 
@@ -361,6 +366,11 @@ public class FileUtil
 			if (!copy(s, dest, true))
 				return false;
 		return true;
+	}
+
+	public static boolean copy(String source, String dest)
+	{
+		return copy(new File(source), new File(dest));
 	}
 
 	public static boolean copy(File source, File dest)

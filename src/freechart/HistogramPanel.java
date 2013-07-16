@@ -13,15 +13,23 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
+import org.jfree.data.function.Function2D;
+import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 
 import util.SwingUtil;
 
@@ -62,6 +70,22 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, hideLegend);
 	}
 
+	public void addFunction(String name, Function2D function2d)
+	{
+		XYPlot p = ((XYPlot) chart.getPlot());
+		XYDataset result = DatasetUtilities.sampleFunction2D(function2d, p.getDomainAxis().getRange().getLowerBound(),
+				p.getDomainAxis().getRange().getUpperBound(), 300, name);
+		p.setDataset(1, result);
+		final XYItemRenderer renderer2 = new StandardXYItemRenderer();
+		p.setRenderer(1, renderer2);
+
+		final ValueAxis rangeAxis2 = new NumberAxis(name);
+		p.setRangeAxis(1, rangeAxis2);
+		p.mapDatasetToRangeAxis(1, 1);
+
+		p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+	}
+
 	private void init(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
 			IntervalXYDataset dataset, int bins, boolean hideLegend)
 	{
@@ -75,6 +99,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			@Override
 			public synchronized void chartMouseMoved(ChartMouseEvent chartMouseEvent)
 			{
+				if (listeners.size() == 0)
+					return;
 				double[] sel = getInterval(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
 				selectedMin = sel[0];
 				selectedMax = sel[1];
@@ -84,6 +110,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			@Override
 			public void chartMouseClicked(ChartMouseEvent chartMouseEvent)
 			{
+				if (listeners.size() == 0)
+					return;
 				if (SwingUtilities.isLeftMouseButton(chartMouseEvent.getTrigger()))
 				{
 					double sel[] = getInterval(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
@@ -216,6 +244,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			}
 		if (yValuesInteger)
 			bins = Math.min((int) (max - min) + 1, bins);
+		if (bins < 1)//for very extreme range
+			bins = 20;
 		for (int i = values.size() - 1; i >= 0; i--)
 		{
 			String c = "Data" + (i + 1);

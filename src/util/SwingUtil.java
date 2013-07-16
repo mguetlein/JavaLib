@@ -274,54 +274,58 @@ public class SwingUtil
 		return (T) l.getSelectedValue();
 	}
 
-	public static File toTmpFile(JComponent c)
+	public static String toTmpFile(JComponent c)
 	{
 		return toTmpFile(c, null);
 	}
 
-	public static File toTmpFile(final JComponent c, Dimension dim)
+	public static String toTmpFile(final JComponent c, Dimension dim)
 	{
 		try
 		{
 			final File file = File.createTempFile("pic", "png");
-			final JFrame f = new JFrame();
-			f.add(c);
-			if (dim != null)
-				c.setSize(dim);
-			f.pack();
-			f.pack();
-			f.setVisible(true);
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					BufferedImage bi = new BufferedImage(c.getSize().width, c.getSize().height,
-							BufferedImage.TYPE_INT_ARGB);
-					Graphics g = bi.createGraphics();
-					c.paint(g);
-					g.dispose();
-					try
-					{
-						ImageIO.write(bi, "png", file);
-						//						System.out.println("image stored at " + file);
-						//						Thread.sleep(30000);
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-					f.setVisible(false);
-				}
-			});
-			waitWhileVisible(f);
-			return file;
+			return toFile(file.getPath(), c, dim);
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public static String toFile(final String file, final JComponent c, Dimension dim)
+	{
+		final JFrame f = new JFrame();
+		f.add(c);
+		if (dim != null)
+			c.setSize(dim);
+		f.pack();
+		f.pack();
+		f.setVisible(true);
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				BufferedImage bi = new BufferedImage(c.getSize().width, c.getSize().height, BufferedImage.TYPE_INT_ARGB);
+				Graphics g = bi.createGraphics();
+				c.paint(g);
+				g.dispose();
+				try
+				{
+					ImageIO.write(bi, "png", new File(file));
+					//						System.out.println("image stored at " + file);
+					//						Thread.sleep(30000);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+				f.setVisible(false);
+			}
+		});
+		waitWhileVisible(f);
+		return file;
 	}
 
 	public static JFrame showInFrame(final JComponent c, String title)

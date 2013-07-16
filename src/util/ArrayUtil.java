@@ -1139,4 +1139,9 @@ public class ArrayUtil
 				return null;
 		return tmp;
 	}
+
+	public static <T> T last(T[] array)
+	{
+		return array[array.length - 1];
+	}
 }

@@ -2,6 +2,8 @@ package gui;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class MultiImageIcon extends ImageIcon
 	Layout layout;
 	int space;
 	Orientation orientation;
+	BufferedImage image;
 
 	int width;
 	int height;
@@ -90,6 +93,14 @@ public class MultiImageIcon extends ImageIcon
 				yOffset += icons.get(i).getIconHeight() + space;
 			}
 		}
+	}
+
+	@Override
+	public Image getImage()
+	{
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		paintIcon(null, img.getGraphics(), 0, 0);
+		return img;
 	}
 
 	@Override

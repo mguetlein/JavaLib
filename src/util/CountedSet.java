@@ -24,6 +24,11 @@ public class CountedSet<T> implements ArraySummary
 			map.put(elem, map.get(elem) + 1);
 	}
 
+	public void remove(T elem)
+	{
+		map.remove(elem);
+	}
+
 	public void add(T elem, int times)
 	{
 		for (int i = 0; i < times; i++)
@@ -85,6 +90,11 @@ public class CountedSet<T> implements ArraySummary
 		for (T t : objects)
 			set.add(t);
 		return set;
+	}
+
+	public static <T> CountedSet<T> create(T[] array)
+	{
+		return fromArray(array);
 	}
 
 	public static <T> CountedSet<T> fromArray(T[] array)

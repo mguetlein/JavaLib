@@ -36,11 +36,11 @@ public class FreeChartUtil
 			ChartColor.VERY_LIGHT_RED, ChartColor.VERY_LIGHT_BLUE, ChartColor.VERY_LIGHT_GREEN,
 			ChartColor.VERY_LIGHT_YELLOW, ChartColor.VERY_LIGHT_MAGENTA, ChartColor.VERY_LIGHT_CYAN };
 
-	public static File toTmpFile(ChartPanel cp, Dimension dim)
+	public static String toTmpFile(ChartPanel cp, Dimension dim)
 	{
 		try
 		{
-			File f = File.createTempFile("pic", "png");
+			String f = File.createTempFile("pic", "png").getPath();
 			return toFile(f, cp, dim);
 		}
 		catch (IOException e)
@@ -50,11 +50,11 @@ public class FreeChartUtil
 		}
 	}
 
-	public static File toFile(File pngFile, ChartPanel cp, Dimension dim)
+	public static String toFile(String pngFile, ChartPanel cp, Dimension dim)
 	{
 		try
 		{
-			ChartUtilities.saveChartAsPNG(pngFile, cp.getChart(), dim.width, dim.height);
+			ChartUtilities.saveChartAsPNG(new File(pngFile), cp.getChart(), dim.width, dim.height);
 			return pngFile;
 		}
 		catch (IOException e)
