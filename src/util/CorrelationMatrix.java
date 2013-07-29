@@ -92,6 +92,12 @@ public abstract class CorrelationMatrix<T>
 		{
 			return rowInfo(v1) + " " + rowInfo(v2);
 		}
+
+		@Override
+		public void computeMatrix(List<Boolean[]> v)
+		{
+			super.computeMatrix(Boolean.class, v);
+		}
 	}
 
 	public abstract static class DoubleCorrelationMatrix extends CorrelationMatrix<Double>
@@ -109,6 +115,12 @@ public abstract class CorrelationMatrix<T>
 		public String cellInfo(Double[] v1, Double[] v2)
 		{
 			return rowInfo(v1);
+		}
+
+		@Override
+		public void computeMatrix(List<Double[]> v)
+		{
+			super.computeMatrix(Double.class, v);
 		}
 	}
 
@@ -160,13 +172,9 @@ public abstract class CorrelationMatrix<T>
 		}
 	}
 
-	/**
-	 * Object has to be either Double or Boolean 
-	 * 
-	 * @param v
-	 * @return
-	 */
-	public void computeMatrix(List<T[]> v)
+	public abstract void computeMatrix(List<T[]> v);
+
+	protected void computeMatrix(Class<T> type, List<T[]> v)
 	{
 		rowInfo = new String[v.size()];
 		for (int i = 0; i < rowInfo.length; i++)
@@ -175,7 +183,7 @@ public abstract class CorrelationMatrix<T>
 			for (int k = 0; k < v.get(i).length; k++)
 				if (v.get(i)[k] != null)
 					d1.add(v.get(i)[k]);
-			T v1[] = ArrayUtil.toArray(d1);
+			T v1[] = ArrayUtil.toArray(type, d1);
 			rowInfo[i] = rowInfo(v1);
 		}
 

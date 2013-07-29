@@ -4,12 +4,16 @@ import java.util.List;
 import java.util.Map;
 
 import util.ArrayUtil;
-import util.ListUtil;
 import util.OSUtil;
 
 public class BinaryLocator
 {
 	public static boolean locate(List<Binary> binaries)
+	{
+		return locate(ArrayUtil.toArray(binaries));
+	}
+
+	public static boolean locate(Binary... binaries)
 	{
 		//System.err.println("BinaryLocator > " + ListUtil.toString(binaries));
 		Map<String, String> env = System.getenv();

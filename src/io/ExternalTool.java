@@ -2,6 +2,7 @@ package io;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
@@ -33,6 +34,26 @@ public class ExternalTool
 	public void run(final String processName, String command)
 	{
 		runWithArrayOrString(processName, command, null, null, null, true);
+	}
+
+	public void run(final String processName, String[] command)
+	{
+		runWithArrayOrString(processName, command, null, null, null, true);
+	}
+
+	public String get(final String processName, String[] command)
+	{
+		try
+		{
+			File tmp = File.createTempFile("outfile", "out");
+			runWithArrayOrString(processName, command, tmp, null, null, true);
+			return FileUtil.readStringFromFile(tmp.getAbsolutePath());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public Process run(final String processName, String command, File stdOutfile, boolean wait)

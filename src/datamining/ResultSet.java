@@ -123,7 +123,7 @@ public class ResultSet
 		int maxLength[] = new int[properties.size()];
 		for (int i = 0; i < properties.size(); i++)
 		{
-			maxLength[i] = Math.max(maxLength[i], niceProperty(properties.get(i)).length());
+			maxLength[i] = Math.max(maxLength[i], getNiceProperty(properties.get(i)).length());
 
 			for (Result r : results)
 				maxLength[i] = Math.max(maxLength[i], niceValue(r.getValue(properties.get(i)), -1, true).length());
@@ -134,7 +134,7 @@ public class ResultSet
 		{
 			if (i > 0)
 				s += " | ";
-			s += StringUtil.concatWhitespace(niceProperty(properties.get(i)), maxLength[i]);
+			s += StringUtil.concatWhitespace(getNiceProperty(properties.get(i)), maxLength[i]);
 		}
 		s += "\n";
 
@@ -167,7 +167,7 @@ public class ResultSet
 		return s;
 	}
 
-	private static String niceProperty(String property)
+	public String getNiceProperty(String property)
 	{
 		if (property.endsWith(VARIANCE_SUFFIX))
 			return "var";
@@ -273,7 +273,7 @@ public class ResultSet
 
 		String s = "{|cellpadding=\"3\" cellspacing=\"0\" border=\"1\"\n";
 		for (String p : properties)
-			s += "!" + niceProperty(p) + "\n";
+			s += "!" + getNiceProperty(p) + "\n";
 		s += "|-\n";
 
 		for (Result r : results)
@@ -426,6 +426,11 @@ public class ResultSet
 			}
 		}
 		return group;
+	}
+
+	public ResultSet join(String equalProperty)
+	{
+		return join(ArrayUtil.toList(new String[] { equalProperty }), null, null);
 	}
 
 	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties)
@@ -1241,4 +1246,33 @@ public class ResultSet
 				ArrayUtil.toList(new String[] { "val1", "val2", "val3" })));
 	}
 
+	public static ResultSet build(List<Object[]> values)
+	{
+		ResultSet set = new ResultSet();
+		String[] p = ArrayUtil.toStringArray(values.get(0));
+		for (int i = 1; i < values.size(); i++)
+		{
+			Object[] v = values.get(i);
+			if (p.length != v.length)
+				throw new IllegalArgumentException(ArrayUtil.toString(p) + " does not fit as properties for "
+						+ ArrayUtil.toString(v));
+			int x = set.addResult();
+			for (int j = 0; j < v.length; j++)
+				set.setResultValue(x, p[j], v[j]);
+		}
+		return set;
+	}
+
+	public void clearMergeCountAndVariance()
+	{
+		List<String> todel = new ArrayList<String>();
+		for (String p : properties)
+			if (p.endsWith(VARIANCE_SUFFIX))
+				todel.add(p);
+		for (String p : todel)
+			removePropery(p);
+		for (Result res : results)
+			res.clearMergeCount();
+
+	}
 }

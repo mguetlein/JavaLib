@@ -9,19 +9,19 @@ public class Result
 
 	// private HashMap<String, Double> variance = new HashMap<String, Double>();
 
-	private int mergeCount = 1;
+	private HashMap<String, Integer> mergeCount;
 
 	public static final int JOIN_MODE_MEAN = 0;
 	public static final int JOIN_MODE_CONCAT = 1;
+	public static final int JOIN_MODE_SUM = 2;
 
 	public Result join(Result result, List<String> properties, List<String> propertiesToBeEqual,
 			List<String> varianceProperties, int joinMode)
 	{
 		Result rs = new Result();
 
-		int weight = mergeCount;
-		if (result.mergeCount > 1)
-			throw new Error("not working");
+		if (result.mergeCount != null)
+			throw new Error("not working, clear first");
 
 		for (String prop : properties)
 		{
@@ -38,24 +38,50 @@ public class Result
 
 				Double var = null;
 
-				if (joinMode == JOIN_MODE_MEAN && val1 instanceof Number)
+				if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM) && val1 instanceof Number)
 				{
-					double value = ((((Number) val1).doubleValue() * weight) + ((Number) val2).doubleValue())
-							/ ((double) (weight + 1));
-					val = value;
-
-					if (varianceProperties != null && varianceProperties.contains(prop))
+					Double d1 = ((Number) val1).doubleValue();
+					Double d2 = ((Number) val2).doubleValue();
+					if (Double.isNaN(d1))
 					{
-						double oldStdDev = 0;
-						if (values.containsKey(prop + ResultSet.VARIANCE_SUFFIX))
-							oldStdDev = Math.pow((Double) values.get(prop + ResultSet.VARIANCE_SUFFIX), 2);
-
-						double stdDev = oldStdDev * (weight / (double) (weight + 1))
-								+ Math.pow(((Number) val2).doubleValue() - value, 2) * (1 / (double) weight);
-						var = Math.sqrt(stdDev);
+						val = d2;
+					}
+					else if (Double.isNaN(d2))
+					{
+						val = d1;
+						if (joinMode == JOIN_MODE_MEAN && mergeCount != null && mergeCount.containsKey(prop))
+						{
+							if (rs.mergeCount == null)
+								rs.mergeCount = new HashMap<String, Integer>();
+							rs.mergeCount.put(prop, mergeCount.get(prop));
+						}
+					}
+					else
+					{
+						if (joinMode == JOIN_MODE_MEAN)
+						{
+							double weight = (mergeCount != null && mergeCount.containsKey(prop)) ? mergeCount.get(prop)
+									: 1;
+							double value = ((d1 * weight) + d2) / ((double) (weight + 1));
+							val = value;
+							if (varianceProperties != null && varianceProperties.contains(prop))
+							{
+								double oldStdDev = 0;
+								if (values.containsKey(prop + ResultSet.VARIANCE_SUFFIX))
+									oldStdDev = Math.pow((Double) values.get(prop + ResultSet.VARIANCE_SUFFIX), 2);
+								double stdDev = oldStdDev * (weight / (double) (weight + 1)) + Math.pow(d2 - value, 2)
+										* (1 / (double) weight);
+								var = Math.sqrt(stdDev);
+							}
+							if (rs.mergeCount == null)
+								rs.mergeCount = new HashMap<String, Integer>();
+							rs.mergeCount.put(prop, (int) weight + 1);
+						}
+						else if (joinMode == JOIN_MODE_SUM)
+							val = d1 + d2;
 					}
 				}
-				else if (joinMode == JOIN_MODE_MEAN && val1 instanceof Number[])
+				else if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM) && val1 instanceof Number[])
 				{
 					throw new Error("no array join implemented");
 				}
@@ -69,8 +95,13 @@ public class Result
 					rs.values.put(prop + ResultSet.VARIANCE_SUFFIX, var);
 			}
 		}
-
-		rs.mergeCount = weight + 1;
+		//		if (rs.mergeCount != null)
+		//		{
+		//			System.out.println("");
+		//			for (String p : rs.mergeCount.keySet())
+		//				System.out.println(p + " " + rs.mergeCount.get(p));
+		//			System.out.println("");
+		//		}
 		return rs;
 	}
 
@@ -139,7 +170,12 @@ public class Result
 
 	public boolean isMergedResult()
 	{
-		return mergeCount > 1;
+		return mergeCount != null;
+	}
+
+	public void clearMergeCount()
+	{
+		mergeCount = null;
 	}
 
 }

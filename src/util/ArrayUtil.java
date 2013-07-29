@@ -206,9 +206,9 @@ public class ArrayUtil
 		return a;
 	}
 
-	public static List<Double> removeNullValues(Double array[])
+	public static <T> List<T> removeNullValues(T array[])
 	{
-		List<Double> d = new ArrayList<Double>();
+		List<T> d = new ArrayList<T>();
 		for (int i = 0; i < array.length; i++)
 			if (array[i] != null)
 				d.add(array[i]);

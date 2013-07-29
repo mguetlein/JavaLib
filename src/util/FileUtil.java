@@ -357,6 +357,13 @@ public class FileUtil
 		return concat(dest, source, false);
 	}
 
+	public static boolean concat(File dest, File source, boolean append)
+	{
+		List<File> l = new ArrayList<File>();
+		l.add(source);
+		return concat(dest, l, append);
+	}
+
 	public static boolean concat(File dest, List<File> source, boolean append)
 	{
 		if (dest.exists() && !append)
@@ -528,9 +535,12 @@ public class FileUtil
 			StringBuffer res = new StringBuffer();
 			String line;
 			BufferedReader r = new BufferedReader(new FileReader(file));
+			boolean firstLine = true;
 			while ((line = r.readLine()) != null)
 			{
-				if (res.length() > 0)
+				if (firstLine)
+					firstLine = false;
+				else
 					res.append("\n");
 				res.append(line);
 			}

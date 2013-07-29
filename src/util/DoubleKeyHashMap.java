@@ -47,6 +47,11 @@ public class DoubleKeyHashMap<T1, T2, T3>
 		return map.get(key1).keySet();
 	}
 
+	public boolean containsKey(T1 key1)
+	{
+		return map.containsKey(key1);
+	}
+
 	public boolean containsKeyPair(T1 key1, T2 key2)
 	{
 		if (!map.containsKey(key1))
@@ -58,4 +63,5 @@ public class DoubleKeyHashMap<T1, T2, T3>
 	{
 		map.clear();
 	}
+
 }

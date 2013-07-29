@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -20,6 +21,11 @@ import util.ListUtil;
 public class SDFUtil
 {
 	public static String[] readSdf(String file)
+	{
+		return readSdf(file, false);
+	}
+
+	public static String[] readSdf(String file, boolean stripProps)
 	{
 		List<String> sdf = new ArrayList<String>();
 		File in = new File(file);
@@ -54,6 +60,17 @@ public class SDFUtil
 
 			String s[] = new String[sdf.size()];
 			sdf.toArray(s);
+
+			if (stripProps)
+			{
+				for (int i = 0; i < s.length; i++)
+				{
+					if (!s[i].matches("(?s)(.*)\nM  END\n.*"))
+						throw new Error("not matching");
+					s[i] = s[i].replaceAll("(?s)(.*)\nM  END\n.*", "$1\nM  END\n");
+				}
+			}
+
 			return s;
 		}
 		catch (FileNotFoundException e)
@@ -104,40 +121,106 @@ public class SDFUtil
 		return -1;
 	}
 
-	public static void filter_exclude(String infile, String outfile, int[] excludeIndices)
+	public static void filter_exclude(String infile, String outfile, int[] excludeIndices,
+			boolean stripIncludedProperties)
 	{
-		SDFUtil.filter_exclude(infile, outfile, ArrayUtil.toList(excludeIndices));
+		SDFUtil.filter_exclude(infile, outfile, ArrayUtil.toList(excludeIndices), stripIncludedProperties);
 	}
 
-	public static void filter_exclude(String infile, String outfile, List<Integer> excludeIndices)
+	public static void filter_exclude(String infile, String outfile, List<Integer> excludeIndices,
+			boolean stripIncludedProperties)
 	{
-		filter(infile, outfile, excludeIndices, false, null);
+		filter(infile, outfile, excludeIndices, false, null, stripIncludedProperties, null);
 	}
 
-	public static void filter(String infile, String outfile, int[] includeIndices)
+	public static void filter(String infile, String outfile, int[] includeIndices, boolean stripIncludedProperties)
 	{
-		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices));
-	}
-
-	public static void filter(String infile, String outfile, List<Integer> includeIndices)
-	{
-		filter(infile, outfile, includeIndices, true, null);
-	}
-
-	public static void filter(String infile, String outfile, int[] includeIndices,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues)
-	{
-		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureValues);
+		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), stripIncludedProperties);
 	}
 
 	public static void filter(String infile, String outfile, List<Integer> includeIndices,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues)
+			boolean stripIncludedProperties)
 	{
-		filter(infile, outfile, includeIndices, true, featureValues);
+		filter(infile, outfile, includeIndices, true, null, stripIncludedProperties, null);
 	}
 
+	public static void filter(String infile, String outfile, int[] includeIndices,
+			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			HashMap<Integer, Object> newTitle)
+	{
+		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureValues, stripIncludedProperties,
+				newTitle);
+	}
+
+	public static void filter(String infile, String outfile, List<Integer> includeIndices,
+			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			HashMap<Integer, Object> newTitle)
+	{
+		filter(infile, outfile, includeIndices, true, featureValues, stripIncludedProperties, newTitle);
+	}
+
+	//	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
+	//			DoubleKeyHashMap<Integer, Object, Object> featureValues)
+	//	{
+	//		File in = new File(infile);
+	//		if (!in.exists())
+	//			throw new IllegalArgumentException("file not found" + infile);
+	//
+	//		System.out.println("filter sdf file to: " + outfile + ", indices-size: " + indices.size() + ", "
+	//				+ ListUtil.toString(indices));
+	//		File out = new File(outfile);
+	//		//		if (out.exists())
+	//		//			System.err.println("overwriting " + outfile);
+	//
+	//		try
+	//		{
+	//			BufferedWriter w = new BufferedWriter(new FileWriter(out));
+	//			BufferedReader b = new BufferedReader(new FileReader(in));
+	//			String line;
+	//			int index = 0;
+	//			while ((line = b.readLine()) != null)
+	//			{
+	//				if ((indices.indexOf(index) != -1 && include) || (indices.indexOf(index) == -1 && !include))
+	//				{
+	//					if (line.equals("$$$$"))
+	//					{
+	//						if (featureValues != null && featureValues.keySet1().size() > 0
+	//								&& featureValues.keySet2(index).size() > 0)
+	//						{
+	//							for (Object key : featureValues.keySet2(index))
+	//							{
+	//								if (featureValues.get(index, key) != null
+	//										&& featureValues.get(index, key).toString().trim().length() > 0)
+	//								{
+	//									w.write(">  <" + key + ">\n");
+	//									w.write(featureValues.get(index, key) + "\n");
+	//									w.write("\n");
+	//								}
+	//							}
+	//						}
+	//						index++;
+	//					}
+	//					w.write(line + "\n");
+	//				}
+	//				else if (line.equals("$$$$"))
+	//					index++;
+	//			}
+	//			b.close();
+	//			w.close();
+	//		}
+	//		catch (FileNotFoundException e)
+	//		{
+	//			e.printStackTrace();
+	//		}
+	//		catch (IOException e)
+	//		{
+	//			e.printStackTrace();
+	//		}
+	//	}
+
 	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues)
+			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			HashMap<Integer, Object> molName)
 	{
 		File in = new File(infile);
 		if (!in.exists())
@@ -151,38 +234,40 @@ public class SDFUtil
 
 		try
 		{
+			String s[] = readSdf(infile, stripIncludedProperties);
+
 			BufferedWriter w = new BufferedWriter(new FileWriter(out));
-			BufferedReader b = new BufferedReader(new FileReader(in));
-			String line;
-			int index = 0;
-			while ((line = b.readLine()) != null)
+			//			BufferedReader b = new BufferedReader(new FileReader(in));
+
+			for (int index = 0; index < s.length; index++)
 			{
 				if ((indices.indexOf(index) != -1 && include) || (indices.indexOf(index) == -1 && !include))
 				{
-					if (line.equals("$$$$"))
+					String m = s[index];
+					if (molName != null)
 					{
-						if (featureValues != null && featureValues.keySet1().size() > 0
-								&& featureValues.keySet2(index).size() > 0)
-						{
-							for (Object key : featureValues.keySet2(index))
-							{
-								if (featureValues.get(index, key) != null
-										&& featureValues.get(index, key).toString().trim().length() > 0)
-								{
-									w.write(">  <" + key + ">\n");
-									w.write(featureValues.get(index, key) + "\n");
-									w.write("\n");
-								}
-							}
-						}
-						index++;
+						int idx = m.indexOf('\n');
+						if (idx != 0)
+							System.err.println(index + " replacing title '" + m.substring(0, idx) + "' with '"
+									+ molName.get(index) + "'");
+						m = molName.get(index) + m.substring(idx);
 					}
-					w.write(line + "\n");
+					w.write(m);
+
+					if (featureValues != null && featureValues.keySet1().size() > 0
+							&& featureValues.keySet2(index).size() > 0)
+						for (Object key : featureValues.keySet2(index))
+							if (featureValues.get(index, key) != null
+									&& featureValues.get(index, key).toString().trim().length() > 0)
+							{
+								w.write(">  <" + key + ">\n");
+								w.write(featureValues.get(index, key) + "\n");
+								w.write("\n");
+							}
+
+					w.write("$$$$\n");
 				}
-				else if (line.equals("$$$$"))
-					index++;
 			}
-			b.close();
 			w.close();
 		}
 		catch (FileNotFoundException e)
@@ -304,17 +389,16 @@ public class SDFUtil
 		}
 	}
 
-	public static void reduce(String sdfFile, String outfile, double percentage)
+	public static void reduce(String sdfFile, String outfile, double percentage, Random r)
 	{
 		int size = countCompounds(sdfFile);
-		Random r = new Random();
 		List<Integer> list = new ArrayList<Integer>();
 		for (int i = 0; i < size; i++)
 			if (r.nextDouble() < percentage)
 				list.add(i);
 		System.out.println("orig " + size + " " + sdfFile);
 		System.out.println("new  " + list.size() + " " + outfile);
-		filter(sdfFile, outfile, list);
+		filter(sdfFile, outfile, list, false);
 	}
 
 	public static interface SDChecker
@@ -341,10 +425,7 @@ public class SDFUtil
 		String sear[] = readSdf(search);
 		String repl[] = readSdf(replace);
 		if (repl.length != sear.length)
-		{
-			System.err.println("no equal number of compounds");
-			return;
-		}
+			throw new IllegalStateException("no equal number of compounds " + sear.length + " != " + repl.length);
 		try
 		{
 			boolean replaceIndices[] = new boolean[repl.length];
@@ -399,8 +480,35 @@ public class SDFUtil
 
 	public static void main(String args[])
 	{
-		joinCSVProps("/home/martin/data/caco2.sdf", "/home/martin/documents/diss/visu_vali/data/caco2data.csv",
-				new String[] { "caco2-prediction", "set" }, "/home/martin/documents/diss/visu_vali/data/caco2.ext.sdf");
+		//		String test = "asdf\nM  END\nasölkfj\nasdfkljasfd\n$$$$\n";
+		//		System.out.println(test);
+		//		//test.replaceAll("(?s).*\nM  END\n.*\n$$$$\n$", "\nM  END\n$$$$\n");
+		//		test = test.replaceAll("(?s)(.*)\nM  END.*$$$$\n$", "$1\nM  END\n\\$\\$\\$\\$\n");
+		//		System.out.println("'" + test + "'");
+
+		//		readSdf("/home/martin/workspace/BMBF-MLC/data/CPDBA/dataY.sdf", true);
+
+		//		Random r = new Random(1234);
+		//		reduce("/home/martin/data/caco2.sdf", "/tmp/test_new.sdf", 0.3, r);
+
+		DoubleKeyHashMap<Integer, Object, Object> vals = new DoubleKeyHashMap<Integer, Object, Object>();
+		vals.put(0, "bla", "ene");
+		vals.put(1, "bla", "mene");
+		vals.put(2, "bla", "miste");
+		HashMap<Integer, Object> name = new HashMap<Integer, Object>();
+		name.put(0, "1");
+		name.put(1, "2");
+		name.put(2, "3");
+		filter("/home/martin/data/caco2.sdf", "/tmp/test_new.sdf", new int[] { 0, 1, 2 }, vals, true, name);
+
+		//		joinCSVProps("/home/martin/data/caco2.sdf", "/home/martin/documents/diss/visu_vali/data/caco2data.csv",
+		//				new String[] { "caco2-prediction", "set" }, "/home/martin/documents/diss/visu_vali/data/caco2.ext.sdf");
+
+		//		int i[] = new int[50];
+		//		for (int j = 0; j < i.length; j++)
+		//			i[j] = j;
+		//		SDFUtil.filter("/home/martin/workspace/BMBF-MLC/data/CPDBAS/dataC.sdf",
+		//				"/home/martin/workspace/BMBF-MLC/data/CPDBAS/dataX.sdf", i);
 
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
