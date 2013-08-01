@@ -55,7 +55,6 @@ public class FreeChartUtil
 		try
 		{
 			ChartUtilities.saveChartAsPNG(new File(pngFile), cp.getChart(), dim.width, dim.height);
-			System.out.println("save image to file " + pngFile);
 			return pngFile;
 		}
 		catch (IOException e)
