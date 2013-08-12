@@ -1,7 +1,6 @@
 package datamining;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -430,7 +429,12 @@ public class ResultSet
 
 	public ResultSet join(String equalProperty)
 	{
-		return join(ArrayUtil.toList(new String[] { equalProperty }), null, null);
+		return join(equalProperty, Result.JOIN_MODE_MEAN);
+	}
+
+	public ResultSet join(String equalProperty, int joinMode)
+	{
+		return join(ArrayUtil.toList(new String[] { equalProperty }), null, null, joinMode);
 	}
 
 	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties)
@@ -1170,7 +1174,11 @@ public class ResultSet
 		else
 			subtitle = ArrayUtil.concat(String.class, subtitle, sizeStr);
 
-		final CategoryAxis xAxis = new CategoryAxis(seriesProperty);
+		final CategoryAxis xAxis;
+		if (dataset.getRowCount() > 1) // show series property as axis-label only if there is more than one series
+			xAxis = new CategoryAxis(seriesProperty);
+		else
+			xAxis = new CategoryAxis();
 		final NumberAxis yAxis = new NumberAxis(yAxisLabel);
 
 		if (yTickUnit != null)
@@ -1186,7 +1194,8 @@ public class ResultSet
 
 		CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
 
-		JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
+		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
+		JFreeChart chart = new JFreeChart(title, plot);
 		ChartPanel chartPanel = new ChartPanel(chart);
 		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
 
@@ -1203,13 +1212,18 @@ public class ResultSet
 					Title t = new TextTitle(s);
 					subtitles.add(t);
 				}
+
 			}
 			if (subtitles.size() > 0)
 			{
-				subtitles.add(chart.getLegend());
+				if (dataset.getRowCount() > 1) // show legend only if there is more than one series
+					subtitles.add(chart.getLegend());
 				chart.setSubtitles(subtitles);
 			}
+
 		}
+		//		if (results.getResultValues(compareProp).size() == 1)
+		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
 		return chartPanel;
 	}
 

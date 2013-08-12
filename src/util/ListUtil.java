@@ -159,6 +159,11 @@ public class ListUtil
 		return l;
 	}
 
+	public static <T> T last(List<T> list)
+	{
+		return list.get(list.size() - 1);
+	}
+
 	public static void main(String[] args)
 	{
 		List<String> l = new ArrayList<String>();

@@ -57,6 +57,14 @@ public class ColorUtil
 		return new Color(rgbNum, rgbNum, rgbNum);
 	}
 
+	public static Color getForegroundColor(Color background)
+	{
+		if (background.getRed() + background.getGreen() + background.getBlue() < 383)
+			return Color.WHITE;
+		else
+			return Color.BLACK;
+	}
+
 	public static Color getColorGradient(double ratio, Color from, Color to)
 	{
 		if (ratio < 0 || ratio > 1)

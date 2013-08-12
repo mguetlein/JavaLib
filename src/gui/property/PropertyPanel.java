@@ -29,7 +29,7 @@ public class PropertyPanel extends JPanel
 
 	JButton defaultButton = new JButton("Restore defaults");
 
-	public PropertyPanel(Property properties[])
+	public PropertyPanel(Property... properties)
 	{
 		this(properties, null, null);
 	}
@@ -106,7 +106,7 @@ public class PropertyPanel extends JPanel
 	{
 		//		Explorer.main(null);
 
-		Property[] props = new Property[5];
+		Property[] props = new Property[6];
 
 		props[0] = new StringProperty("Test-Property", "default");
 		props[0].setValue("value");
@@ -115,6 +115,7 @@ public class PropertyPanel extends JPanel
 		props[2] = new FileProperty("A file", null);
 		props[3] = new DoubleProperty("Double prop", 0.5);
 		props[4] = new DoubleProperty("Double prop small", 0.0001, 0.0, 1.0, 0.00001);
+		props[5] = new ColorGradientProperty("Color gradient", new ColorGradient());
 
 		props = ArrayUtil.concat(Property.class, props, WekaPropertyUtil.getProperties(new SimpleKMeans()));
 
