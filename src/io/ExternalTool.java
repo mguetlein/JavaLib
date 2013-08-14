@@ -13,11 +13,6 @@ public class ExternalTool
 {
 	private Logger logger;
 
-	public ExternalTool()
-	{
-		this(null);
-	}
-
 	public ExternalTool(Logger logger)
 	{
 		this.logger = logger;
@@ -31,22 +26,12 @@ public class ExternalTool
 			System.out.println(msg);
 	}
 
-	public void run(final String processName, String command)
-	{
-		runWithArrayOrString(processName, command, null, null, null, true);
-	}
-
-	public void run(final String processName, String[] command)
-	{
-		runWithArrayOrString(processName, command, null, null, null, true);
-	}
-
 	public String get(final String processName, String[] command)
 	{
 		try
 		{
 			File tmp = File.createTempFile("outfile", "out");
-			runWithArrayOrString(processName, command, tmp, null, null, true);
+			run(processName, command, tmp, true);
 			return FileUtil.readStringFromFile(tmp.getAbsolutePath());
 		}
 		catch (IOException e)
@@ -56,25 +41,19 @@ public class ExternalTool
 		}
 	}
 
-	public Process run(final String processName, String command, File stdOutfile, boolean wait)
+	public Process run(final String processName, String[] command)
 	{
-		return runWithArrayOrString(processName, command, stdOutfile, null, null, wait);
+		return run(processName, command, null, true);
+	}
+
+	public Process run(final String processName, String command[], File stdOutfile, boolean wait)
+	{
+		return run(processName, command, stdOutfile, wait, null);
 	}
 
 	public Process run(final String processName, String command[], File stdOutfile, boolean wait, String env[])
 	{
-		return runWithArrayOrString(processName, command, stdOutfile, env, null, wait);
-	}
-
-	public Process run(final String processName, String command, File stdOutfile, boolean wait, String env[])
-	{
-		return runWithArrayOrString(processName, command, stdOutfile, env, null, wait);
-	}
-
-	public Process run(final String processName, String command, File stdOutfile, boolean wait, String env[],
-			File workingDirectory)
-	{
-		return runWithArrayOrString(processName, command, stdOutfile, env, workingDirectory, wait);
+		return run(processName, command, stdOutfile, wait, env, null);
 	}
 
 	protected void stdout(String s)
@@ -94,8 +73,8 @@ public class ExternalTool
 		return errorOut.toString();
 	}
 
-	protected Process runWithArrayOrString(final String processName, Object arrayOrString, File stdOutfile,
-			String env[], File workingDirectory, boolean wait)
+	protected Process run(final String processName, String[] cmd, File stdOutfile, boolean wait, String env[],
+			File workingDirectory)
 	{
 		if (stdOutfile != null && wait == false)
 			throw new IllegalStateException("illegal param combination");
@@ -106,30 +85,13 @@ public class ExternalTool
 			// final long starttime = new Date().getTime();
 			final Process child;
 
-			if (arrayOrString instanceof String)
-			{
-				String command = (String) arrayOrString;
-				println(processName + " > " + command);
-				if (env == null && workingDirectory == null)
-					child = Runtime.getRuntime().exec(command);
-				else if (env != null && workingDirectory == null)
-					child = Runtime.getRuntime().exec(command, env);
-				else
-					child = Runtime.getRuntime().exec(command, env, workingDirectory);
-			}
-			else if (arrayOrString instanceof String[])
-			{
-				String[] cmdArray = (String[]) arrayOrString;
-				println(processName + " > " + ArrayUtil.toString(cmdArray, " ", "", ""));
-				if (env == null && workingDirectory == null)
-					child = Runtime.getRuntime().exec(cmdArray);
-				else if (env != null && workingDirectory == null)
-					child = Runtime.getRuntime().exec(cmdArray, env);
-				else
-					child = Runtime.getRuntime().exec(cmdArray, env, workingDirectory);
-			}
+			println(processName + " > " + ArrayUtil.toString(cmd, " ", "", ""));
+			if (env == null && workingDirectory == null)
+				child = Runtime.getRuntime().exec(cmd);
+			else if (env != null && workingDirectory == null)
+				child = Runtime.getRuntime().exec(cmd, env);
 			else
-				throw new IllegalArgumentException();
+				child = Runtime.getRuntime().exec(cmd, env, workingDirectory);
 
 			Thread th = null;
 			th = new Thread(new Runnable()
