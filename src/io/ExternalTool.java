@@ -73,7 +73,7 @@ public class ExternalTool
 		return errorOut.toString();
 	}
 
-	protected Process run(final String processName, String[] cmd, File stdOutfile, boolean wait, String env[],
+	public Process run(final String processName, String[] cmd, File stdOutfile, boolean wait, String env[],
 			File workingDirectory)
 	{
 		if (stdOutfile != null && wait == false)
