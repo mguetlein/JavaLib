@@ -73,7 +73,7 @@ public class ColorGradientPropertyCompound extends JPanel implements PropertyCom
 		});
 
 		setLayout(new BorderLayout(10, 10));
-		add(ButtonBarFactory.buildCenteredBar(high, med, low));
+		add(ButtonBarFactory.buildCenteredBar(low, med, high));
 		add(reverse, BorderLayout.EAST);
 	}
 

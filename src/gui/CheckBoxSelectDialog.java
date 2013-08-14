@@ -1,19 +1,14 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import util.ArrayUtil;
@@ -24,9 +19,7 @@ public class CheckBoxSelectDialog extends JDialog
 {
 	protected boolean okPressed = false;
 
-	MouseOverCheckBoxList list;
-	DefaultListModel listModel;
-	MouseOverCheckBoxListComponent listPanel;
+	CheckBoxSelectPanel panel;
 
 	private CheckBoxSelectDialog(Window owner, String title, String description, Object[] values, boolean allSelected)
 	{
@@ -44,45 +37,16 @@ public class CheckBoxSelectDialog extends JDialog
 
 	private void init(Window owner, String description, Object[] values, boolean selection[])
 	{
+		panel = new CheckBoxSelectPanel(description, values, selection);
+		buildLayout();
 		setModal(true);
-		buildLayout(description);
-
-		for (Object o : values)
-			listModel.addElement(o);
-
-		List<Integer> selected = new ArrayList<Integer>();
-		for (int i = 0; i < selection.length; i++)
-			if (selection[i])
-				selected.add(i);
-		list.getCheckBoxSelection().setSelectedIndices(ArrayUtil.toPrimitiveIntArray(selected));
-		//System.out.println("selected: " + ArrayUtil.toString(list.getCheckBoxSelection().getSelectedIndices()));
-
 		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
 	}
 
-	private void buildLayout(String description)
+	private void buildLayout()
 	{
-		JTextArea d = null;
-		if (description != null)
-		{
-			d = new JTextArea(description);
-			d.setEditable(false);
-			d.setOpaque(false);
-			d.setBorder(null);
-			d.setWrapStyleWord(true);
-			d.setLineWrap(true);
-			//text-area hack to prevent pref-size to be sth like 0,2500 
-			d.setPreferredSize(null);
-			d.setSize(new Dimension(200, Integer.MAX_VALUE));
-		}
-
-		listModel = new DefaultListModel();
-		list = new MouseOverCheckBoxList(listModel);
-		list.setClearOnExit(false);
-		listPanel = new MouseOverCheckBoxListComponent(list);
-
 		final JButton ok = new JButton("OK");
 		JButton cancel = new JButton("Cancel");
 		ActionListener l = new ActionListener()
@@ -99,9 +63,7 @@ public class CheckBoxSelectDialog extends JDialog
 		JPanel buttons = ButtonBarFactory.buildOKCancelBar(ok, cancel);
 
 		JPanel p = new JPanel(new BorderLayout(0, 10));
-		if (description != null)
-			p.add(d, BorderLayout.NORTH);
-		p.add(listPanel);
+		p.add(panel);
 		p.add(buttons, BorderLayout.SOUTH);
 		p.setBorder(new EmptyBorder(10, 10, 10, 10));
 		getContentPane().add(p);
@@ -111,23 +73,24 @@ public class CheckBoxSelectDialog extends JDialog
 			final boolean allSelected)
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, allSelected);
-		return selected(d);
+		return d.selected();
 	}
 
 	public static Object[] select(Window owner, String title, String info, Object[] values, boolean selected[])
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, selected);
-		return selected(d);
+		return d.selected();
 	}
 
-	private static Object[] selected(CheckBoxSelectDialog d)
+	private Object[] selected()
 	{
-		if (d.okPressed)
+		if (okPressed)
 		{
-			if (d.list.getCheckBoxSelection().getSelected() == -1) // return length 0 if empty selection
-				return new Object[0];
+			Object o[] = panel.getSelectedValues();
+			if (o == null)
+				return new Object[0];// return length 0 if empty selection
 			else
-				return d.list.getCheckboxSelectedValues();
+				return o;
 		}
 		else
 			return null;
@@ -136,19 +99,19 @@ public class CheckBoxSelectDialog extends JDialog
 	public static int[] selectIndices(Window owner, String title, String info, Object[] values, boolean allSelected)
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, allSelected);
-		return selectedIndices(d);
+		return d.selectedIndices();
 	}
 
 	public static int[] selectIndices(Window owner, String title, String info, Object[] values, boolean selected[])
 	{
 		CheckBoxSelectDialog d = new CheckBoxSelectDialog(owner, title, info, values, selected);
-		return selectedIndices(d);
+		return d.selectedIndices();
 	}
 
-	private static int[] selectedIndices(CheckBoxSelectDialog d)
+	private int[] selectedIndices()
 	{
-		if (d.okPressed)
-			return d.list.getCheckBoxSelection().getSelectedIndices();
+		if (okPressed)
+			return panel.getSelectedIndices();
 		else
 			return null;
 	}

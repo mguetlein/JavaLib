@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.UUID;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -16,6 +17,11 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 public class ColorGradientChooser
 {
 	public static ColorGradient show(Window owner, String title, ColorGradient col)
+	{
+		return show(owner, title, col, null);
+	}
+
+	public static ColorGradient show(Window owner, String title, ColorGradient col, JComponent additionalComponent)
 	{
 		ColorGradientProperty prop = new ColorGradientProperty("Color gradient", "Color gradient"
 				+ UUID.randomUUID().toString(), col);
@@ -38,6 +44,8 @@ public class ColorGradientChooser
 		ok.addActionListener(l);
 		cancel.addActionListener(l);
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
+		if (additionalComponent != null)
+			panel.add(additionalComponent, BorderLayout.NORTH);
 		panel.add(p, BorderLayout.CENTER);
 		panel.add(ButtonBarFactory.buildOKCancelBar(ok, cancel), BorderLayout.SOUTH);
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
