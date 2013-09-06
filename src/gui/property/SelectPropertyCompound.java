@@ -8,6 +8,8 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 
+import util.ObjectUtil;
+
 public class SelectPropertyCompound extends JComboBox implements PropertyCompound
 {
 	SelectProperty property;
@@ -45,6 +47,23 @@ public class SelectPropertyCompound extends JComboBox implements PropertyCompoun
 				if (update)
 					return;
 				update = true;
+
+				boolean objectsChanged = false;
+				Object o1[] = SelectPropertyCompound.this.property.getValues();
+				if (o1.length != SelectPropertyCompound.this.getItemCount())
+					objectsChanged = true;
+				else
+				{
+					for (int i = 0; i < o1.length; i++)
+						if (!ObjectUtil.equals(o1[i], SelectPropertyCompound.this.getItemAt(i)))
+							objectsChanged = true;
+				}
+				if (objectsChanged)
+				{
+					SelectPropertyCompound.this.removeAllItems();
+					for (int i = 0; i < o1.length; i++)
+						SelectPropertyCompound.this.addItem(o1[i]);
+				}
 				setSelectedItem(SelectPropertyCompound.this.property.getValue());
 				update = false;
 			}

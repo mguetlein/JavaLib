@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -97,9 +98,9 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 
 	public int getRowHeight()
 	{
-		if (l2.getText().length() == 0)
-			l2.setText(" ");
-		return l2.getPreferredSize().height;
+		if (l1.getText().length() == 0)
+			l1.setText(" ");
+		return l1.getPreferredSize().height;
 	}
 
 	private void updateLeftLabelSize()
@@ -139,6 +140,38 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 			l1.setForeground(c);
 			l2.setForeground(c);
 		}
+	}
+
+	public void setForegroundLabel1(Color col)
+	{
+		l1.setForeground(col);
+	}
+
+	public Font getFontLabel1()
+	{
+		return l1.getFont();
+	}
+
+	public void setFontLabel1(Font font)
+	{
+		l1.setFont(font);
+
+	}
+
+	public void setForegroundLabel2(Color col)
+	{
+		l2.setForeground(col);
+	}
+
+	public Font getFontLabel2()
+	{
+		return l2.getFont();
+	}
+
+	public void setFontLabel2(Font font)
+	{
+		l2.setFont(font);
+
 	}
 
 	public static void main(String args[])

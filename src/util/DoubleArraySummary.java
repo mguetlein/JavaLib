@@ -18,12 +18,13 @@ public class DoubleArraySummary implements ArraySummary
 	double sum;
 	double mean;
 	double median;
+	double var;
 	int numZero;
 	int numNull;
 	int numDistinct;
 
-	private DoubleArraySummary(int num, double min, double max, double sum, double mean, double median, int numZero,
-			int numNull, int numDistinct)
+	private DoubleArraySummary(int num, double min, double max, double sum, double mean, double median, double var,
+			int numZero, int numNull, int numDistinct)
 	{
 		this.num = num;
 		this.min = min;
@@ -31,6 +32,7 @@ public class DoubleArraySummary implements ArraySummary
 		this.sum = sum;
 		this.mean = mean;
 		this.median = median;
+		this.var = var;
 		this.numZero = numZero;
 		this.numNull = numNull;
 		this.numDistinct = numDistinct;
@@ -43,16 +45,37 @@ public class DoubleArraySummary implements ArraySummary
 
 		//		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
 		//				+ StringUtil.formatDouble(median);
-		return format();
+		return format(false);
+	}
+
+	public String toString(boolean html)
+	{
+		return format(html);
 	}
 
 	public String format()
 	{
+		return format(false);
+	}
+
+	public String format(boolean html)
+	{
 		if (numNull == num)
 			return "null";
 		else
-			return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
-					+ StringUtil.formatDouble(median);
+		{
+			//			String medStr = html ? "&Oslash;" : "Median: ";
+			//			return medStr + StringUtil.formatDouble(median) + " [" + StringUtil.formatDouble(min) + "; "
+			//					+ StringUtil.formatDouble(max) + "]";
+
+			String s = StringUtil.formatDouble(median);
+			if (getNum() - getNumNull() > 1)
+			{
+				String plusMinus = html ? "&thinsp;&#177;" : "\u2009\u00B1";
+				s += "" + plusMinus + "" + StringUtil.formatDouble(getStdev());
+			}
+			return s;
+		}
 	}
 
 	public int getNum()
@@ -88,6 +111,16 @@ public class DoubleArraySummary implements ArraySummary
 	public double getMedian()
 	{
 		return median;
+	}
+
+	public double getVariance()
+	{
+		return var;
+	}
+
+	public double getStdev()
+	{
+		return Math.sqrt(var);
 	}
 
 	public int getNumZero()
@@ -154,7 +187,8 @@ public class DoubleArraySummary implements ArraySummary
 
 		double min = additionalZeros > 0 ? 0 : Double.MAX_VALUE;
 		double max = additionalZeros > 0 ? 0 : -Double.MAX_VALUE;
-		double avg = 0;
+		double mean = 0;
+		double var = 0;
 		int numZero = additionalZeros;
 		int numNull = 0;
 		double sum = 0;
@@ -180,13 +214,16 @@ public class DoubleArraySummary implements ArraySummary
 					min = d;
 				if (d > max)
 					max = d;
-				sum += d;
 				l.add(d);
 				uniq.add(d);
+
+				sum += d;
+				double old_mean = mean;
+				mean = sum / (double) ((i + 1) - numNull);
+				var = DoubleUtil.compute_variance(var, i + 1, mean, old_mean, d);
 			}
 			i++;
 		}
-		avg = sum / (double) (i - numNull);
 
 		double median = 0;
 		if (l.size() > 0)
@@ -197,7 +234,16 @@ public class DoubleArraySummary implements ArraySummary
 			else
 				median = (l.get(l.size() / 2) + l.get((l.size() - 2) / 2)) / 2.0;
 		}
-		return new DoubleArraySummary(i, min, max, sum, avg, median, numZero, numNull, uniq.size());
+
+		if (numNull == i)
+		{
+			min = Double.NaN;
+			max = Double.NaN;
+			mean = Double.NaN;
+			median = Double.NaN;
+			var = Double.NaN;
+		}
+		return new DoubleArraySummary(i, min, max, sum, mean, median, var, numZero, numNull, uniq.size());
 	}
 
 	public void addToResult(ResultSet set, String description)
@@ -210,4 +256,10 @@ public class DoubleArraySummary implements ArraySummary
 		set.setResultValue(index, "avg", mean);
 		set.setResultValue(index, "num-zero", numZero);
 	}
+
+	public static void main(String[] args)
+	{
+		System.out.println(DoubleArraySummary.create(new double[] { 1, 2, 3, 4, 5, 13 }));
+	}
+
 }

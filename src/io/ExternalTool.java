@@ -28,10 +28,15 @@ public class ExternalTool
 
 	public String get(final String processName, String[] command)
 	{
+		return get(processName, command, null);
+	}
+
+	public String get(final String processName, String[] command, String[] env)
+	{
 		try
 		{
 			File tmp = File.createTempFile("outfile", "out");
-			run(processName, command, tmp, true);
+			run(processName, command, tmp, true, env);
 			return FileUtil.readStringFromFile(tmp.getAbsolutePath());
 		}
 		catch (IOException e)

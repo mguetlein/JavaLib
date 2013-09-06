@@ -44,12 +44,12 @@ public class ClickMouseOverTable extends MouseOverTable
 	static final Color defaultBackground = UIManager.getColor("Table.background");
 	static final Color defaultSelectedBackground = UIManager.getColor("Table.selectionBackground");
 
-	static class ClickMouseOverRenderer extends DefaultTableCellRenderer
+	public static class ClickMouseOverRenderer extends DefaultTableCellRenderer
 	{
 		ClickMouseOverTable table;
 		Color background = defaultBackground;
-		Color clickSelectedBackground = defaultSelectedBackground.darker();
-		Color mouseOverSelectedBackground = defaultSelectedBackground;
+		public Color clickSelectedBackground = defaultSelectedBackground.darker();
+		public Color mouseOverSelectedBackground = defaultSelectedBackground;
 		Color foreground = defaultForeground;
 		Color clickSelectedForeground = defaultSelectedForeground;
 		Color mouseOverSelectedForeground = defaultSelectedForeground;

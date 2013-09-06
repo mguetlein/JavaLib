@@ -75,7 +75,9 @@ public class BlockableFrame extends JFrame implements Blockable
 		if (!block.contains(blocker))
 			throw new Error("use block first for " + blocker);
 		block.remove(blocker);
-		if (block.size() == 0)
+		if (block.size() > 0)
+			firePropertyChange(UN_BLOCKED, null, blocker);
+		else
 			SwingUtilities.invokeLater(new Runnable()
 			{
 				@Override

@@ -22,9 +22,12 @@ public class FreeChartUtil
 {
 	public static Color[] COLORS = ArrayUtil.cast(Color.class, ChartColor.createDefaultPaintArray());
 
+	public static Color BRIGHT_RED = new Color(255, 40, 40);
+	public static Color BRIGHT_BLUE = new Color(40, 40, 255);
+
 	public static Color[] BRIGHT_COLORS = new Color[] {
-			new Color(255, 40, 40),
-			new Color(40, 40, 255),
+			BRIGHT_RED,
+			BRIGHT_BLUE,
 			new Color(40, 255, 40),
 			//new Color(0xFF, 0x55, 0x55), new Color(0x55, 0x55, 0xFF), new Color(0x55, 0xFF, 0x55), 
 			new Color(0xFF, 0xFF, 0x55), new Color(0xFF, 0x55, 0xFF), new Color(0x55, 0xFF, 0xFF), Color.pink,

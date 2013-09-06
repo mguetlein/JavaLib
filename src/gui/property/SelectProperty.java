@@ -4,11 +4,15 @@ import java.util.Properties;
 
 import javax.swing.JComponent;
 
+import util.ArrayUtil;
+
 public class SelectProperty extends AbstractProperty
 {
 	private Object value;
 	private Object defaultValue;
 	private Object values[];
+
+	public static String EMPTY = "nothing selected";
 
 	public SelectProperty(String name, Object[] values, Object value)
 	{
@@ -18,9 +22,30 @@ public class SelectProperty extends AbstractProperty
 	public SelectProperty(String name, String uniqueName, Object[] values, Object value)
 	{
 		super(name, uniqueName);
+		if (value == null)
+			value = EMPTY;
 		this.defaultValue = value;
 		this.value = value;
+		if (values == null)
+			values = new Object[0];
 		this.values = values;
+	}
+
+	public void reset(Object[] values)
+	{
+		if (values == null)
+			values = new Object[0];
+		this.values = values;
+		if (value != EMPTY && ArrayUtil.indexOf(values, value) == -1)
+			value = EMPTY;
+		if (value == EMPTY && values.length > 1)
+		{
+			this.value = values[0];
+			this.defaultValue = values[0];
+		}
+		else
+			this.defaultValue = value;
+		valueChanged(this.value);
 	}
 
 	@Override
@@ -59,19 +84,24 @@ public class SelectProperty extends AbstractProperty
 	{
 		if (!this.value.toString().equals(value.toString()))
 		{
-			boolean match = false;
-			for (Object v : values)
+			if (values.length > 0)
 			{
-				if (v.toString().equals(value.toString()))
+				boolean match = false;
+				for (Object v : values)
 				{
-					this.value = v;
-					valueChanged(this.value);
-					match = true;
-					break;
+					if (v.toString().equals(value.toString()))
+					{
+						this.value = v;
+						valueChanged(this.value);
+						match = true;
+						break;
+					}
 				}
+				if (!match)
+					throw new Error("illegal select value: " + value.toString() + " " + ArrayUtil.toString(values));
 			}
-			if (!match)
-				throw new Error("illegal select value: " + value.toString());
+			else
+				this.value = value;
 		}
 	}
 }

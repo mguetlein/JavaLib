@@ -82,4 +82,11 @@ public class ColorUtil
 		else
 			return getColorGradient(((1 - ratio) - 0.5) * 2, to, over);
 	}
+
+	public static String toHtml(Color color)
+	{
+		String rgb = Integer.toHexString(color.getRGB());
+		rgb = rgb.substring(2, rgb.length());
+		return rgb;
+	}
 }

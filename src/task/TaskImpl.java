@@ -111,6 +111,7 @@ public class TaskImpl implements Task
 	@Override
 	public void warning(String warningMessage, Throwable exception)
 	{
+		logger.error(exception);
 		warning(warningMessage, exception.getMessage());
 	}
 

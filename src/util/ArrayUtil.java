@@ -167,6 +167,27 @@ public class ArrayUtil
 		return ListUtil.toArray(type, list);
 	}
 
+	/**
+	 * safe for empty sets
+	 * 
+	 * @param type
+	 * @param set
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] toArray(Class<T> type, Set<T> set)
+	{
+		if (set.size() == 0)
+			return (T[]) Array.newInstance(type, 0);
+		return CollectionUtil.toArray(set);
+	}
+
+	/**
+	 * not safe for emtpy sets
+	 * 
+	 * @param set
+	 * @return
+	 */
 	public static <T> T[] toArray(Set<T> set)
 	{
 		return CollectionUtil.toArray(set);
@@ -342,6 +363,14 @@ public class ArrayUtil
 			array = translate(array, Math.abs(summary.min) + 1);
 		array = log(array);
 		return normalize(array, 0, 1, replaceNullWithMedian);
+	}
+
+	public static Double[] replaceNaN(Double[] array, Double replace)
+	{
+		Double a[] = new Double[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = (array[i] != null && Double.isNaN(array[i])) ? replace : array[i];
+		return a;
 	}
 
 	public static Double[] replaceNull(Double array[], double replace)
@@ -673,6 +702,19 @@ public class ArrayUtil
 		}
 	}
 
+	public static String toString(long array[])
+	{
+		return toString(toLongArray(array));
+	}
+
+	private static Long[] toLongArray(long[] array)
+	{
+		Long a[] = new Long[array.length];
+		for (int i = 0; i < a.length; i++)
+			a[i] = array[i];
+		return a;
+	}
+
 	public static String toString(int array[])
 	{
 		return toString(array, -1);
@@ -882,7 +924,6 @@ public class ArrayUtil
 
 	public static Object analyze(Object[] v)
 	{
-
 		try
 		{
 			return DoubleArraySummary.create(ArrayUtil.cast(Double.class, v)).format();
@@ -897,9 +938,7 @@ public class ArrayUtil
 			else if (set.size() < v.length * 2 / 3)
 				return set;
 			return "...";
-
 		}
-
 	}
 
 	public static <T> int getMedianIndex(T[] array, Comparator<T> cmp)
@@ -1054,6 +1093,8 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
+		//		System.out.println(toString(getEntropy(new double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0 })));
+
 		//		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
 		//		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
 		//		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
@@ -1067,19 +1108,19 @@ public class ArrayUtil
 		//		System.out.println(toString(input1));
 		//		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
 
-		String s[] = { "ene", "miste", "mene" };
-		Integer[] rank = new Integer[] { 1, 3, 2 };
-		int order[] = getOrdering(rank, new Comparator<Integer>()
-		{
-			@Override
-			public int compare(Integer o1, Integer o2)
-			{
-				return o1.compareTo(o2);
-			}
-		}, true);
-		System.out.println(toString(order) + "\n");
-		System.out.println(toString(sortAccordingToOrdering(order, rank)) + "\n");
-		System.out.println(toString(sortAccordingToOrdering(order, s)) + "\n");
+		//		String s[] = { "ene", "miste", "mene" };
+		//		Integer[] rank = new Integer[] { 1, 3, 2 };
+		//		int order[] = getOrdering(rank, new Comparator<Integer>()
+		//		{
+		//			@Override
+		//			public int compare(Integer o1, Integer o2)
+		//			{
+		//				return o1.compareTo(o2);
+		//			}
+		//		}, true);
+		//		System.out.println(toString(order) + "\n");
+		//		System.out.println(toString(sortAccordingToOrdering(order, rank)) + "\n");
+		//		System.out.println(toString(sortAccordingToOrdering(order, s)) + "\n");
 
 		//		Integer[] input = new Integer[] { 1, 2, 3, 4, 5, 6 };
 		//		List<Integer[]> output = permute(input);
@@ -1144,4 +1185,35 @@ public class ArrayUtil
 	{
 		return array[array.length - 1];
 	}
+
+	public static Boolean[] toBooleanArray(boolean[] array)
+	{
+		Boolean b[] = new Boolean[array.length];
+		for (int i = 0; i < b.length; i++)
+			b[i] = array[i];
+		return b;
+	}
+
+	public static Double[] computeMean(List<Double[]> results)
+	{
+		if (results.size() == 0)
+			throw new IllegalArgumentException();
+		if (results.size() == 1)
+			return results.get(0);
+		Double d[] = new Double[results.get(0).length];
+		for (int i = 0; i < d.length; i++)
+		{
+			double sum = 0;
+			int count = 0;
+			for (Double dd[] : results)
+				if (dd[i] != null)
+				{
+					sum += dd[i];
+					count++;
+				}
+			d[i] = sum / (double) count;
+		}
+		return d;
+	}
+
 }

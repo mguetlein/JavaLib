@@ -637,4 +637,24 @@ public class FileUtil
 		// "/home/martin/workspace/ClusterViewer/cluster_data/nctrer_small_3d/003.nctrer.distances.table"));
 	}
 
+	public static int getNumLines(String file)
+	{
+		int num = 0;
+		try
+		{
+			BufferedReader r = new BufferedReader(new FileReader(file));
+			while (r.readLine() != null)
+			{
+				num += 1;
+			}
+			r.close();
+			return num;
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
 }
