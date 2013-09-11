@@ -45,20 +45,25 @@ public class DoubleArraySummary implements ArraySummary
 
 		//		return "[" + StringUtil.formatDouble(min) + "; " + StringUtil.formatDouble(max) + "] Median:"
 		//				+ StringUtil.formatDouble(median);
-		return format(false);
+		return format(false, 2);
 	}
 
 	public String toString(boolean html)
 	{
-		return format(html);
+		return format(html, 2);
+	}
+
+	public String toString(boolean html, int numDecimalPlaces)
+	{
+		return format(html, numDecimalPlaces);
 	}
 
 	public String format()
 	{
-		return format(false);
+		return format(false, 2);
 	}
 
-	public String format(boolean html)
+	public String format(boolean html, int numDecimalPlaces)
 	{
 		if (numNull == num)
 			return "null";
@@ -68,11 +73,11 @@ public class DoubleArraySummary implements ArraySummary
 			//			return medStr + StringUtil.formatDouble(median) + " [" + StringUtil.formatDouble(min) + "; "
 			//					+ StringUtil.formatDouble(max) + "]";
 
-			String s = StringUtil.formatDouble(median);
+			String s = StringUtil.formatDouble(median, numDecimalPlaces);
 			if (getNum() - getNumNull() > 1)
 			{
 				String plusMinus = html ? "&thinsp;&#177;" : "\u2009\u00B1";
-				s += "" + plusMinus + "" + StringUtil.formatDouble(getStdev());
+				s += "" + plusMinus + "" + StringUtil.formatDouble(getStdev(), numDecimalPlaces);
 			}
 			return s;
 		}

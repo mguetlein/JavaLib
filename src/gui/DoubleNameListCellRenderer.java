@@ -58,7 +58,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 	private ListModel model;
 	private boolean dirty = true;
 	private int l1Width;
-	private int MAX_L1_WIDTH = 200;
+	private int MAX_L1_WIDTH = Integer.MAX_VALUE;
 
 	public DoubleNameListCellRenderer(ListModel model)
 	{
@@ -107,6 +107,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 	{
 		JLabel l = new JLabel();
 		l.setBorder(new EmptyBorder(1, 1, 1, 1));
+		l.setFont(getFontLabel1());
 		l1Width = 0;
 		for (int i = 0; i < model.getSize(); i++)
 		{
@@ -128,6 +129,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 			updateLeftLabelSize();
 		DoubleNameElement e = ((DoubleNameElement) value);
 		l1.setText(e.getFirstName());
+		l1.setPreferredSize(null);
 		l1.setPreferredSize(new Dimension(l1Width, l1.getPreferredSize().height));
 		l2.setText(e.getSecondName());
 		return this;
@@ -149,13 +151,15 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 
 	public Font getFontLabel1()
 	{
+		if (l1 == null)
+			return null;
 		return l1.getFont();
 	}
 
 	public void setFontLabel1(Font font)
 	{
 		l1.setFont(font);
-
+		dirty = true;
 	}
 
 	public void setForegroundLabel2(Color col)
@@ -165,13 +169,14 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 
 	public Font getFontLabel2()
 	{
+		if (l2 == null)
+			return null;
 		return l2.getFont();
 	}
 
 	public void setFontLabel2(Font font)
 	{
 		l2.setFont(font);
-
 	}
 
 	public static void main(String args[])

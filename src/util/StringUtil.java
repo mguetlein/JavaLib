@@ -299,11 +299,11 @@ public class StringUtil
 	public static String formatDouble(double d, int numDecimalPlaces, int completeStringSize)
 	{
 		char[] dec = new char[numDecimalPlaces];
-		Arrays.fill(dec, '0');
+		Arrays.fill(dec, '#');
 		String decString = new String(dec);
 		if (dec.length > 0)
 			decString = "." + decString;
-		DecimalFormat df = new DecimalFormat("0" + decString);
+		DecimalFormat df = new DecimalFormat("#" + decString);
 		if (completeStringSize != -1)
 			return StringUtil.concatWhitespace(df.format(d), completeStringSize, false);
 		else
