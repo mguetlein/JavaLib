@@ -100,6 +100,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 	{
 		if (l1.getText().length() == 0)
 			l1.setText(" ");
+		l1.setPreferredSize(null);
 		return l1.getPreferredSize().height;
 	}
 

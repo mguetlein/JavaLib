@@ -34,7 +34,7 @@ public class FminerWrapper
 		String smiles[] = ArrayUtil.toArray(smi);
 
 		new FminerWrapper(new Logger(null, true), "/home/martin/software/fminer2/fminer/fminer",
-				"/home/martin/software/fminer2/libbbrc/libbbrc.so",
+				"/home/martin/software/fminer2/libbbrc/libbbrc.so", null,
 				"/home/martin/software/openbabel-2.3.1/install/bin/babel",
 				//		"/home/martin/software/fminer2/liblast/liblast.so",
 				smiles, 1);
@@ -54,8 +54,8 @@ public class FminerWrapper
 		return smartsHits.get(smartsIndex);
 	}
 
-	public FminerWrapper(Logger logger, String fminerPath, String libPath, String babelPath, String[] smiles, int minF)
-			throws Exception
+	public FminerWrapper(Logger logger, String fminerPath, String libPath, String fminerLDPath, String babelPath,
+			String[] smiles, int minF) throws Exception
 	{
 		File inputSmiles = null;
 		File inputSmiles2 = null;
@@ -85,11 +85,15 @@ public class FminerWrapper
 			}
 
 			ExternalTool ext = new ExternalTool(logger);
+			String[] env = new String[] { "FMINER_SMARTS=1", "FMINER_LAZAR=1" };
+			if (fminerLDPath != null)
+				env = ArrayUtil.concat(env, new String[] { "LD_LIBRARY_PATH=" + fminerLDPath });
+			logger.debug("env for fminer: " + ArrayUtil.toString(env));
 			String out = ext.get("fminer", new String[] { fminerPath, libPath, "-l2", //"-d", "-b", "-u", 
 					//				"-p", "0",//
 					"-f" + minF + "", inputSmiles.getAbsolutePath(),//
 			//				inputClass.getAbsolutePath() //
-					}, new String[] { "FMINER_SMARTS=1", "FMINER_LAZAR=1" });
+					}, env);
 
 			// do matching yourself
 			smarts = out.split("\n");
