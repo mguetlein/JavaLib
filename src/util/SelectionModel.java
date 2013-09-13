@@ -26,6 +26,11 @@ public class SelectionModel
 		this.multiSelectionAllowed = multiSelectionAllowed;
 	}
 
+	public void addListenerFirst(PropertyChangeListener l)
+	{
+		listeners.add(0, l);
+	}
+
 	public void addListener(PropertyChangeListener l)
 	{
 		listeners.add(l);

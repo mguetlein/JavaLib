@@ -1216,4 +1216,12 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static String[] trim(String[] split)
+	{
+		String s[] = new String[split.length];
+		for (int i = 0; i < s.length; i++)
+			s[i] = split[i].trim();
+		return s;
+	}
+
 }
