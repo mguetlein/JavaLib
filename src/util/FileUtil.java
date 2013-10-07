@@ -254,8 +254,8 @@ public class FileUtil
 			while ((s = b.readLine()) != null)
 			{
 				if (s.trim().length() == 0)
-					continue;
-				if (s.startsWith("#"))
+					l.add(new String[0]);
+				else if (s.startsWith("#"))
 					c.add(s);
 				else
 				{
