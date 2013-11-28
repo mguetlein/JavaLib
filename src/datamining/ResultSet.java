@@ -1238,7 +1238,7 @@ public class ResultSet
 	public Object getUniqueValue(String prop)
 	{
 		CountedSet<Object> o = getResultValues(prop);
-		if (o.size() != 1)
+		if (o.getNumValues() != 1)
 			throw new IllegalStateException("'" + prop + "' not unique: " + o);
 		return o.values().get(0);
 	}

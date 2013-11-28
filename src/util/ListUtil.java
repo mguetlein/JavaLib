@@ -2,6 +2,7 @@ package util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -182,6 +183,31 @@ public class ListUtil
 		System.out.println(l);
 		ListUtil.sort(l, o);
 		System.out.println(l);
+	}
+
+	/**
+	 * does not preserve order!
+	 * 
+	 * @param l
+	 * @return
+	 */
+	public static <T> List<T> uniqValue(List<T> l)
+	{
+		return new ArrayList<T>(new HashSet<T>(l));
+	}
+
+	public static interface Filter<T>
+	{
+		public boolean accept(T object);
+	}
+
+	public static <T> List<T> filter(List<T> list, Filter<T> filter)
+	{
+		List<T> l = new ArrayList<T>();
+		for (T t : list)
+			if (filter.accept(t))
+				l.add(t);
+		return l;
 	}
 
 }

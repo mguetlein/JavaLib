@@ -58,7 +58,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 	private ListModel model;
 	private boolean dirty = true;
 	private int l1Width;
-	private int MAX_L1_WIDTH = Integer.MAX_VALUE;
+	private int maxl1Width = Integer.MAX_VALUE;
 
 	public DoubleNameListCellRenderer(ListModel model)
 	{
@@ -96,6 +96,15 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 		});
 	}
 
+	public void setMaxl1Width(int maxl1Width)
+	{
+		if (this.maxl1Width != maxl1Width)
+		{
+			this.maxl1Width = maxl1Width;
+			dirty = true;
+		}
+	}
+
 	public int getRowHeight()
 	{
 		if (l1.getText().length() == 0)
@@ -116,7 +125,7 @@ public class DoubleNameListCellRenderer extends JPanel implements ListCellRender
 			if (val != null && val.length() > 0)
 			{
 				l.setText(val + " ");
-				l1Width = (int) Math.min(MAX_L1_WIDTH, Math.max(l1Width, l.getPreferredSize().width));
+				l1Width = (int) Math.min(maxl1Width, Math.max(l1Width, l.getPreferredSize().width));
 			}
 		}
 		dirty = false;

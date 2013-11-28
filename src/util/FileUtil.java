@@ -313,7 +313,8 @@ public class FileUtil
 			try
 			{
 				String line;
-				String cmd = "cmd /c MOVE /Y " + source.getAbsolutePath() + " " + dest.getAbsolutePath();
+				String cmd[] = new String[] { "cmd", "/c", "MOVE", "/Y", source.getAbsolutePath(),
+						dest.getAbsolutePath() };
 				System.out.println(cmd);
 				Process p = Runtime.getRuntime().exec(cmd);
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -655,6 +656,21 @@ public class FileUtil
 			e.printStackTrace();
 			return -1;
 		}
+	}
+
+	public static boolean deleteDirectory(File directory)
+	{
+		if (directory.exists())
+		{
+			File[] files = directory.listFiles();
+			if (files != null)
+				for (int i = 0; i < files.length; i++)
+					if (files[i].isDirectory())
+						deleteDirectory(files[i]);
+					else
+						files[i].delete();
+		}
+		return directory.delete();
 	}
 
 }

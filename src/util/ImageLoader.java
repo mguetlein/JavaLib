@@ -17,6 +17,8 @@ public class ImageLoader
 	public static final ImageIcon HOURGLASS = loadImageIcon("data/hourglass.png", ImageLoader.class);
 	public static final ImageIcon OK = loadImageIcon("data/ok.png", ImageLoader.class);
 	public static final ImageIcon TOOL = loadImageIcon("data/tool.png", ImageLoader.class);
+	public static final ImageIcon FILTER = loadImageIcon("data/filter.png", ImageLoader.class);
+	public static final ImageIcon FILTER_WHITE = loadImageIcon("data/filter-white.png", ImageLoader.class);
 
 	public static final ImageIcon CHES_MAPPER = loadImageIcon("data/ches-mapper.png", ImageLoader.class);
 	public static final ImageIcon CHES_MAPPER_ICON = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);

@@ -57,6 +57,11 @@ public class ColorUtil
 		return new Color(rgbNum, rgbNum, rgbNum);
 	}
 
+	public static int getAvgRgb(Color c)
+	{
+		return (int) ((c.getRed() + c.getGreen() + c.getBlue()) / 3.0);
+	}
+
 	public static Color getForegroundColor(Color background)
 	{
 		if (background.getRed() + background.getGreen() + background.getBlue() < 383)

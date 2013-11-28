@@ -72,7 +72,7 @@ public class WizardDialog extends BlockableFrame
 
 	public WizardDialog(JFrame owner, String title, Icon icon, Icon additionalIcon, String helpURL)
 	{
-		super(title);
+		super(title, false);
 		this.icon = icon;
 		this.title = title;
 		this.additionalIcon = additionalIcon;

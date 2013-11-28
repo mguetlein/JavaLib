@@ -22,7 +22,7 @@ public interface FreeChartPanel
 	{
 		public void hoverEvent();
 
-		public void clickEvent(boolean ctrlDown);
+		public void clickEvent(boolean ctrlDown, boolean doubleClick);
 	}
 
 	public void addSelectionListener(ChartMouseSelectionListener l);

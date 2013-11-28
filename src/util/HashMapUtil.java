@@ -4,12 +4,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class HashMapUtil
 {
+	public static int keyIndex(LinkedHashMap<?, ?> map, Object key)
+	{
+		int count = 0;
+		for (Object k : map.keySet())
+		{
+			if (k.equals(key))
+				return count;
+			count++;
+		}
+		return -1;
+	}
+
 	/**
 	 * equal keys have equal values?, no equal keys => compatible
 	 * 

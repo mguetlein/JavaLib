@@ -2,10 +2,17 @@ package freechart;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
 
 import org.jfree.chart.ChartFactory;
@@ -30,8 +37,6 @@ import org.jfree.data.general.DatasetUtilities;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
-
-import util.SwingUtil;
 
 public class HistogramPanel extends AbstractFreeChartPanel
 {
@@ -93,6 +98,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
 		chartPanel = new ChartPanel(chart);
 		chartPanel.setOpaque(false);
+		chartPanel.setMinimumDrawHeight(1);//otherwhise the chart gets scaled and the rendering info coordinates for chart mouse listener wont fit
 
 		chartPanel.addChartMouseListener(new ChartMouseListener()
 		{
@@ -117,7 +123,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 					double sel[] = getInterval(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
 					selectedMin = sel[0];
 					selectedMax = sel[1];
-					fireClickEvent(chartMouseEvent.getTrigger().isControlDown());
+					fireClickEvent(chartMouseEvent.getTrigger().isControlDown(), chartMouseEvent.getTrigger()
+							.getClickCount() > 1);
 				}
 			}
 		});
@@ -318,9 +325,26 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		captions.add("a");
 		vals.add(new double[] { 1, 2, 2 });
 		captions.add("b");
-		vals.add(new double[] { 1, 2, 4 });
+		vals.add(new double[] { 1, 2, 4, 5, 1, 1, 1, 2, 2 });
 		{
-			HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", captions, vals, 20);
+			final HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", captions, vals, 20);
+
+			p.addSelectionListener(new ChartMouseSelectionListener()
+			{
+
+				@Override
+				public void hoverEvent()
+				{
+					System.out.println("hove event, " + p.selectedMin + " " + p.selectedMax);
+				}
+
+				@Override
+				public void clickEvent(boolean ctrlDown, boolean doubleClick)
+				{
+					// TODO Auto-generated method stub
+
+				}
+			});
 
 			//			Plot plot = p.getChart().getPlot();
 			//			XYPlot p2 = (XYPlot) plot;
@@ -331,7 +355,40 @@ public class HistogramPanel extends AbstractFreeChartPanel
 
 			//		p.setForegroundColor(Color.GREEN);
 			p.setShadowVisible(false);
-			SwingUtil.showInDialog(p);
+
+			p.setPreferredSize(new Dimension(400, 300));
+
+			final JFrame f = new JFrame("test");
+			JMenuBar b = new JMenuBar();
+			b.add(new JMenu("bla"));
+			f.setJMenuBar(b);
+			f.setLayout(new BorderLayout());
+			f.add(new JLabel("test"), BorderLayout.NORTH);
+			f.add(p);
+			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+			p.getChartPanel().setMinimumDrawWidth(10);
+			p.getChartPanel().setMinimumDrawHeight(10);
+
+			System.out.println(p.getMinimumSize());
+
+			System.out.println(p.getPreferredSize());
+
+			f.addComponentListener(new ComponentAdapter()
+			{
+				@Override
+				public void componentResized(ComponentEvent e)
+				{
+					System.out.println(f.getSize());
+					System.out.println(p.getSize());
+					System.out.println(p.getPreferredSize());
+					System.out.println(p.getMinimumSize());
+				}
+			});
+
+			f.pack();
+			f.setVisible(true);
+			//			SwingUtil.showInDialog(p);
 		}
 		//		HistogramPanel p2 = new HistogramPanel(null, null, "property", "#compounds", "", new double[] { 1, 3, 2, 4, 1,
 		//				2, 3, 4, 5, 3, 2, 4, 5, 3, 2 }, 5, null, true);

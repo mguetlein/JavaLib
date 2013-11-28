@@ -43,10 +43,10 @@ public abstract class AbstractFreeChartPanel extends JPanel implements FreeChart
 			listener.hoverEvent();
 	}
 
-	protected void fireClickEvent(boolean ctrlDown)
+	protected void fireClickEvent(boolean ctrlDown, boolean doubleClick)
 	{
 		for (ChartMouseSelectionListener listener : listeners)
-			listener.clickEvent(ctrlDown);
+			listener.clickEvent(ctrlDown, doubleClick);
 	}
 
 	@Override

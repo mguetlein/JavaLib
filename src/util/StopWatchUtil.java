@@ -61,12 +61,12 @@ public class StopWatchUtil
 				return "SW > " + name + " not initialized or still running";
 
 			if (count == 1)
-				return "SW > " + name + " - " + count + " run, runtime: " + StringUtil.formatTime(totalRuntime);
+				return "SW > " + name + " - " + count + " run, runtime: " + formatTime(totalRuntime);
 			else
 			{
 				long avgRuntime = (long) (totalRuntime / (double) count);
-				return "SW > " + name + " - " + count + " runs, avg-runtime: " + StringUtil.formatTime(avgRuntime)
-						+ ", total-runtime: " + StringUtil.formatTime(totalRuntime);
+				return "SW > " + name + " - " + count + " runs, avg-runtime: " + formatTime(avgRuntime)
+						+ ", total-runtime: " + formatTime(totalRuntime);
 			}
 		}
 	}
@@ -141,7 +141,13 @@ public class StopWatchUtil
 		for (String prop : runs.keySet())
 			print(prop, out);
 		if (runs.size() > 1)
-			out.println("SW > total-stopped-runtime: " + StringUtil.formatTime(totalRuntime));
+			out.println("SW > total-stopped-runtime: " + formatTime(totalRuntime));
+	}
+
+	private static String formatTime(long time)
+	{
+		//		return StringUtil.formatTime(totalRuntime);
+		return StringUtil.formatDouble(time / 1000.0, 2);
 	}
 
 	public static String toString(String property)

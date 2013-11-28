@@ -61,7 +61,17 @@ public class TaskDialog
 		showLogButton = new JButton("Show log");
 		infoLabel = new JLabel(task.getUpdateMessage() == null ? " " : task.getUpdateMessage());
 		infoLabel.setFont(infoLabel.getFont().deriveFont(Font.BOLD));
-		verboseLabel = new JLabel(task.getVerboseMessage() == null ? " " : task.getVerboseMessage());
+		verboseLabel = new JLabel(task.getVerboseMessage() == null ? " " : task.getVerboseMessage())
+		{
+			@Override
+			public void setText(String text)
+			{
+				if (text.length() == 0)
+					super.setText(" ");
+				else
+					super.setText(text);
+			}
+		};
 		FormLayout f = new FormLayout("600px", "p,4dlu,p,6dlu,p");
 		CellConstraints cc = new CellConstraints();
 		JPanel p = new JPanel(f);
@@ -159,6 +169,7 @@ public class TaskDialog
 					case update:
 						updateTitle();
 						infoLabel.setText(task.getUpdateMessage());
+						verboseLabel.setText("");
 						break;
 					case verbose:
 						verboseLabel.setText(task.getVerboseMessage());

@@ -21,6 +21,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -60,7 +61,7 @@ public class SwingUtil
 {
 	public static void waitWhileVisible(Window f)
 	{
-		if (Thread.currentThread().getName().contains("AWT-EventQueue"))
+		if (SwingUtilities.isEventDispatchThread())
 			throw new Error("do not wait in awt event thread");
 		while (f.isVisible())
 		{
@@ -536,5 +537,40 @@ public class SwingUtil
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void invokeAndWait(Runnable r)
+	{
+		if (SwingUtilities.isEventDispatchThread())
+			r.run();
+		else
+		{
+			try
+			{
+				SwingUtilities.invokeAndWait(r);
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (InvocationTargetException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void checkNoAWTEventThread() throws IllegalStateException
+	{
+		if (SwingUtilities.isEventDispatchThread())
+			throw new IllegalStateException("not allowed in awt-event thread : " + Thread.currentThread().getName());
+	}
+
+	public static void checkIsAWTEventThread() throws IllegalStateException
+	{
+		if (!SwingUtilities.isEventDispatchThread())
+			throw new IllegalStateException("only allowed in awt-event thread : " + Thread.currentThread().getName());
 	}
 }

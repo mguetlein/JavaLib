@@ -52,9 +52,41 @@ public class CountedSet<T> implements ArraySummary
 			add(elem);
 	}
 
-	public int size()
+	public int getNumValues()
 	{
-		return map.size();
+		return getNumValues(true);
+	}
+
+	public int getNumValues(boolean includingNull)
+	{
+		if (includingNull)
+			return map.size();
+		else
+			return map.size() - (map.containsKey(null) ? 1 : 0);
+	}
+
+	public int getSum()
+	{
+		return getSum(true);
+	}
+
+	public int getSum(boolean includingNull)
+	{
+		return sum(includingNull);
+	}
+
+	public int sum()
+	{
+		return sum(true);
+	}
+
+	public int sum(boolean includingNull)
+	{
+		int sum = 0;
+		for (T key : map.keySet())
+			if (includingNull || key != null)
+				sum += map.get(key);
+		return sum;
 	}
 
 	/**
@@ -92,21 +124,32 @@ public class CountedSet<T> implements ArraySummary
 
 	public String toString(boolean html)
 	{
+		if (map.size() == 0)
+			return "";
+		List<T> values = values();
+		if (values.size() > 1 && values.get(0) == null)
+			values.add(values.remove(0)); // move null to the back
 		if (!html)
 		{
 			String s = "";
-			for (T elem : values())
+			for (T elem : values)
 				s += getCount(elem) + "\u00D7\u2009'" + String.valueOf(elem) + "', ";
 			return s.substring(0, s.length() - 2) + "";
 		}
 		else
 		{
 			String s = "";
-			for (T elem : values())
+			for (T elem : values)
 				s += getCount(elem) + "&times;&thinsp;<i>" + StringEscapeUtils.escapeHtml(String.valueOf(elem))
 						+ "</i>, ";
 			return s.substring(0, s.length() - 2) + "";
 		}
+	}
+
+	@Override
+	public int getNullCount()
+	{
+		return getCount(null);
 	}
 
 	public int getCount(T elem)
@@ -115,6 +158,20 @@ public class CountedSet<T> implements ArraySummary
 			return map.get(elem);
 		else
 			return 0;
+	}
+
+	public int getMaxCount(boolean includingNull)
+	{
+		if (getNumValues(includingNull) == 0)
+			return 0;
+		else
+		{
+			List<T> values = values();
+			if (!includingNull && values.size() > 1 && values.get(0) == null)
+				return map.get(values.get(1));
+			else
+				return map.get(values.get(0));
+		}
 	}
 
 	public static <T> CountedSet<T> create(Iterable<T> objects)
@@ -145,15 +202,6 @@ public class CountedSet<T> implements ArraySummary
 		//		System.out.println(fromArray(new String[] { "a", "b", "b", "c", "a", "b", "c", "b" }));
 	}
 
-	@Override
-	public int getNumNull()
-	{
-		if (!map.containsKey(null))
-			return 0;
-		else
-			return map.get(null);
-	}
-
 	public boolean contains(T key)
 	{
 		return map.containsKey(key);
@@ -164,17 +212,18 @@ public class CountedSet<T> implements ArraySummary
 		map.remove(key);
 	}
 
-	public int sum()
+	public T getMode(boolean includingNull)
 	{
-		int sum = 0;
-		for (Integer value : map.values())
-			sum += value;
-		return sum;
-	}
-
-	public T getMode()
-	{
-		return values().get(0);
+		if (getNumValues(includingNull) == 0)
+			return null;
+		else
+		{
+			List<T> values = values();
+			if (!includingNull && values.size() > 1 && values.get(0) == null)
+				return values.get(1);
+			else
+				return values.get(0);
+		}
 	}
 
 }

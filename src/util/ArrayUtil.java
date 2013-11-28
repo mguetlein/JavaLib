@@ -23,39 +23,55 @@ public class ArrayUtil
 
 	public static String toCSVString(Object a[], boolean addQuotes)
 	{
-		String s = "";
+		StringBuffer s = new StringBuffer("");
 		if (a == null || a.length == 0)
-			s = ",";
+			s.append(",");
 		else
 			for (Object st : a)
 			{
 				if (addQuotes == false && (st + "").contains(","))
 					throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
 				if (addQuotes)
-					s += "\"" + (st == null ? "" : st.toString()) + "\",";
+				{
+					s.append("\"");
+					s.append(st == null ? "" : st.toString());
+					s.append("\",");
+				}
 				else
-					s += (st == null ? "" : st.toString()) + ",";
+				{
+					s.append(st == null ? "" : st.toString());
+					s.append(",");
+				}
 			}
-		s = s.substring(0, s.length() - 1);
-		return s;
+		String ss = s.toString();
+		ss = ss.substring(0, ss.length() - 1);
+		return ss;
 	}
 
 	public static String intToCSVString(int a[])
 	{
-		String s = "";
+		StringBuffer s = new StringBuffer("");
 		for (int i : a)
-			s += i + ",";
-		s = s.substring(0, s.length() - 1);
-		return s;
+		{
+			s.append(i);
+			s.append(",");
+		}
+		String ss = s.toString();
+		ss = ss.substring(0, ss.length() - 1);
+		return ss;
 	}
 
 	public static String booleanToCSVString(boolean a[])
 	{
-		String s = "";
+		StringBuffer s = new StringBuffer("");
 		for (boolean i : a)
-			s += i + ",";
-		s = s.substring(0, s.length() - 1);
-		return s;
+		{
+			s.append(i);
+			s.append(",");
+		}
+		String ss = s.toString();
+		ss = ss.substring(0, ss.length() - 1);
+		return ss;
 	}
 
 	public static int[] intFromCSVString(String csv)
@@ -225,6 +241,22 @@ public class ArrayUtil
 		for (int i = 0; i < a.length; i++)
 			a[i] = new Double(array[i]);
 		return a;
+	}
+
+	public static <T> T[] removeDuplicates(T[] array)
+	{
+		if (array.length == 0 || array[0] == null)
+			throw new IllegalArgumentException("no first entry in array");
+		return removeDuplicates(array[0].getClass(), array);
+	}
+
+	public static <T> T[] removeDuplicates(Class<?> type, T[] array)
+	{
+		HashSet<T> set = new HashSet<T>(toList(array));
+		@SuppressWarnings("unchecked")
+		T[] c = (T[]) Array.newInstance(type, set.size());
+		set.toArray(c);
+		return c;
 	}
 
 	public static <T> List<T> removeNullValues(T array[])
@@ -500,13 +532,23 @@ public class ArrayUtil
 
 	public static <T> T[] sort(T[] array, Comparator<T> comp)
 	{
-		return sortAccordingToOrdering(getOrdering(array, comp), array);
+		return sort(null, array, comp);
+	}
+
+	public static <T> T[] sort(Class<T> type, T[] array, Comparator<T> comp)
+	{
+		return sortAccordingToOrdering(type, getOrdering(array, comp), array);
+	}
+
+	public static <T> T[] sortAccordingToOrdering(int[] order, T[] array)
+	{
+		return sortAccordingToOrdering(null, order, array);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T[] sortAccordingToOrdering(int[] order, T[] array)
+	public static <T> T[] sortAccordingToOrdering(Class<T> type, int[] order, T[] array)
 	{
-		T[] res = (T[]) Array.newInstance(array[0].getClass(), array.length);
+		T[] res = (T[]) Array.newInstance(type == null ? array[0].getClass() : type, array.length);
 		for (int j = 0; j < array.length; j++)
 			res[j] = array[order[j]];
 		return res;
@@ -922,24 +964,24 @@ public class ArrayUtil
 		return Math.sqrt(d);
 	}
 
-	public static Object analyze(Object[] v)
-	{
-		try
-		{
-			return DoubleArraySummary.create(ArrayUtil.cast(Double.class, v)).format();
-		}
-		catch (ArrayStoreException e)
-		{
-			CountedSet<Object> set = CountedSet.fromArray(v);
-			if (v.length <= 3)
-				return set;
-			else if (v.length < 10 && set.size() < v.length * 2 / 3)
-				return set;
-			else if (set.size() < v.length * 2 / 3)
-				return set;
-			return "...";
-		}
-	}
+	//	public static Object analyze(Object[] v)
+	//	{
+	//		try
+	//		{
+	//			return DoubleArraySummary.create(ArrayUtil.cast(Double.class, v)).format();
+	//		}
+	//		catch (ArrayStoreException e)
+	//		{
+	//			CountedSet<Object> set = CountedSet.fromArray(v);
+	//			if (v.length <= 3)
+	//				return set;
+	//			else if (v.length < 10 && set.size() < v.length * 2 / 3)
+	//				return set;
+	//			else if (set.size() < v.length * 2 / 3)
+	//				return set;
+	//			return "...";
+	//		}
+	//	}
 
 	public static <T> int getMedianIndex(T[] array, Comparator<T> cmp)
 	{
@@ -1093,6 +1135,12 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
+		System.out.println(toString(removeDuplicates(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 })));
+
+		//		Object o[] = { "a", null };
+		//		Object o[] = null;
+		//		System.out.println(ArrayUtil.toString(o));
+
 		//		System.out.println(toString(getEntropy(new double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0 })));
 
 		//		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
@@ -1183,7 +1231,18 @@ public class ArrayUtil
 
 	public static <T> T last(T[] array)
 	{
-		return array[array.length - 1];
+		if (array == null || array.length == 0)
+			return null;
+		else
+			return array[array.length - 1];
+	}
+
+	public static <T> T first(T[] array)
+	{
+		if (array == null || array.length == 0)
+			return null;
+		else
+			return array[0];
 	}
 
 	public static Boolean[] toBooleanArray(boolean[] array)
@@ -1222,6 +1281,14 @@ public class ArrayUtil
 		for (int i = 0; i < s.length; i++)
 			s[i] = split[i].trim();
 		return s;
+	}
+
+	public static Double[] parseDoubleArray(String[] v)
+	{
+		Double d[] = new Double[v.length];
+		for (int i = 0; i < d.length; i++)
+			d[i] = DoubleUtil.parseDouble(v[i]);
+		return d;
 	}
 
 }

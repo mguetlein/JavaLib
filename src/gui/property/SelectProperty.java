@@ -98,7 +98,7 @@ public class SelectProperty extends AbstractProperty
 					}
 				}
 				if (!match)
-					throw new Error("illegal select value: " + value.toString() + " " + ArrayUtil.toString(values));
+					System.err.println("illegal select value: " + value.toString() + " " + ArrayUtil.toString(values));
 			}
 			else
 				this.value = value;

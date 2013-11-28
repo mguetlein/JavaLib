@@ -109,6 +109,7 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 			}
 		});
 
+		chartPanel.setMinimumDrawHeight(1);//otherwhise the chart gets scaled and the rendering info coordinates for chart mouse listener wont fit
 		chartPanel.addChartMouseListener(new ChartMouseListener()
 		{
 			@Override
@@ -125,7 +126,8 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 				{
 					selectedCategory = getSelected(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger()
 							.getY());
-					fireClickEvent(chartMouseEvent.getTrigger().isControlDown());
+					fireClickEvent(chartMouseEvent.getTrigger().isControlDown(), chartMouseEvent.getTrigger()
+							.getClickCount() > 1);
 				}
 			}
 		});
@@ -140,6 +142,17 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 		EntityCollection entities = chartPanel.getChartRenderingInfo().getEntityCollection();
 		if (entities != null)
 		{
+			//			ChartEntity entity = null;
+			//			for (int i = 0; i < entities.getEntityCount(); i++)
+			//			{
+			//				ChartEntity e = entities.getEntity(i);
+			//				if (e instanceof XYItemEntity && e.getArea().getBounds().getMinX() <= x
+			//						&& x <= e.getArea().getBounds().getMaxX())
+			//				{
+			//					entity = e;
+			//					break;
+			//				}
+			//			}
 			ChartEntity entity = entities.getEntity(x, y);
 			if (entity != null && entity instanceof CategoryItemEntity)
 				sel = ((CategoryItemEntity) entity).getColumnKey().toString();

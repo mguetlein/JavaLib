@@ -254,7 +254,7 @@ public abstract class Selector<T> extends JPanel
 					else
 						invalid.add(t);
 				if (selected.size() > 0)
-					setSelected(ListUtil.toArray(selected));
+					setSelected(ListUtil.toArray(clazz, selected));
 
 				if (elements.size() > 0)
 					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);

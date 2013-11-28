@@ -6,9 +6,14 @@ public class PropertyUtil
 {
 	public static String getPropertyMD5(Property p[])
 	{
+		return getPropertyMD5(p, "");
+	}
+
+	public static String getPropertyMD5(Property p[], String additionalParam)
+	{
 		if (p == null)
 			return "no-props";
-		String s = "";
+		String s = additionalParam;
 		for (Property property : p)
 			s += property.getUniqueName() + " " + property.getValue();
 		return StringUtil.getMD5(s);

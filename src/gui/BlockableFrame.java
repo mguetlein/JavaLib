@@ -11,16 +11,21 @@ import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
 
+import util.SwingUtil;
+
 public class BlockableFrame extends JFrame implements Blockable
 {
 	JPanel glass;
 	JPanel coverPanel;
 	private static boolean DEBUG = false;
+	public boolean strictWithAWTBlocking = false;
 	List<String> block = new ArrayList<String>();
 
-	public BlockableFrame()
+	public BlockableFrame(boolean strictWithAWTBlocking)
 	{
 		super();
+		this.strictWithAWTBlocking = strictWithAWTBlocking;
+
 		glass = new JPanel();
 		LayoutManager layout = new OverlayLayout(glass);
 		glass.setLayout(layout);
@@ -41,23 +46,34 @@ public class BlockableFrame extends JFrame implements Blockable
 		glass.setOpaque(false);
 	}
 
-	public BlockableFrame(String title)
+	public BlockableFrame(String title, boolean strictWithAWTBlocking)
 	{
-		this();
+		this(strictWithAWTBlocking);
 		setTitle(title);
 	}
 
-	@Override
-	public synchronized void block(String blocker)
+	public void setStrictWithAWTBlocking(boolean strictWithAWTBlocking)
 	{
-		if (block.contains(blocker))
-			throw new Error("already blocking for: " + blocker);
-		block.add(blocker);
-		if (DEBUG)
-			System.out.println("BLOCK (" + block.size() + ") '" + blocker + "' ------------------");
-		coverPanel.setVisible(true);
-		coverPanel.requestFocus();
-		firePropertyChange(BLOCKED, null, blocker);
+		this.strictWithAWTBlocking = strictWithAWTBlocking;
+	}
+
+	@Override
+	public void block(String blocker)
+	{
+		if (strictWithAWTBlocking)
+			SwingUtil.checkIsAWTEventThread();
+		synchronized (block)
+		{
+			if (block.contains(blocker))
+				throw new Error("already blocking for: " + blocker);
+			block.add(blocker);
+			if (DEBUG)
+				System.out.println(this.hashCode() + " BLOCK (" + hashCode() + " " + block.size() + ") '" + blocker
+						+ "' ------------------");
+			coverPanel.setVisible(true);
+			coverPanel.requestFocus();
+			firePropertyChange(BLOCKED, null, blocker);
+		}
 	}
 
 	@Override
@@ -70,25 +86,41 @@ public class BlockableFrame extends JFrame implements Blockable
 	}
 
 	@Override
-	public synchronized void unblock(final String blocker)
+	public void unblock(final String blocker)
 	{
-		if (!block.contains(blocker))
-			throw new Error("use block first for " + blocker);
-		block.remove(blocker);
-		if (block.size() > 0)
-			firePropertyChange(UN_BLOCKED, null, blocker);
-		else
-			SwingUtilities.invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
+		if (strictWithAWTBlocking)
+			SwingUtil.checkIsAWTEventThread();
+		synchronized (block)
+		{
+			if (!block.contains(blocker))
+				throw new Error("use block first for " + blocker);
+			if (DEBUG)
+				System.out.println(this.hashCode() + " UNBLOCK (" + hashCode() + " " + block.size() + ") '" + blocker
+						+ "'");
+			block.remove(blocker);
+			if (block.size() > 0)
+				firePropertyChange(UN_BLOCKED, null, blocker);
+			else
+				SwingUtilities.invokeLater(new Runnable()
 				{
-					coverPanel.setVisible(false);
-					firePropertyChange(UN_BLOCKED, null, blocker);
-					if (DEBUG)
-						System.out.println("---------------- UNBLOCK");
-				}
-			});
+					@Override
+					public void run()
+					{
+						synchronized (block)
+						{
+							if (block.size() == 0)
+							{
+								coverPanel.setVisible(false);
+								firePropertyChange(UN_BLOCKED, null, blocker);
+								if (DEBUG)
+									System.out.println(BlockableFrame.this.hashCode() + " ---------------- UNBLOCKED");
+							}
+							else
+								firePropertyChange(UN_BLOCKED, null, blocker);
+						}
+					}
+				});
+		}
 	}
 
 }

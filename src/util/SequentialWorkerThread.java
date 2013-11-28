@@ -74,6 +74,29 @@ public class SequentialWorkerThread
 		}
 	}
 
+	public void important(String string)
+	{
+		synchronized (jobs)
+		{
+			int idx = names.indexOf(string);
+			System.err.println("move job " + string + " from pos " + idx + " to next job in queue");
+			if (idx != -1)
+			{
+				jobs.add(0, jobs.remove(idx));
+				names.add(0, names.remove(idx));
+			}
+		}
+	}
+
+	public void removeNotStartedJobs()
+	{
+		synchronized (jobs)
+		{
+			jobs.clear();
+			names.clear();
+		}
+	}
+
 	public void waitUntilDone()
 	{
 		final StringBuffer b = new StringBuffer();

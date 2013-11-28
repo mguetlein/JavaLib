@@ -130,7 +130,7 @@ public class SDFUtil
 	public static void filter_exclude(String infile, String outfile, List<Integer> excludeIndices,
 			boolean stripIncludedProperties)
 	{
-		filter(infile, outfile, excludeIndices, false, null, stripIncludedProperties, null);
+		filter(infile, outfile, excludeIndices, false, null, stripIncludedProperties, null, false);
 	}
 
 	public static void filter(String infile, String outfile, int[] includeIndices, boolean stripIncludedProperties)
@@ -141,7 +141,13 @@ public class SDFUtil
 	public static void filter(String infile, String outfile, List<Integer> includeIndices,
 			boolean stripIncludedProperties)
 	{
-		filter(infile, outfile, includeIndices, true, null, stripIncludedProperties, null);
+		filter(infile, outfile, includeIndices, stripIncludedProperties, false);
+	}
+
+	public static void filter(String infile, String outfile, List<Integer> includeIndices,
+			boolean stripIncludedProperties, boolean append)
+	{
+		filter(infile, outfile, includeIndices, true, null, stripIncludedProperties, null, append);
 	}
 
 	public static void filter(String infile, String outfile, int[] includeIndices,
@@ -156,7 +162,7 @@ public class SDFUtil
 			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
 			HashMap<Integer, Object> newTitle)
 	{
-		filter(infile, outfile, includeIndices, true, featureValues, stripIncludedProperties, newTitle);
+		filter(infile, outfile, includeIndices, true, featureValues, stripIncludedProperties, newTitle, false);
 	}
 
 	//	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
@@ -220,7 +226,7 @@ public class SDFUtil
 
 	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
 			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
-			HashMap<Integer, Object> molName)
+			HashMap<Integer, Object> molName, boolean append)
 	{
 		File in = new File(infile);
 		if (!in.exists())
@@ -236,7 +242,7 @@ public class SDFUtil
 		{
 			String s[] = readSdf(infile, stripIncludedProperties);
 
-			BufferedWriter w = new BufferedWriter(new FileWriter(out));
+			BufferedWriter w = new BufferedWriter(new FileWriter(out, append));
 			//			BufferedReader b = new BufferedReader(new FileReader(in));
 
 			for (int index = 0; index < s.length; index++)
@@ -396,8 +402,8 @@ public class SDFUtil
 		for (int i = 0; i < size; i++)
 			if (r.nextDouble() < percentage)
 				list.add(i);
-		System.out.println("orig " + size + " " + sdfFile);
-		System.out.println("new  " + list.size() + " " + outfile);
+		//		System.out.println("orig " + size + " " + sdfFile);
+		//		System.out.println("new  " + list.size() + " " + outfile);
 		filter(sdfFile, outfile, list, false);
 	}
 
@@ -422,13 +428,90 @@ public class SDFUtil
 
 	public static void checkSDFile(String search, String replace, String result, SDChecker sdChecker)
 	{
+		checkSDFile(search, new DefaultSDReplacer(replace), result, sdChecker);
+	}
+
+	public static interface SDReplacer
+	{
+		public int numCompounds();
+
+		public String getCompound(int i, String id);
+	}
+
+	public static class DefaultSDReplacer implements SDReplacer
+	{
+		String repl[];
+
+		public DefaultSDReplacer(String sdFile)
+		{
+			repl = readSdf(sdFile);
+		}
+
+		@Override
+		public int numCompounds()
+		{
+			return repl.length;
+		}
+
+		@Override
+		public String getCompound(int i, String id)
+		{
+			return repl[i];
+		}
+	}
+
+	public static class ExternalSDReplacer implements SDReplacer
+	{
+		FileUtil.CSVFile smi;
+
+		public ExternalSDReplacer(String smilesFile)
+		{
+			smi = FileUtil.readCSV(smilesFile, "	");
+			for (int j = 0; j < smi.content.size(); j++)
+				if (smi.content.get(j).length != 2)
+					throw new Error("no ids in smiles file, line " + j + ":" + ArrayUtil.toString(smi.content.get(j)));
+		}
+
+		@Override
+		public int numCompounds()
+		{
+			return -1;
+		}
+
+		@Override
+		public String getCompound(int i, String id)
+		{
+			int idx = -1;
+			for (int j = 0; j < smi.content.size(); j++)
+				if (smi.content.get(j)[1].equals(id))
+				{
+					idx = j;
+					break;
+				}
+			if (idx == -1)
+				throw new Error("id " + id + " not found in smiles file");
+			String s = External3DComputer.get3D(smi.content.get(idx)[0]);
+			if (!s.endsWith("\n"))
+				s += "\n";
+			s = id + s.substring(s.indexOf("\n"));
+			return s;
+		}
+	}
+
+	public static void checkSDFileExternal(String search, String smilesFile, String result, SDChecker sdChecker)
+	{
+		checkSDFile(search, new ExternalSDReplacer(smilesFile), result, sdChecker);
+	}
+
+	public static void checkSDFile(String search, SDReplacer replace, String result, SDChecker sdChecker)
+	{
 		String sear[] = readSdf(search);
-		String repl[] = readSdf(replace);
-		if (repl.length != sear.length)
-			throw new IllegalStateException("no equal number of compounds " + sear.length + " != " + repl.length);
+		if (replace.numCompounds() != -1 && replace.numCompounds() != sear.length)
+			throw new IllegalStateException("no equal number of compounds " + sear.length + " != "
+					+ replace.numCompounds());
 		try
 		{
-			boolean replaceIndices[] = new boolean[repl.length];
+			boolean replaceIndices[] = new boolean[sear.length];
 			int count = 0;
 			for (int i = 0; i < sear.length; i++)
 			{
@@ -444,7 +527,13 @@ public class SDFUtil
 				for (int i = 0; i < sear.length; i++)
 				{
 					if (replaceIndices[i])
-						bw.write(repl[i]);
+					{
+						//						System.out.println("sdf that should be replaced: ");
+						//						System.out.println(sear[i]);
+						//						System.out.println("id: ");
+						//						System.out.println(sear[i].split("\n")[0]);
+						bw.write(replace.getCompound(i, sear[i].split("\n")[0]));
+					}
 					else
 						bw.write(sear[i]);
 					bw.write("$$$$\n");
@@ -478,6 +567,40 @@ public class SDFUtil
 		addStringFeatures(sdfInFile, outfile, csvProps, featureValues);
 	}
 
+	public static void replaceCompounds(String origFile, String replaceFile, List<Integer> origIndices)
+	{
+		String orig[] = readSdf(origFile);
+		String replace[] = readSdf(replaceFile);
+		if (replace.length != origIndices.size())
+			throw new IllegalStateException("no compounds in replace " + replace.length + " != number of orig indices "
+					+ origIndices.size());
+		int replaceIndices[] = new int[orig.length];
+		for (int i = 0; i < replaceIndices.length; i++)
+			replaceIndices[i] = -1;
+		for (int i = 0; i < origIndices.size(); i++)
+			replaceIndices[origIndices.get(i)] = i;
+
+		try
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(origFile)));
+			for (int i = 0; i < orig.length; i++)
+			{
+				if (replaceIndices[i] != -1)
+					bw.write(replace[replaceIndices[i]]);
+				else
+					bw.write(orig[i]);
+				bw.write("$$$$\n");
+			}
+			bw.close();
+			System.err.println("replaced " + replace.length + " compounds with invalid coordinates");
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
 	public static void main(String args[])
 	{
 		//		String test = "asdf\nM  END\nasölkfj\nasdfkljasfd\n$$$$\n";
@@ -491,15 +614,15 @@ public class SDFUtil
 		//		Random r = new Random(1234);
 		//		reduce("/home/martin/data/caco2.sdf", "/tmp/test_new.sdf", 0.3, r);
 
-		DoubleKeyHashMap<Integer, Object, Object> vals = new DoubleKeyHashMap<Integer, Object, Object>();
-		vals.put(0, "bla", "ene");
-		vals.put(1, "bla", "mene");
-		vals.put(2, "bla", "miste");
-		HashMap<Integer, Object> name = new HashMap<Integer, Object>();
-		name.put(0, "1");
-		name.put(1, "2");
-		name.put(2, "3");
-		filter("/home/martin/data/caco2.sdf", "/tmp/test_new.sdf", new int[] { 0, 1, 2 }, vals, true, name);
+		//		DoubleKeyHashMap<Integer, Object, Object> vals = new DoubleKeyHashMap<Integer, Object, Object>();
+		//		vals.put(0, "bla", "ene");
+		//		vals.put(1, "bla", "mene");
+		//		vals.put(2, "bla", "miste");
+		//		HashMap<Integer, Object> name = new HashMap<Integer, Object>();
+		//		name.put(0, "1");
+		//		name.put(1, "2");
+		//		name.put(2, "3");
+		//		filter("/home/martin/data/caco2.sdf", "/tmp/test_new.sdf", new int[] { 0, 1, 2 }, vals, true, name);
 
 		//		joinCSVProps("/home/martin/data/caco2.sdf", "/home/martin/documents/diss/visu_vali/data/caco2data.csv",
 		//				new String[] { "caco2-prediction", "set" }, "/home/martin/documents/diss/visu_vali/data/caco2.ext.sdf");
@@ -513,7 +636,7 @@ public class SDFUtil
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		//		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.01);
+		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.03, new Random());
 
 		//		SDChecker sdCheck = new SDChecker()
 		//		{
@@ -608,4 +731,5 @@ public class SDFUtil
 		//		l.add(new double[] { 1.0 });
 		//		SDFUtil.addFeatures("/home/martin/tmp/delme2.sdf", "/home/martin/tmp/delme2.sdf", f, l);
 	}
+
 }

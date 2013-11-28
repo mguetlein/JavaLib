@@ -65,7 +65,9 @@ public class DoubleArraySummary implements ArraySummary
 
 	public String format(boolean html, int numDecimalPlaces)
 	{
-		if (numNull == num)
+		if (num == 0)
+			return "";
+		else if (numNull == num)
 			return "null";
 		else
 		{
@@ -74,7 +76,7 @@ public class DoubleArraySummary implements ArraySummary
 			//					+ StringUtil.formatDouble(max) + "]";
 
 			String s = StringUtil.formatDouble(median, numDecimalPlaces);
-			if (getNum() - getNumNull() > 1)
+			if (getNum() - getNullCount() > 1)
 			{
 				String plusMinus = html ? "&thinsp;&#177;" : "\u2009\u00B1";
 				s += "" + plusMinus + "" + StringUtil.formatDouble(getStdev(), numDecimalPlaces);
@@ -138,7 +140,7 @@ public class DoubleArraySummary implements ArraySummary
 		return max - min;
 	}
 
-	public int getNumNull()
+	public int getNullCount()
 	{
 		return numNull;
 	}

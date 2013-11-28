@@ -476,8 +476,45 @@ public class StringUtil
 		}
 	}
 
+	public static String concat(String... s)
+	{
+		StringBuffer sb = new StringBuffer();
+		for (String string : s)
+			sb.append(string);
+		return sb.toString();
+	}
+
+	public static String concatNaive(String... s)
+	{
+		String res = "";
+		for (String string : s)
+			res += string;
+		return res;
+	}
+
 	public static void main(String[] args)
 	{
+		List<String> l = new ArrayList<String>();
+		for (int i = 0; i < 40; i++)
+			l.add(randomString());
+		String s[] = ArrayUtil.toArray(l);
+
+		for (boolean b : new boolean[] { false, true })
+		{
+			for (int i = 0; i < 50000; i++)
+			{
+				StopWatchUtil.start(b ? "naive" : "buffer");
+				if (b)
+					concatNaive(s);
+				else
+					concat(s);
+				StopWatchUtil.stop(b ? "naive" : "buffer");
+			}
+
+		}
+		StopWatchUtil.print();
+		System.exit(0);
+
 		System.out.println(ListUtil.toString(StringUtil.split(",1,\"2','3\",3,4,,")));
 		System.exit(1);
 

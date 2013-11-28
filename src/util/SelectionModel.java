@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 public class SelectionModel
 {
 	HashSet<Integer> selected = new HashSet<Integer>();
@@ -14,6 +16,7 @@ public class SelectionModel
 	boolean multiSelectionAllowed = false;
 	boolean suppressEvents = false;
 	boolean exclusiveSelection = false;
+	boolean isAWTModel = true;
 
 	public SelectionModel()
 	{
@@ -56,6 +59,8 @@ public class SelectionModel
 
 	public void clearSelection()
 	{
+		if (isAWTModel && !SwingUtilities.isEventDispatchThread())
+			throw new IllegalStateException("this is a awt model, set selection only in awt dispatch thread");
 		int[] oldVal = getSelectedIndices();
 		selected.clear();
 		if (!suppressEvents && oldVal.length > 0)
@@ -95,6 +100,8 @@ public class SelectionModel
 
 	private void setSelectedInverted(int index, boolean exclusiveSelection)
 	{
+		if (isAWTModel && !SwingUtilities.isEventDispatchThread())
+			throw new IllegalStateException("this is a awt model, set selection only in awt dispatch thread");
 		int[] oldVal = getSelectedIndices();
 		if (isSelected(index))
 			selected.remove(index);
@@ -136,6 +143,16 @@ public class SelectionModel
 		setSelectedIndices(indices, b, true);
 	}
 
+	public void setSuppressEvents(boolean suppressEvents)
+	{
+		this.suppressEvents = suppressEvents;
+	}
+
+	public void setAWTModel(boolean isAWTModel)
+	{
+		this.isAWTModel = isAWTModel;
+	}
+
 	public void setSelectedIndices(int[] indices, boolean exclusiveSelection)
 	{
 		boolean b[] = new boolean[indices.length];
@@ -145,6 +162,8 @@ public class SelectionModel
 
 	private void setSelectedIndices(int[] indices, boolean selected[], boolean exclusiveSelection)
 	{
+		if (isAWTModel && !SwingUtilities.isEventDispatchThread())
+			throw new IllegalStateException("this is a awt model, set selection only in awt dispatch thread");
 		int[] oldSelection = getSelectedIndices();
 		suppressEvents = true;
 		if (exclusiveSelection)

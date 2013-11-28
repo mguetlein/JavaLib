@@ -40,6 +40,10 @@ public class Result
 
 				if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM) && val1 instanceof Number)
 				{
+					if (val1 instanceof String && val1.equals("null"))
+						val1 = Double.NaN;
+					if (val2 instanceof String && val2.equals("null"))
+						val2 = Double.NaN;
 					Double d1 = ((Number) val1).doubleValue();
 					Double d2 = ((Number) val2).doubleValue();
 					if (Double.isNaN(d1))

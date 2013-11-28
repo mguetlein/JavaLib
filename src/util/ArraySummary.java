@@ -2,7 +2,7 @@ package util;
 
 public interface ArraySummary
 {
-	public int getNumNull();
+	public int getNullCount();
 
 	public String toString(boolean html);
 }

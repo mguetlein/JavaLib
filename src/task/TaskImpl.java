@@ -9,8 +9,6 @@ import task.TaskListener.TaskEvent;
 
 public class TaskImpl implements Task
 {
-	public static boolean PRINT_VERBOSE = false;
-
 	private String name;
 	private double status = 0;
 	private double maxStatus;
@@ -52,10 +50,13 @@ public class TaskImpl implements Task
 		this.logger = logger;
 	}
 
-	private void println(String msg)
+	private void println(String msg, boolean debug)
 	{
 		if (logger != null)
-			logger.info(msg);
+			if (debug)
+				logger.debug(msg);
+			else
+				logger.info(msg);
 		else
 			System.out.println(msg);
 	}
@@ -63,7 +64,7 @@ public class TaskImpl implements Task
 	@Override
 	public void update(String update)
 	{
-		println(name + "> " + update);
+		println(name + "> " + update, false);
 		this.update = update;
 		fire(TaskEvent.update);
 	}
@@ -78,7 +79,7 @@ public class TaskImpl implements Task
 	@Override
 	public void update(double status, String update)
 	{
-		println(name + "> " + update);
+		println(name + "> " + update, false);
 		this.status = status;
 		this.update = update;
 		fire(TaskEvent.update);
@@ -92,8 +93,7 @@ public class TaskImpl implements Task
 	@Override
 	public void verbose(String verbose)
 	{
-		if (PRINT_VERBOSE)
-			println(name + "> " + verbose);
+		println(name + "> " + verbose, true);
 		this.verbose = verbose;
 		fire(TaskEvent.verbose);
 	}
@@ -157,7 +157,7 @@ public class TaskImpl implements Task
 	{
 		if (!isRunning())
 			return;
-		println(name + "> CANCELLED");
+		println(name + "> CANCELLED", false);
 		cancelled = true;
 		fire(TaskEvent.cancelled);
 	}
@@ -172,7 +172,7 @@ public class TaskImpl implements Task
 	{
 		if (!isRunning())
 			return;
-		println(name + "> finished");
+		println(name + "> finished", false);
 		finished = true;
 		fire(TaskEvent.finished);
 	}

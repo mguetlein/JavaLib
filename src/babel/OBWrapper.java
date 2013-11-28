@@ -170,6 +170,12 @@ public class OBWrapper
 		compute3D(cacheDir, "smi", ArrayUtil.toArray(content), outputSDFile, titles, aborter);
 	}
 
+	public void compute3DfromSmiles(String cacheDir, String smiles[], String outputSDFile, Aborter aborter)
+	{
+		System.out.println("computing openbabel 3d, source is smiles-array, dest: " + outputSDFile);
+		compute3D(cacheDir, "smi", smiles, outputSDFile, null, aborter);
+	}
+
 	public List<boolean[]> matchSmarts(List<String> smarts, int numCompounds, String sdfFile, String newFP,
 			String newBabelDataDir)
 	{
