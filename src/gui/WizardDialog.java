@@ -160,18 +160,18 @@ public class WizardDialog extends BlockableFrame
 					setForeground(foreground);
 
 					if (errorIndex == index)
-						setIcon(ImageLoader.ERROR);
+						setIcon(ImageLoader.getImage(ImageLoader.Image.error));
 					else
 					{
 						Messages msg = panels.get(index).canProceed();
 						if (msg == null || msg.getSize() == 0)
 							setIcon(null);
 						else if (msg.containsWarning())
-							setIcon(ImageLoader.WARNING);
+							setIcon(ImageLoader.getImage(ImageLoader.Image.warning));
 						else if (msg.containsSlow())
-							setIcon(ImageLoader.HOURGLASS);
+							setIcon(ImageLoader.getImage(ImageLoader.Image.hourglass));
 						else
-							setIcon(ImageLoader.INFO);
+							setIcon(ImageLoader.getImage(ImageLoader.Image.info));
 					}
 				}
 				else

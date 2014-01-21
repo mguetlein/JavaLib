@@ -142,12 +142,12 @@ public class BinaryLocatorDialog extends JDialog
 				String found = "";
 				if (b.isFound())
 				{
-					l.setIcon(ImageLoader.OK);
+					l.setIcon(ImageLoader.getImage(ImageLoader.Image.ok));
 					found = b.getLocation();
 				}
 				else
 				{
-					l.setIcon(ImageLoader.ERROR);
+					l.setIcon(ImageLoader.getImage(ImageLoader.Image.error));
 					found = "<b>Not found</b>";
 				}
 				l.setText("<html><b>" + b.getDescription() + "</b><br><table><tr><td>Program:</td><td>"
