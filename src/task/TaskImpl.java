@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import task.TaskListener.TaskEvent;
+import util.ObjectUtil;
 
 public class TaskImpl implements Task
 {
@@ -93,9 +94,12 @@ public class TaskImpl implements Task
 	@Override
 	public void verbose(String verbose)
 	{
-		println(name + "> " + verbose, true);
-		this.verbose = verbose;
-		fire(TaskEvent.verbose);
+		if (!ObjectUtil.equals(this.verbose, verbose))
+		{
+			println(name + "> " + verbose, true);
+			this.verbose = verbose;
+			fire(TaskEvent.verbose);
+		}
 	}
 
 	String getVerboseMessage()

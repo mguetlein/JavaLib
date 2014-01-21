@@ -279,6 +279,14 @@ public class StringUtil
 		return d;
 	}
 
+	public static String formatDouble(Double d)
+	{
+		if (d == null)
+			return "null";
+		else
+			return formatDouble((double) d);
+	}
+
 	public static String formatDouble(double d)
 	{
 		return formatDouble(d, Locale.getDefault());

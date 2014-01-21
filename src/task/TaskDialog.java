@@ -41,11 +41,21 @@ public class TaskDialog
 	private JLabel verboseLabel;
 	Window warningDialogOwner;
 
+	public TaskDialog(Task task, int screen)
+	{
+		this(task, null, screen);
+	}
+
 	public TaskDialog(Task task, Window owner)
+	{
+		this(task, owner, -1);
+	}
+
+	private TaskDialog(Task task, Window owner, int screen)
 	{
 		this.task = (TaskImpl) task;
 		this.warningDialogOwner = owner;
-		buildDialog(owner);
+		buildDialog(owner, screen);
 		addListeners();
 		dialog.setVisible(true);
 	}
@@ -55,7 +65,7 @@ public class TaskDialog
 		this.warningDialogOwner = owner;
 	}
 
-	private void buildDialog(Window owner)
+	private void buildDialog(Window owner, int screen)
 	{
 		cancelButton = new JButton("Abort");
 		showLogButton = new JButton("Show log");
@@ -90,6 +100,8 @@ public class TaskDialog
 		pack();
 		if (owner != null && owner.isVisible())
 			dialog.setLocationRelativeTo(owner);
+		else if (screen != -1)
+			ScreenUtil.centerOnScreen(dialog, screen);
 		else
 			ScreenUtil.centerOnScreen(dialog, ScreenUtil.getLargestScreen());
 	}

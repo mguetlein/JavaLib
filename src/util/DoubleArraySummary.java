@@ -75,7 +75,8 @@ public class DoubleArraySummary implements ArraySummary
 			//			return medStr + StringUtil.formatDouble(median) + " [" + StringUtil.formatDouble(min) + "; "
 			//					+ StringUtil.formatDouble(max) + "]";
 
-			String s = StringUtil.formatDouble(median, numDecimalPlaces);
+			//String s = StringUtil.formatDouble(median, numDecimalPlaces);
+			String s = StringUtil.formatDouble(mean, numDecimalPlaces);
 			if (getNum() - getNullCount() > 1)
 			{
 				String plusMinus = html ? "&thinsp;&#177;" : "\u2009\u00B1";

@@ -15,6 +15,8 @@ public class ParallelHandler
 	private List<Runnable> done = new ArrayList<Runnable>();
 	private static boolean DEBUG = true;
 
+	private Long startTime;
+
 	public ParallelHandler()
 	{
 		this(Runtime.getRuntime().availableProcessors());
@@ -64,12 +66,18 @@ public class ParallelHandler
 						}
 						if (r != null)
 						{
+							if (startTime == null)
+								startTime = System.currentTimeMillis();
 							print("starting " + i);
 							r.run();
 							synchronized (ParallelHandler.this)
 							{
 								running.remove(r);
 								done.add(r);
+								if (todo.size() == 0)
+									print("runtime "
+											+ StringUtil.formatDouble(
+													(System.currentTimeMillis() - startTime) / 1000.0, 2) + " seconds");
 							}
 							print("done " + i);
 						}
@@ -128,11 +136,11 @@ public class ParallelHandler
 	public static void main(String args[]) throws InterruptedException
 	{
 		final Random r = new Random();
-		ParallelHandler h = new ParallelHandler(50);
+		ParallelHandler h = new ParallelHandler(2);
 
 		int count = 0;
 
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			final int fCount = count++;
 			Runnable run = new Runnable()
@@ -141,7 +149,10 @@ public class ParallelHandler
 				public void run()
 				{
 					System.out.println(fCount + " start");
-					ThreadUtil.sleep((long) (r.nextDouble() * 20 * 1000));
+					for (int j = 0; j < 5000000; j++)
+					{
+						Math.sqrt(r.nextDouble());
+					}
 					System.out.println(fCount + " done");
 				}
 			};

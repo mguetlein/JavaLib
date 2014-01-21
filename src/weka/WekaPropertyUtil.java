@@ -20,8 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import util.ArrayUtil;
+import weka.clusterers.HierarchicalClusterer;
 import weka.core.OptionHandler;
 import weka.core.SelectedTag;
+import weka.gui.GenericObjectEditor;
 
 public class WekaPropertyUtil
 {
@@ -207,10 +209,36 @@ public class WekaPropertyUtil
 			e.printStackTrace();
 		}
 	}
+
+	public static void main(String args[])
+	{
+		new Thread(new Runnable()
+		{
+			public void run()
+			{
+				new GenericObjectEditor();
+			}
+		}).start();
+
+		for (Property p : WekaPropertyUtil.getProperties(new HierarchicalClusterer()))
+		{
+			System.out.println(p);
+			if (p instanceof WekaProperty)
+			{
+				p.getPropertyCompound();
+			}
+		}
+	}
+
 	//	public static void main(String args[])
 	//	{
 	//		Class type = weka.core.DistanceFunction.class;
 	//		System.out.println(type == DistanceFunction.class);
 	//		System.out.println(OptionHandler.class.isAssignableFrom(type));
 	//	}
+
+	public static void initWekaStuff()
+	{
+		new GenericObjectEditor();
+	}
 }

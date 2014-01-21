@@ -289,6 +289,14 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static int[] toPrimitiveIntArray(Integer ints[])
+	{
+		int[] d = new int[ints.length];
+		for (int i = 0; i < d.length; i++)
+			d[i] = ints[i];
+		return d;
+	}
+
 	public static int[] toPrimitiveIntArray(Collection<Integer> ints)
 	{
 		int[] d = new int[ints.size()];
@@ -963,6 +971,39 @@ public class ArrayUtil
 			d += Math.pow(values[i] - values2[i], 2);
 		return Math.sqrt(d);
 	}
+
+	//	public static Double simpleMatchingSimilarity(boolean[] b1, boolean[] b2)
+	//	{
+	//		if (b1.length == 0 || b1.length != b2.length)
+	//			throw new IllegalArgumentException();
+	//		int eq = 0;
+	//		for (int i = 0; i < b2.length; i++)
+	//			if (b1[i] == b2[i])
+	//				eq++;
+	//		double d = eq / (double) b1.length;
+	//		//		System.out.println("tanimoto:\n" + ArrayUtil.toString(b1) + "\n" + ArrayUtil.toString(b2) + "\n" + d);
+	//		return d;
+	//	}
+
+	//	public static Double tanimotoSimilarity(boolean[] b1, boolean[] b2)
+	//	{
+	//		if (b1.length == 0 || b1.length != b2.length)
+	//			throw new IllegalArgumentException();
+	//		int and = 0;
+	//		int or = 0;
+	//		for (int i = 0; i < b2.length; i++)
+	//		{
+	//			if (b1[i] && b2[i])
+	//				and++;
+	//			if (b1[i] || b2[i])
+	//				or++;
+	//		}
+	//		if (or == 0)
+	//			return null;
+	//		double d = and / (double) or;
+	//		//		System.out.println("tanimoto:\n" + ArrayUtil.toString(b1) + "\n" + ArrayUtil.toString(b2) + "\n" + d);
+	//		return d;
+	//	}
 
 	//	public static Object analyze(Object[] v)
 	//	{

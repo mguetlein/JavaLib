@@ -242,37 +242,45 @@ public class SDFUtil
 		{
 			String s[] = readSdf(infile, stripIncludedProperties);
 
+			List<Integer> includeIdx;
+			if (include)
+				includeIdx = indices;
+			else
+			{
+				includeIdx = new ArrayList<Integer>();
+				for (int index = 0; index < s.length; index++)
+					if (indices.indexOf(index) == -1)
+						includeIdx.add(index);
+			}
+
 			BufferedWriter w = new BufferedWriter(new FileWriter(out, append));
 			//			BufferedReader b = new BufferedReader(new FileReader(in));
 
-			for (int index = 0; index < s.length; index++)
+			for (Integer index : includeIdx)
 			{
-				if ((indices.indexOf(index) != -1 && include) || (indices.indexOf(index) == -1 && !include))
+				String m = s[index];
+				if (molName != null)
 				{
-					String m = s[index];
-					if (molName != null)
-					{
-						int idx = m.indexOf('\n');
-						if (idx != 0)
-							System.err.println(index + " replacing title '" + m.substring(0, idx) + "' with '"
-									+ molName.get(index) + "'");
-						m = molName.get(index) + m.substring(idx);
-					}
-					w.write(m);
-
-					if (featureValues != null && featureValues.keySet1().size() > 0
-							&& featureValues.keySet2(index).size() > 0)
-						for (Object key : featureValues.keySet2(index))
-							if (featureValues.get(index, key) != null
-									&& featureValues.get(index, key).toString().trim().length() > 0)
-							{
-								w.write(">  <" + key + ">\n");
-								w.write(featureValues.get(index, key) + "\n");
-								w.write("\n");
-							}
-
-					w.write("$$$$\n");
+					int idx = m.indexOf('\n');
+					if (idx != 0)
+						System.err.println(index + " replacing title '" + m.substring(0, idx) + "' with '"
+								+ molName.get(index) + "'");
+					m = molName.get(index) + m.substring(idx);
 				}
+				w.write(m);
+
+				if (featureValues != null && featureValues.keySet1().size() > 0
+						&& featureValues.keySet2(index).size() > 0)
+					for (Object key : featureValues.keySet2(index))
+						if (featureValues.get(index, key) != null
+								&& featureValues.get(index, key).toString().trim().length() > 0)
+						{
+							w.write(">  <" + key + ">\n");
+							w.write(featureValues.get(index, key) + "\n");
+							w.write("\n");
+						}
+
+				w.write("$$$$\n");
 			}
 			w.close();
 		}
@@ -409,13 +417,13 @@ public class SDFUtil
 
 	public static interface SDChecker
 	{
-		public boolean invalid(String compoundString);
+		public boolean invalid(String compoundString, int sdFileIndex);
 	}
 
 	public static class NanSDChecker implements SDChecker
 	{
 		@Override
-		public boolean invalid(String compoundString)
+		public boolean invalid(String compoundString, int sdFileIndex)
 		{
 			return compoundString.matches("(?s).*nan.*nan.*nan.*");
 		}
@@ -463,6 +471,7 @@ public class SDFUtil
 	public static class ExternalSDReplacer implements SDReplacer
 	{
 		FileUtil.CSVFile smi;
+		String smiles[];
 
 		public ExternalSDReplacer(String smilesFile)
 		{
@@ -472,25 +481,40 @@ public class SDFUtil
 					throw new Error("no ids in smiles file, line " + j + ":" + ArrayUtil.toString(smi.content.get(j)));
 		}
 
+		public ExternalSDReplacer(String smiles[])
+		{
+			this.smiles = smiles;
+		}
+
 		@Override
 		public int numCompounds()
 		{
-			return -1;
+			if (smi != null)
+				return -1;
+			else
+				return smiles.length;
 		}
 
 		@Override
 		public String getCompound(int i, String id)
 		{
-			int idx = -1;
-			for (int j = 0; j < smi.content.size(); j++)
-				if (smi.content.get(j)[1].equals(id))
-				{
-					idx = j;
-					break;
-				}
-			if (idx == -1)
-				throw new Error("id " + id + " not found in smiles file");
-			String s = External3DComputer.get3D(smi.content.get(idx)[0]);
+			String smilesStr;
+			if (smi != null)
+			{
+				int idx = -1;
+				for (int j = 0; j < smi.content.size(); j++)
+					if (smi.content.get(j)[1].equals(id))
+					{
+						idx = j;
+						break;
+					}
+				if (idx == -1)
+					throw new Error("id " + id + " not found in smiles file");
+				smilesStr = smi.content.get(idx)[0];
+			}
+			else
+				smilesStr = smiles[i];
+			String s = External3DComputer.get3D(smilesStr);
 			if (!s.endsWith("\n"))
 				s += "\n";
 			s = id + s.substring(s.indexOf("\n"));
@@ -501,6 +525,11 @@ public class SDFUtil
 	public static void checkSDFileExternal(String search, String smilesFile, String result, SDChecker sdChecker)
 	{
 		checkSDFile(search, new ExternalSDReplacer(smilesFile), result, sdChecker);
+	}
+
+	public static void checkSDFileExternal(String search, String smiles[], String result, SDChecker sdChecker)
+	{
+		checkSDFile(search, new ExternalSDReplacer(smiles), result, sdChecker);
 	}
 
 	public static void checkSDFile(String search, SDReplacer replace, String result, SDChecker sdChecker)
@@ -515,7 +544,7 @@ public class SDFUtil
 			int count = 0;
 			for (int i = 0; i < sear.length; i++)
 			{
-				if (sdChecker.invalid(sear[i]))
+				if (sdChecker.invalid(sear[i], i))
 				{
 					replaceIndices[i] = true;
 					count++;
@@ -636,7 +665,8 @@ public class SDFUtil
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		reduce("/home/martin/data/cox2_3d_lc50num.sdf", "/home/martin/data/cox2_3d_46.sdf", 0.03, new Random());
+		reduce("/home/martin/data/chembl_artif/caffeine2505.sdf",
+				"/home/martin/data/chembl_artif/caffeine2505_small.sdf", 0.02, new Random());
 
 		//		SDChecker sdCheck = new SDChecker()
 		//		{
