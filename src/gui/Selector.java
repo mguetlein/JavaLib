@@ -12,6 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -43,13 +44,21 @@ public abstract class Selector<T> extends JPanel
 {
 	Class<T> clazz;
 
+	private static HashMap<String, Category> categories = new HashMap<String, Category>();
+
 	private static class Category
 	{
 		private String s;
 
-		public Category(String s)
+		public static Category get(String s)
 		{
-			this.s = s;
+			if (!categories.containsKey(s))
+			{
+				Category c = new Category();
+				c.s = s;
+				categories.put(s, c);
+			}
+			return categories.get(s);
 		}
 
 		public String toString()
@@ -61,6 +70,13 @@ public abstract class Selector<T> extends JPanel
 		{
 			return o instanceof Category && ((Category) o).s.equals(s);
 		}
+	}
+
+	HashMap<Category, DefaultMutableTreeNode> nodeMap = new HashMap<Category, DefaultMutableTreeNode>();
+
+	private DefaultMutableTreeNode getCategoryNode(String category)
+	{
+		return nodeMap.get(Category.get(category));
 	}
 
 	//	LinkedHashMap<Category[], Vector<T>> elements = new LinkedHashMap<Category[], Vector<T>>();
@@ -332,7 +348,7 @@ public abstract class Selector<T> extends JPanel
 	@SuppressWarnings("unchecked")
 	public void setCategorySelected(String name, boolean fireAddEvent)
 	{
-		Category c = new Category(name);
+		Category c = Category.get(name);
 		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
 		if (parent == null)
 			return;
@@ -387,8 +403,7 @@ public abstract class Selector<T> extends JPanel
 	@SuppressWarnings("unchecked")
 	public T[] getSelected(String name)
 	{
-		Category c = new Category(name);
-		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
+		DefaultMutableTreeNode parent = getCategoryNode(name);
 		if (parent == null)
 			return null;
 		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
@@ -428,6 +443,7 @@ public abstract class Selector<T> extends JPanel
 	{
 		root.removeAllChildren();
 		selectListModel.removeAllElements();
+		nodeMap.clear();
 	}
 
 	public void addElements(String name, T... elements)
@@ -454,11 +470,11 @@ public abstract class Selector<T> extends JPanel
 		DefaultMutableTreeNode parent = root;
 		for (String n : name)
 		{
-			Category c = new Category(n);
-			DefaultMutableTreeNode alreadyExists = TreeUtil.getChild(parent, c);
+			DefaultMutableTreeNode alreadyExists = getCategoryNode(n);
 			if (alreadyExists == null)
 			{
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(c);
+				DefaultMutableTreeNode node = new DefaultMutableTreeNode(Category.get(n));
+				nodeMap.put(Category.get(n), node);
 				addNodeToDefaultTreeModel(searchTreeModel, parent, node);
 				parent = node;
 			}
@@ -475,7 +491,7 @@ public abstract class Selector<T> extends JPanel
 		{
 			public ImageIcon getIcon(String renderable)
 			{
-				return ImageLoader.DISTINCT;
+				return ImageLoader.getImage(ImageLoader.Image.distinct);
 			}
 
 			@Override
@@ -487,7 +503,7 @@ public abstract class Selector<T> extends JPanel
 			@Override
 			public ImageIcon getCategoryIcon(String name)
 			{
-				return ImageLoader.INFO;
+				return ImageLoader.getImage(ImageLoader.Image.info);
 			}
 
 			@Override
@@ -521,8 +537,18 @@ public abstract class Selector<T> extends JPanel
 
 		});
 		sel.setCategorySelected("Säugetiere", false);
+		sel.expand("Übergruppe");
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
+	}
+
+	public void expand(String name)
+	{
+		DefaultMutableTreeNode node = getCategoryNode(name);
+		if (node == null)
+			throw new IllegalArgumentException("not found: " + name);
+		TreePath path = new TreePath(node.getPath());
+		searchTree.expandPath(path);
 	}
 
 	public void repaintSelector()
