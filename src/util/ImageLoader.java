@@ -2,27 +2,36 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
+import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
 
 public class ImageLoader
 {
-	public static final ImageIcon DOWN = loadImageIcon("data/down.png", ImageLoader.class);
-	public static final ImageIcon NUMERIC = loadImageIcon("data/numeric.png", ImageLoader.class);
-	public static final ImageIcon DISTINCT = loadImageIcon("data/distinct.png", ImageLoader.class);
-	public static final ImageIcon RIGHT = loadImageIcon("data/right.png", ImageLoader.class);
-	public static final ImageIcon WARNING = loadImageIcon("data/warning.png", ImageLoader.class);
-	public static final ImageIcon INFO = loadImageIcon("data/info.png", ImageLoader.class);
-	public static final ImageIcon ERROR = loadImageIcon("data/error.png", ImageLoader.class);
-	public static final ImageIcon HOURGLASS = loadImageIcon("data/hourglass.png", ImageLoader.class);
-	public static final ImageIcon OK = loadImageIcon("data/ok.png", ImageLoader.class);
-	public static final ImageIcon TOOL = loadImageIcon("data/tool.png", ImageLoader.class);
-	public static final ImageIcon FILTER = loadImageIcon("data/filter.png", ImageLoader.class);
-	public static final ImageIcon FILTER_WHITE = loadImageIcon("data/filter-white.png", ImageLoader.class);
+	public enum Image
+	{
+		down, numeric, distinct, right, warning, info, error, hourglass, ok, tool, ches_mapper, ches_mapper_icon,
+		opentox, filter14_black, filter14, sort_black, sort, sort_bar, sort_bar_black, sort_bar14, sort_bar14_black,
+		sort_arrow, sort_arrow_black, down14, down14_black
+	}
 
-	public static final ImageIcon CHES_MAPPER = loadImageIcon("data/ches-mapper.png", ImageLoader.class);
-	public static final ImageIcon CHES_MAPPER_ICON = loadImageIcon("data/ches-mapper-36.png", ImageLoader.class);
-	public static final ImageIcon OPENTOX = loadImageIcon("data/OpenTox_logo.png", ImageLoader.class);
+	private static HashMap<Image, ImageIcon> map = new HashMap<Image, ImageIcon>();
+	private static HashMap<Image, ImageIcon> grayMap = new HashMap<Image, ImageIcon>();
+
+	public static ImageIcon getImage(Image img)
+	{
+		if (!map.containsKey(img))
+			map.put(img, loadImageIcon("data/" + img + ".png", ImageLoader.class));
+		return map.get(img);
+	}
+
+	public static ImageIcon getGrayImage(Image img)
+	{
+		if (!grayMap.containsKey(img))
+			grayMap.put(img, new ImageIcon(GrayFilter.createDisabledImage(getImage(img).getImage())));
+		return grayMap.get(img);
+	}
 
 	public static ImageIcon loadImageIcon(String imagePath, Class<?> relativeTo)
 	{
