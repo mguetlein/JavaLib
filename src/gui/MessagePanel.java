@@ -95,16 +95,16 @@ public class MessagePanel extends JPanel
 				switch (message.type)
 				{
 					case Warning:
-						setIcon(ImageLoader.WARNING);
+						setIcon(ImageLoader.getImage(ImageLoader.Image.warning));
 						break;
 					case Error:
-						setIcon(ImageLoader.ERROR);
+						setIcon(ImageLoader.getImage(ImageLoader.Image.error));
 						break;
 					case Info:
-						setIcon(ImageLoader.INFO);
+						setIcon(ImageLoader.getImage(ImageLoader.Image.info));
 						break;
 					case Slow:
-						setIcon(ImageLoader.HOURGLASS);
+						setIcon(ImageLoader.getImage(ImageLoader.Image.hourglass));
 						break;
 					default:
 						throw new Error("not handled type");

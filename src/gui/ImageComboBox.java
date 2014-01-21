@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 
@@ -10,11 +9,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 
 import util.ArrayUtil;
-import util.ImageLoader;
-import util.SwingUtil;
 
 public class ImageComboBox extends JComboBox
 {
@@ -94,12 +90,12 @@ public class ImageComboBox extends JComboBox
 
 	public static void main(String[] args)
 	{
-		ImageComboBox box = new ImageComboBox();
-		box.addContent(new String[] { "ene", "mene", "miste-miste-miste" }, new ImageIcon[] { ImageLoader.FILTER,
-				ImageLoader.FILTER_WHITE, ImageLoader.WARNING });
-		JPanel p = new JPanel(new BorderLayout());
-		p.add(box, BorderLayout.WEST);
-		SwingUtil.showInDialog(p);
-		System.exit(0);
+		//		ImageComboBox box = new ImageComboBox();
+		//		box.addContent(new String[] { "ene", "mene", "miste-miste-miste" }, new ImageIcon[] { ImageLoader.FILTER,
+		//				ImageLoader.FILTER_WHITE, ImageLoader.WARNING });
+		//		JPanel p = new JPanel(new BorderLayout());
+		//		p.add(box, BorderLayout.WEST);
+		//		SwingUtil.showInDialog(p);
+		//		System.exit(0);
 	}
 }

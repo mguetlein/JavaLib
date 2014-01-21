@@ -60,7 +60,8 @@ public class HideablePanel extends JPanel
 
 	private void update()
 	{
-		button.setIcon(hide ? ImageLoader.RIGHT : ImageLoader.DOWN);
+		button.setIcon(hide ? ImageLoader.getImage(ImageLoader.Image.right) : ImageLoader
+				.getImage(ImageLoader.Image.down));
 		if (getComponentCount() > 0)
 			getComponent(1).setVisible(!hide);
 	}

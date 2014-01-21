@@ -112,16 +112,16 @@ public class MessageLabel extends JPanel
 			switch (msg.getType())
 			{
 				case Info:
-					infoIcon.setIcon(ImageLoader.INFO);
+					infoIcon.setIcon(ImageLoader.getImage(ImageLoader.Image.info));
 					break;
 				case Slow:
-					infoIcon.setIcon(ImageLoader.HOURGLASS);
+					infoIcon.setIcon(ImageLoader.getImage(ImageLoader.Image.hourglass));
 					break;
 				case Warning:
-					infoIcon.setIcon(ImageLoader.WARNING);
+					infoIcon.setIcon(ImageLoader.getImage(ImageLoader.Image.warning));
 					break;
 				case Error:
-					infoIcon.setIcon(ImageLoader.ERROR);
+					infoIcon.setIcon(ImageLoader.getImage(ImageLoader.Image.error));
 					break;
 			}
 			setVisible(true);
