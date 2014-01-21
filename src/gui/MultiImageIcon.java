@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import util.ArrayUtil;
 import util.ImageLoader;
 import util.SwingUtil;
 
@@ -33,6 +34,16 @@ public class MultiImageIcon extends ImageIcon
 
 	int width;
 	int height;
+
+	public MultiImageIcon(ImageIcon icon1, ImageIcon icon2, Layout layout, Orientation orientation, int space)
+	{
+		this(new ImageIcon[] { icon1, icon2 }, layout, orientation, space);
+	}
+
+	public MultiImageIcon(ImageIcon icons[], Layout layout, Orientation orientation, int space)
+	{
+		this(ArrayUtil.toList(icons), layout, orientation, space);
+	}
 
 	public MultiImageIcon(List<ImageIcon> icons, Layout layout, Orientation orientation, int space)
 	{
@@ -118,9 +129,9 @@ public class MultiImageIcon extends ImageIcon
 	public static void main(String args[])
 	{
 		List<ImageIcon> icons = new ArrayList<ImageIcon>();
-		icons.add(ImageLoader.CHES_MAPPER_ICON);
-		icons.add(ImageLoader.ERROR);
-		icons.add(ImageLoader.OPENTOX);
+		icons.add(ImageLoader.getImage(ImageLoader.Image.ches_mapper));
+		icons.add(ImageLoader.getImage(ImageLoader.Image.error));
+		icons.add(ImageLoader.getImage(ImageLoader.Image.opentox));
 		JLabel l = new JLabel(new MultiImageIcon(icons, MultiImageIcon.Layout.horizontal,
 				MultiImageIcon.Orientation.bottom, 10));
 		SwingUtil.showInDialog(l);
