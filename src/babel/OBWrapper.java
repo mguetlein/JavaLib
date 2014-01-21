@@ -82,8 +82,8 @@ public class OBWrapper
 		ext.run("obgen3d", new String[] { babelPath, "-d", "-isdf", sdfFile, "-oinchi", outputInchiFile });
 	}
 
-	private void compute3D(String cacheDir, String type, String content[], String outputSDFile, String title[],
-			Aborter aborter)
+	private boolean[] compute3D(String cacheDir, String type, String content[], boolean isMixture[],
+			String outputSDFile, String title[], Aborter aborter)
 	{
 		if (new File(outputSDFile).exists())
 			if (!new File(outputSDFile).delete())
@@ -91,10 +91,14 @@ public class OBWrapper
 		String extendedCacheDir = cacheDir + File.separator + getVersion() + File.separator + type;
 		int cached = 0;
 		int count = 0;
+		boolean valid[] = new boolean[content.length];
 		for (String mol : content)
 		{
 			String digest = StringUtil.getMD5(mol);
 			String file = extendedCacheDir + File.separator + digest;
+			valid[count] = isMixture == null || !isMixture[count];
+			if (!valid[count] && new File(file).exists())
+				new File(file).delete();
 			if (!new File(file).exists())
 			{
 				try
@@ -105,7 +109,13 @@ public class OBWrapper
 					BufferedWriter b = new BufferedWriter(new FileWriter(tmp));
 					b.write(mol + "\n");
 					b.close();
-					ext.run("obgen3d", new String[] { babelPath, "--gen3d", "-d", "-i" + type, tmp.getAbsolutePath(),
+					String gen3d = "--gen3d";
+					if (isMixture != null && isMixture[count])
+					{
+						logger.warn("babel does not work for mixtures, using gen2d: " + mol);
+						gen3d = "--gen2d";
+					}
+					ext.run("obgen3d", new String[] { babelPath, gen3d, "-d", "-i" + type, tmp.getAbsolutePath(),
 							"-osdf", out.getAbsolutePath() }, null, true, null);
 					if (!FileUtil.robustRenameTo(out.getAbsolutePath(), file))
 						throw new Error("cannot move obresult file");
@@ -136,22 +146,25 @@ public class OBWrapper
 			}
 			count++;
 			if (aborter != null && aborter.abort())
-				return;
+				return null;
 		}
 		System.out.println(cached + "/" + content.length + " compounds were precomputed at '" + extendedCacheDir
 				+ "', merged obgen3d result to: " + outputSDFile);
+		return valid;
 	}
 
-	public void compute3DfromSDF(String cacheDir, String inputSDFile, String outputSDFile, Aborter aborter)
+	public boolean[] compute3DfromSDF(String cacheDir, String inputSDFile, boolean isMixture[], String outputSDFile,
+			Aborter aborter)
 	{
 		System.out.println("computing openbabel 3d, source: " + inputSDFile + ", dest: " + outputSDFile);
-		compute3D(cacheDir, "sdf", SDFUtil.readSdf(inputSDFile), outputSDFile, null, aborter);
+		return compute3D(cacheDir, "sdf", SDFUtil.readSdf(inputSDFile), isMixture, outputSDFile, null, aborter);
 	}
 
-	public void compute3DfromSmiles(String cacheDir, String inputSmilesFile, String outputSDFile, Aborter aborter)
+	public boolean[] compute3DfromSmiles(String cacheDir, String inputSmilesFile, String outputSDFile, Aborter aborter)
 	{
 		System.out.println("computing openbabel 3d, source: " + inputSmilesFile + ", dest: " + outputSDFile);
 		List<String> content = new ArrayList<String>();
+		List<Boolean> isMixture = new ArrayList<Boolean>();
 		List<String> title = new ArrayList<String>();
 		for (String line : FileUtil.readStringFromFile(inputSmilesFile).split("\n"))
 		{
@@ -159,6 +172,7 @@ public class OBWrapper
 			if (words.length < 1 || words.length > 2)
 				throw new Error();
 			content.add(words[0]);
+			isMixture.add(content.contains("."));
 			if (words.length > 1)
 				title.add(words[1]);
 			else
@@ -167,13 +181,17 @@ public class OBWrapper
 		String[] titles = ArrayUtil.toArray(String.class, title);
 		if (ArrayUtil.removeNullValues(titles).size() == 0)
 			titles = null;
-		compute3D(cacheDir, "smi", ArrayUtil.toArray(content), outputSDFile, titles, aborter);
+		return compute3D(cacheDir, "smi", ArrayUtil.toArray(content), ArrayUtil.toPrimitiveBooleanArray(isMixture),
+				outputSDFile, titles, aborter);
 	}
 
-	public void compute3DfromSmiles(String cacheDir, String smiles[], String outputSDFile, Aborter aborter)
+	public boolean[] compute3DfromSmiles(String cacheDir, String smiles[], String outputSDFile, Aborter aborter)
 	{
 		System.out.println("computing openbabel 3d, source is smiles-array, dest: " + outputSDFile);
-		compute3D(cacheDir, "smi", smiles, outputSDFile, null, aborter);
+		boolean[] isMixture = new boolean[smiles.length];
+		for (int i = 0; i < isMixture.length; i++)
+			isMixture[i] = smiles[i].contains(".");
+		return compute3D(cacheDir, "smi", smiles, isMixture, outputSDFile, null, aborter);
 	}
 
 	public List<boolean[]> matchSmarts(List<String> smarts, int numCompounds, String sdfFile, String newFP,
@@ -244,7 +262,7 @@ public class OBWrapper
 
 			obwrapper.compute3DfromSmiles("/tmp/babel3d", tmp.getAbsolutePath(), "/tmp/delme.sdf", null);
 
-			obwrapper.compute3DfromSDF("/tmp/babel3d", "/tmp/delme.sdf", "/tmp/delme.too.sdf", null);
+			obwrapper.compute3DfromSDF("/tmp/babel3d", "/tmp/delme.sdf", null, "/tmp/delme.too.sdf", null);
 		}
 		catch (Exception e)
 		{
