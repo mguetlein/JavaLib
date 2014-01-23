@@ -8,6 +8,8 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,6 +61,13 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 
 public class SwingUtil
 {
+	public static boolean isMouseInside(Component comp)
+	{
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		Point p2 = comp.getLocationOnScreen();
+		return (p.x >= p2.x && p.y >= p2.y && p.x <= p2.x + comp.getWidth() && p.y <= p2.y + comp.getHeight());
+	}
+
 	public static void waitWhileVisible(Window f)
 	{
 		if (SwingUtilities.isEventDispatchThread())
