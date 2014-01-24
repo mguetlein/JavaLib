@@ -172,7 +172,7 @@ public class OBWrapper
 			if (words.length < 1 || words.length > 2)
 				throw new Error();
 			content.add(words[0]);
-			isMixture.add(content.contains("."));
+			isMixture.add(words[0].contains("."));
 			if (words.length > 1)
 				title.add(words[1]);
 			else
