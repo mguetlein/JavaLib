@@ -557,11 +557,22 @@ public class SDFUtil
 				{
 					if (replaceIndices[i])
 					{
+						String repl;
+						try
+						{
+							repl = replace.getCompound(i, sear[i].split("\n")[0]);
+						}
+						catch (Error e)
+						{
+							System.err.println("WARNING : failed to get replacement compound " + e.getMessage());
+							e.printStackTrace();
+							repl = sear[i];
+						}
 						//						System.out.println("sdf that should be replaced: ");
 						//						System.out.println(sear[i]);
 						//						System.out.println("id: ");
 						//						System.out.println(sear[i].split("\n")[0]);
-						bw.write(replace.getCompound(i, sear[i].split("\n")[0]));
+						bw.write(repl);
 					}
 					else
 						bw.write(sear[i]);
@@ -632,6 +643,10 @@ public class SDFUtil
 
 	public static void main(String args[])
 	{
+
+		CSVFile smiles = FileUtil.readCSV("/home/martin/data/david/RDT_oral_studies.smi", "	");
+		System.out.println(smiles.content.size());
+
 		//		String test = "asdf\nM  END\nasölkfj\nasdfkljasfd\n$$$$\n";
 		//		System.out.println(test);
 		//		//test.replaceAll("(?s).*\nM  END\n.*\n$$$$\n$", "\nM  END\n$$$$\n");
@@ -665,8 +680,8 @@ public class SDFUtil
 		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
 		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
 
-		reduce("/home/martin/data/chembl_artif/caffeine2505.sdf",
-				"/home/martin/data/chembl_artif/caffeine2505_small.sdf", 0.02, new Random());
+		//		reduce("/home/martin/data/chembl_artif/caffeine2505.sdf",
+		//				"/home/martin/data/chembl_artif/caffeine2505_small.sdf", 0.02, new Random());
 
 		//		SDChecker sdCheck = new SDChecker()
 		//		{
