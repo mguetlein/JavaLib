@@ -4,14 +4,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
 
 public class SelectionModel
 {
-	HashSet<Integer> selected = new HashSet<Integer>();
+	LinkedHashSet<Integer> selected = new LinkedHashSet<Integer>();
+	Integer lastSelected = null;
 	List<PropertyChangeListener> listeners;
 	boolean multiSelectionAllowed = false;
 	boolean suppressEvents = false;
@@ -49,7 +50,7 @@ public class SelectionModel
 		if (getNumSelected() == 0)
 			return -1;
 		else
-			return getSelectedIndices()[0];
+			return lastSelected;
 	}
 
 	public int[] getSelectedIndices()
@@ -104,7 +105,11 @@ public class SelectionModel
 			throw new IllegalStateException("this is a awt model, set selection only in awt dispatch thread");
 		int[] oldVal = getSelectedIndices();
 		if (isSelected(index))
+		{
 			selected.remove(index);
+			for (Integer i : selected)
+				lastSelected = i; //lazy way to set lastSelected to the last elem in the list
+		}
 		else
 		{
 			if (!multiSelectionAllowed || exclusiveSelection)
@@ -112,6 +117,7 @@ public class SelectionModel
 			if (index < 0)
 				throw new IllegalStateException();
 			selected.add(index);
+			lastSelected = index;
 		}
 		this.exclusiveSelection = exclusiveSelection;
 		if (!suppressEvents)
