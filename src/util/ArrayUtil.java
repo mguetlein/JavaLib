@@ -3,6 +3,7 @@ package util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -970,6 +971,13 @@ public class ArrayUtil
 		for (int i = 0; i < values2.length; i++)
 			d += Math.pow(values[i] - values2[i], 2);
 		return Math.sqrt(d);
+	}
+
+	public static double euclDistance(BitSet values1, BitSet values2)
+	{
+		BitSet bs = (BitSet) values1.clone();
+		bs.xor(values2);
+		return Math.sqrt(bs.cardinality());
 	}
 
 	//	public static Double simpleMatchingSimilarity(boolean[] b1, boolean[] b2)
