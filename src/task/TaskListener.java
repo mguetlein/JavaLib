@@ -4,7 +4,7 @@ interface TaskListener
 {
 	enum TaskEvent
 	{
-		update, verbose, warning, failed, cancelled, finished;
+		update, debug_verbose, warning, failed, cancelled, finished;
 	}
 
 	void update(TaskEvent event);

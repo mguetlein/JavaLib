@@ -173,9 +173,14 @@ public class TaskDialog
 		});
 		task.addListener(new TaskListener()
 		{
+			long stamp = -1;
+
 			@Override
-			public void update(TaskEvent event)
+			public void update(final TaskEvent event)
 			{
+				stamp = System.currentTimeMillis();
+				final long fStamp = stamp;
+
 				switch (event)
 				{
 					case update:
@@ -183,8 +188,16 @@ public class TaskDialog
 						infoLabel.setText(task.getUpdateMessage());
 						verboseLabel.setText("");
 						break;
-					case verbose:
-						verboseLabel.setText(task.getVerboseMessage());
+					case debug_verbose:
+						final String msg = task.getVerboseMessage();
+						SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+							{
+								if (fStamp == stamp)
+									verboseLabel.setText(msg);
+							}
+						});
 						break;
 					case cancelled:
 						dialog.dispose();

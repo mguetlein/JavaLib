@@ -94,11 +94,23 @@ public class TaskImpl implements Task
 	@Override
 	public void verbose(String verbose)
 	{
+		verbose(verbose, false);
+	}
+
+	@Override
+	public void debug(String verbose)
+	{
+		verbose(verbose, true);
+	}
+
+	private void verbose(String verbose, boolean print)
+	{
 		if (!ObjectUtil.equals(this.verbose, verbose))
 		{
-			println(name + "> " + verbose, true);
+			if (print)
+				println(name + "> " + verbose, true);
 			this.verbose = verbose;
-			fire(TaskEvent.verbose);
+			fire(TaskEvent.debug_verbose);
 		}
 	}
 

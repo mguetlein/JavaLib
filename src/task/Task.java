@@ -1,6 +1,5 @@
 package task;
 
-
 public interface Task
 {
 	public void update(double status);
@@ -9,6 +8,14 @@ public interface Task
 
 	public void update(String update);
 
+	/*
+	 * will be logged
+	 */
+	public void debug(String verbose);
+
+	/*
+	 * will be not logged
+	 */
 	public void verbose(String verbose);
 
 	public void warning(String warningMessage, String details);
