@@ -277,6 +277,14 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static double[] toPrimitiveDoubleArray(int[] ints)
+	{
+		double[] d = new double[ints.length];
+		for (int j = 0; j < d.length; j++)
+			d[j] = ints[j];
+		return d;
+	}
+
 	public static double[] toPrimitiveDoubleArray(Collection<Double> doubles)
 	{
 		double[] d = new double[doubles.size()];
@@ -1184,8 +1192,14 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		System.out.println(toString(removeDuplicates(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 })));
+		//		System.out.println(toString(toArray(getDistinctValues(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 }))));
 
+		//		System.out.println(toString(toArray(getDistinctValues(new String[] { "a", "a", "b" }))));
+
+		//		System.out.println(toString(toArray(getDistinctValues(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
+		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) }))));
+		//		System.out.println(new HashSet<Vector3f>(toList(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
+		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) })).size());
 		//		Object o[] = { "a", null };
 		//		Object o[] = null;
 		//		System.out.println(ArrayUtil.toString(o));

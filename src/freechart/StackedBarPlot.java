@@ -70,6 +70,11 @@ public class StackedBarPlot extends AbstractFreeChartPanel
 	public StackedBarPlot(String title, String xCaption, String yCaption, LinkedHashMap<String, List<Double>> data,
 			String[] categories)
 	{
+		//System.out.println("creating stacked bar plot");
+		//System.out.println(ArrayUtil.toString(categories));
+		//for (String key : data.keySet())
+		//	System.out.println(key + " : " + ListUtil.toString(data.get(key)));
+
 		CategoryDataset dataset = createDataset(data, categories);
 
 		final JFreeChart chart = ChartFactory.createStackedBarChart(title, // chart title
