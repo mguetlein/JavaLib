@@ -41,6 +41,8 @@ public class TaskDialog
 	private JLabel verboseLabel;
 	Window warningDialogOwner;
 
+	String warningDialogMsg = "The following issues have occured during the mapping process:";
+
 	public TaskDialog(Task task, int screen)
 	{
 		this(task, null, screen);
@@ -124,7 +126,7 @@ public class TaskDialog
 		for (int i = 0; i < warnings.size(); i++)
 			p.addWarning(warnings.get(i).message, warnings.get(i).detail);
 		final JPanel pp = new JPanel(new BorderLayout(10, 10));
-		pp.add(new JLabel("The following non-critical errors have occured:"), BorderLayout.NORTH);
+		pp.add(new JLabel(warningDialogMsg), BorderLayout.NORTH);
 		pp.add(p);
 		Thread th = new Thread(new Runnable()
 		{
