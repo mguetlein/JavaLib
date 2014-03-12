@@ -6,4 +6,9 @@ public class SystemUtil
 	{
 		return System.getProperty("os.name").matches("(?i).*windows.*");
 	}
+
+	public static boolean isMac()
+	{
+		return System.getProperty("os.name").toLowerCase().startsWith("mac");
+	}
 }

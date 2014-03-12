@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
+import org.apache.commons.math3.util.FastMath;
+
 public class ArrayUtil
 {
 	public static String toCSVString(Object a[])
@@ -973,19 +976,24 @@ public class ArrayUtil
 		return bArray;
 	}
 
+	static EuclideanDistance dist = null;
+
 	public static double euclDistance(double[] values, double[] values2)
 	{
-		double d = 0;
-		for (int i = 0; i < values2.length; i++)
-			d += Math.pow(values[i] - values2[i], 2);
-		return Math.sqrt(d);
+		if (dist == null)
+			dist = new EuclideanDistance();
+		return dist.compute(values, values2);
+		//		double d = 0;
+		//		for (int i = 0; i < values2.length; i++)
+		//			d += Math.pow(values[i] - values2[i], 2);
+		//		return Math.sqrt(d);
 	}
 
 	public static double euclDistance(BitSet values1, BitSet values2)
 	{
 		BitSet bs = (BitSet) values1.clone();
 		bs.xor(values2);
-		return Math.sqrt(bs.cardinality());
+		return FastMath.sqrt(bs.cardinality());
 	}
 
 	//	public static Double simpleMatchingSimilarity(boolean[] b1, boolean[] b2)

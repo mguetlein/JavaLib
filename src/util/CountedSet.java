@@ -152,6 +152,12 @@ public class CountedSet<T> implements ArraySummary
 		return getCount(null);
 	}
 
+	@Override
+	public boolean isAllNull()
+	{
+		return getSum(false) == 0;
+	}
+
 	public int getCount(T elem)
 	{
 		if (map.containsKey(elem))

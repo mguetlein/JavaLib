@@ -146,6 +146,12 @@ public class DoubleArraySummary implements ArraySummary
 		return numNull;
 	}
 
+	@Override
+	public boolean isAllNull()
+	{
+		return numNull == num;
+	}
+
 	public static <T> DoubleArraySummary create(Collection<List<T>> collectionOfLists)
 	{
 		return create(collectionOfLists, 0);
