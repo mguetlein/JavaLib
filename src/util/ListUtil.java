@@ -49,11 +49,18 @@ public class ListUtil
 	public static List<?> cut(List<?> l1, List<?> l2)
 	{
 		List<Object> l = new ArrayList<Object>();
-
 		for (Object object : l1)
 			if (l2.contains(object))
 				l.add(object);
+		return l;
+	}
 
+	public static <T> List<T> cut2(List<T> l1, List<T> l2)
+	{
+		List<T> l = new ArrayList<T>();
+		for (T object : l1)
+			if (l2.contains(object))
+				l.add(object);
 		return l;
 	}
 

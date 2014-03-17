@@ -9,9 +9,9 @@ public class ObjectUtil
 			if (d2 == null)
 				return 0;
 			else
-				return -1;
+				return 1;
 		else if (d2 == null)
-			return 1;
+			return -1;
 		else
 			return d1.compareTo(d2);
 	}

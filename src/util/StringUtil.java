@@ -500,66 +500,86 @@ public class StringUtil
 		return res;
 	}
 
+	public static String getAlphabetLetter(int idx, boolean lowerCase)
+	{
+		final String alphabet = "abcdefghijklmnopqrstuvwxyz";
+		int quotient = idx / alphabet.length();
+		String s = "";
+		if (quotient > 0)
+			s += getAlphabetLetter(quotient - 1, lowerCase);
+		int mod = idx % alphabet.length();
+		s += alphabet.charAt(mod);
+		if (!lowerCase)
+			s = s.toUpperCase();
+		return s;
+	}
+
 	public static void main(String[] args)
 	{
-		List<String> l = new ArrayList<String>();
-		for (int i = 0; i < 40; i++)
-			l.add(randomString());
-		String s[] = ArrayUtil.toArray(l);
-
-		for (boolean b : new boolean[] { false, true })
+		for (int i = 0; i < 10000; i++)
 		{
-			for (int i = 0; i < 50000; i++)
-			{
-				StopWatchUtil.start(b ? "naive" : "buffer");
-				if (b)
-					concatNaive(s);
-				else
-					concat(s);
-				StopWatchUtil.stop(b ? "naive" : "buffer");
-			}
-
+			System.out.println(i + ": " + getAlphabetLetter(i, false));
 		}
-		StopWatchUtil.print();
-		System.exit(0);
 
-		System.out.println(ListUtil.toString(StringUtil.split(",1,\"2','3\",3,4,,")));
-		System.exit(1);
-
-		String string = "#---No Comment---\n"
-				+ "#Mon Jan 09 15:39:24 CET 2012\n"
-				+ "property-Smarts\\ matching\\ software\\ for\\ smarts\\ files=OpenBabel\n"
-				+ "property-The\\ number\\ of\\ dimensions\\ to\\ use\\ in\\ reduction\\ method\\ (initial_dims)=17\n"
-				+ "Align\\ Compounds-method=Maximum Common Subgraph (MCS) Aligner\n"
-				+ "Embed\\ into\\ 3D\\ Space-simple-selected=false\n"
-				+ "features-cdk=\"ALogP\",\"Acidic Group Count\",\"Aromatic Atoms Count\",\"Aromatic Bonds Count\",\"Element Count\",\"Basic Group Count\",\"Bond Count\",\"Largest Chain\",\"Largest Pi Chain\",\"Longest Aliphatic Chain\",\"Mannhold LogP\",\"Rotatable Bonds Count\",\"Lipinski's Rule of Five\",\"Molecular Weight\",\"XLogP\",\n"
-				+ "property-Maximum\\ number\\ of\\ iterations\\ (max_iter)=1000\n"
-				+ "dataset-current-dir=/home/martin/data\n"
-				+ "Embed\\ into\\ 3D\\ Space-method=PCA 3D Embedder (R)\n"
-				+ "bin-path-Rscript=/usr/games/Rscript\n"
-				+ "property-Skip\\ fragments\\ that\\ match\\ all\\ compounds=true\n"
-				+ "property-Optimal\\ number\\ of\\ neighbors\\ (perplexity)=7\n"
-				+ "property-Maximum\\ number\\ of\\ iterations\\ (itmax)=150\n"
-				+ "property-forcefield=mm2\n"
-				+ "Create\\ 3D\\ Structures-simple-selected=false\n"
-				+ "Align\\ Compounds-simple-selected=false\n"
-				+ "bin-path-babel=/usr/bin/babel\n"
-				+ "Cluster\\ Dataset-simple-selected=true\n"
-				+ "property-Minimum\\ frequency=5\n"
-				+ "Create\\ 3D\\ Structures-method=No 3D Structure Generation (use original structures)\n"
-				+ "dataset-recently-used=null\\#/home/martin/data/bbp2.sdf\\#bbp2.sdf,http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fwww.cheminformatics.org%2Fdatasets%2Ffunar-timofei%2Ffunar-timofei.3d.sdf\\#http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2Fcaco2.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2FNCTRER_v4b_232_15Feb2008.ob3d.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf,\n"
-				+ "property-maxNumClusters=10\n" + "Embed\\ into\\ 3D\\ Space-simple-yes=true\n"
-				+ "property-minNumClusters=2\n" + "features-integrated=\n" + "features-fragments=\n"
-				+ "Cluster\\ Dataset-simple-yes=true";
-
-		String comp = compress(string);
-		System.out.println(comp.length());
-		System.out.println();
-		System.out.println(comp);
-		System.out.println();
-		System.out.println(string.length());
-		System.out.println();
-		System.out.println(deCompress(comp));
+		//		
+		//		List<String> l = new ArrayList<String>();
+		//		for (int i = 0; i < 40; i++)
+		//			l.add(randomString());
+		//		String s[] = ArrayUtil.toArray(l);
+		//
+		//		for (boolean b : new boolean[] { false, true })
+		//		{
+		//			for (int i = 0; i < 50000; i++)
+		//			{
+		//				StopWatchUtil.start(b ? "naive" : "buffer");
+		//				if (b)
+		//					concatNaive(s);
+		//				else
+		//					concat(s);
+		//				StopWatchUtil.stop(b ? "naive" : "buffer");
+		//			}
+		//
+		//		}
+		//		StopWatchUtil.print();
+		//		System.exit(0);
+		//
+		//		System.out.println(ListUtil.toString(StringUtil.split(",1,\"2','3\",3,4,,")));
+		//		System.exit(1);
+		//
+		//		String string = "#---No Comment---\n"
+		//				+ "#Mon Jan 09 15:39:24 CET 2012\n"
+		//				+ "property-Smarts\\ matching\\ software\\ for\\ smarts\\ files=OpenBabel\n"
+		//				+ "property-The\\ number\\ of\\ dimensions\\ to\\ use\\ in\\ reduction\\ method\\ (initial_dims)=17\n"
+		//				+ "Align\\ Compounds-method=Maximum Common Subgraph (MCS) Aligner\n"
+		//				+ "Embed\\ into\\ 3D\\ Space-simple-selected=false\n"
+		//				+ "features-cdk=\"ALogP\",\"Acidic Group Count\",\"Aromatic Atoms Count\",\"Aromatic Bonds Count\",\"Element Count\",\"Basic Group Count\",\"Bond Count\",\"Largest Chain\",\"Largest Pi Chain\",\"Longest Aliphatic Chain\",\"Mannhold LogP\",\"Rotatable Bonds Count\",\"Lipinski's Rule of Five\",\"Molecular Weight\",\"XLogP\",\n"
+		//				+ "property-Maximum\\ number\\ of\\ iterations\\ (max_iter)=1000\n"
+		//				+ "dataset-current-dir=/home/martin/data\n"
+		//				+ "Embed\\ into\\ 3D\\ Space-method=PCA 3D Embedder (R)\n"
+		//				+ "bin-path-Rscript=/usr/games/Rscript\n"
+		//				+ "property-Skip\\ fragments\\ that\\ match\\ all\\ compounds=true\n"
+		//				+ "property-Optimal\\ number\\ of\\ neighbors\\ (perplexity)=7\n"
+		//				+ "property-Maximum\\ number\\ of\\ iterations\\ (itmax)=150\n"
+		//				+ "property-forcefield=mm2\n"
+		//				+ "Create\\ 3D\\ Structures-simple-selected=false\n"
+		//				+ "Align\\ Compounds-simple-selected=false\n"
+		//				+ "bin-path-babel=/usr/bin/babel\n"
+		//				+ "Cluster\\ Dataset-simple-selected=true\n"
+		//				+ "property-Minimum\\ frequency=5\n"
+		//				+ "Create\\ 3D\\ Structures-method=No 3D Structure Generation (use original structures)\n"
+		//				+ "dataset-recently-used=null\\#/home/martin/data/bbp2.sdf\\#bbp2.sdf,http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fwww.cheminformatics.org%2Fdatasets%2Ffunar-timofei%2Ffunar-timofei.3d.sdf\\#http\\://www.cheminformatics.org/datasets/funar-timofei/funar-timofei.3d.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2Fcaco2.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/caco2.sdf,http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf\\#/home/martin/.ches-mapper/http%3A%2F%2Fopentox.informatik.uni-freiburg.de%2Fches-mapper%2Fdata%2FNCTRER_v4b_232_15Feb2008.ob3d.sdf\\#http\\://opentox.informatik.uni-freiburg.de/ches-mapper/data/NCTRER_v4b_232_15Feb2008.ob3d.sdf,\n"
+		//				+ "property-maxNumClusters=10\n" + "Embed\\ into\\ 3D\\ Space-simple-yes=true\n"
+		//				+ "property-minNumClusters=2\n" + "features-integrated=\n" + "features-fragments=\n"
+		//				+ "Cluster\\ Dataset-simple-yes=true";
+		//
+		//		String comp = compress(string);
+		//		System.out.println(comp.length());
+		//		System.out.println();
+		//		System.out.println(comp);
+		//		System.out.println();
+		//		System.out.println(string.length());
+		//		System.out.println();
+		//		System.out.println(deCompress(comp));
 
 		//		System.out.println(toCamelCase("ene_mene_miste"));
 		//		System.out.println(toProperCase("EneMeneMiste"));

@@ -12,8 +12,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 public class CountedSet<T> implements ArraySummary
 {
-
 	public HashMap<T, Integer> map;
+
+	T toBack;
 
 	public CountedSet()
 	{
@@ -122,12 +123,17 @@ public class CountedSet<T> implements ArraySummary
 		return toString(false);
 	}
 
+	public void setToBack(T val)
+	{
+		toBack = val;
+	}
+
 	public String toString(boolean html)
 	{
 		if (map.size() == 0)
 			return "";
 		List<T> values = values();
-		if (values.size() > 1 && values.get(0) == null)
+		if (values.size() > 1 && (values.get(0) == null || (toBack != null && (values.get(0).equals(toBack)))))
 			values.add(values.remove(0)); // move null to the back
 		if (!html)
 		{
