@@ -18,6 +18,7 @@ import javax.swing.border.MatteBorder;
 import util.CorrelationMatrix;
 import util.CorrelationMatrix.PearsonBooleanCorrelationMatrix;
 import util.CorrelationMatrix.PearsonDoubleCorrelationMatrix;
+import util.CorrelationMatrix.SpearmanDoubleCorrelationMatrix;
 import util.StringUtil;
 import util.SwingUtil;
 
@@ -153,9 +154,17 @@ public class MatrixPanel extends JPanel
 		fill(m, l);
 	}
 
-	public void doubleCorrelationMatrix(List<Double[]> b, String l[])
+	public void doubleCorrelationMatrixPearson(List<Double[]> b, String l[])
 	{
 		PearsonDoubleCorrelationMatrix m = new PearsonDoubleCorrelationMatrix();
+		m.setMinNumValues(minNumValues);
+		m.computeMatrix(b);
+		fill(m, l);
+	}
+
+	public void doubleCorrelationMatrixSpearman(List<Double[]> b, String l[])
+	{
+		SpearmanDoubleCorrelationMatrix m = new SpearmanDoubleCorrelationMatrix();
 		m.setMinNumValues(minNumValues);
 		m.computeMatrix(b);
 		fill(m, l);
@@ -270,27 +279,42 @@ public class MatrixPanel extends JPanel
 
 	public static void main(String args[])
 	{
-		List<Double[]> values = new ArrayList<Double[]>();
-		values.add(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 });
-		values.add(new Double[] { 1.0, 2.0, 3.0, 3.0, 3.0, 2.0, 7.0 });
-		values.add(new Double[] { 1.0, 2.0, 1.0, 1.0, null, 1.0, 1.0 });
-		values.add(new Double[] { 7.0, 6.0, 5.0, 4.0, 2.0, 2.0, 1.0 });
+		JPanel pp = new JPanel();
 
-		MatrixPanel p = new MatrixPanel();
-		p.setTitleString("This is the Title");
-		p.setSubtitleString("and this is some subtitle that is a bit longer and less important");
-		p.setBackground(Color.WHITE);
-		p.doubleCorrelationMatrix(values, new String[] { "asterix", "b", "c", "this-is-a-very-long-name" });
+		for (Boolean b : new Boolean[] { true, false })
+		{
 
-		//		List<Boolean[]> values = new ArrayList<Boolean[]>();
-		//		values.add(new Boolean[] { true, false, true, true, true, false });
-		//		values.add(new Boolean[] { true, false, true, false, false, true });
-		//		values.add(new Boolean[] { true, true, true, false, false, true });
-		//		values.add(new Boolean[] { true, false, true, null, false, true });
-		//		JPanel p = MatrixPanel.correlationMatrixBool(values, new String[] { "asterix", "b", "this-is-a-very-long-name",
-		//				"d" });
-		p.setPreferredSize(new Dimension(500, 300));
-		SwingUtil.showInDialog(p);
+			List<Double[]> values = new ArrayList<Double[]>();
+			values.add(new Double[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, b ? 7.0 : 70.0 });
+			values.add(new Double[] { 1.0, 2.0, 3.0, 3.0, 3.0, 2.0, 7.0 });
+			values.add(new Double[] { 1.0, 2.0, 1.0, 1.0, null, 1.0, 1.0 });
+			values.add(new Double[] { 7.0, 6.0, 5.0, 4.0, 2.0, 2.0, 1.0 });
+
+			MatrixPanel p = new MatrixPanel();
+			p.setTitleString("This is the Title - Pearson - " + b);
+			p.setSubtitleString("and this is some subtitle that is a bit longer and less important");
+			p.setBackground(Color.WHITE);
+			p.doubleCorrelationMatrixPearson(values, new String[] { "asterix", "b", "c", "this-is-a-very-long-name" });
+
+			MatrixPanel p2 = new MatrixPanel();
+			p2.setTitleString("This is the Title - Spearman - " + b);
+			p2.setSubtitleString("and this is some subtitle that is a bit longer and less important");
+			p2.doubleCorrelationMatrixSpearman(values, new String[] { "asterix", "b", "c", "this-is-a-very-long-name" });
+
+			//		List<Boolean[]> values = new ArrayList<Boolean[]>();
+			//		values.add(new Boolean[] { true, false, true, true, true, false });
+			//		values.add(new Boolean[] { true, false, true, false, false, true });
+			//		values.add(new Boolean[] { true, true, true, false, false, true });
+			//		values.add(new Boolean[] { true, false, true, null, false, true });
+			//		JPanel p = MatrixPanel.correlationMatrixBool(values, new String[] { "asterix", "b", "this-is-a-very-long-name",
+			//				"d" });
+
+			pp.add(p);
+			pp.add(p2);
+
+		}
+		pp.setPreferredSize(new Dimension(1000, 600));
+		SwingUtil.showInDialog(pp);
 		System.exit(0);
 	}
 

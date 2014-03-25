@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 
 public abstract class CorrelationMatrix<T>
 {
@@ -147,6 +148,32 @@ public abstract class CorrelationMatrix<T>
 		public Color color(double correlation)
 		{
 			return pearsonColor(correlation);
+		}
+	}
+
+	public static double spearmanCorrelation(double d1[], double d2[])
+	{
+		SpearmansCorrelation sc = new SpearmansCorrelation();
+		return sc.correlation(d1, d2);
+	}
+
+	public static Color spearmanColor(double cor)
+	{
+		return ColorUtil.getThreeColorGradient((cor + 1) / 2, Color.RED, Color.WHITE, Color.RED);
+	}
+
+	public static class SpearmanDoubleCorrelationMatrix extends DoubleCorrelationMatrix
+	{
+		@Override
+		public double correlation(Double[] v1, Double[] v2)
+		{
+			return spearmanCorrelation(ArrayUtil.toPrimitiveDoubleArray(v1), ArrayUtil.toPrimitiveDoubleArray(v2));
+		}
+
+		@Override
+		public Color color(double correlation)
+		{
+			return spearmanColor(correlation);
 		}
 	}
 
