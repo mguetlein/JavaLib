@@ -128,42 +128,43 @@ public class ResultSet
 				maxLength[i] = Math.max(maxLength[i], niceValue(r.getValue(properties.get(i)), -1, true).length());
 		}
 
-		String s = whitespace;
+		StringBuffer s = new StringBuffer();
+		s.append(whitespace);
 		for (int i = 0; i < properties.size(); i++)
 		{
 			if (i > 0)
-				s += " | ";
-			s += StringUtil.concatWhitespace(getNiceProperty(properties.get(i)), maxLength[i]);
+				s.append(" | ");
+			s.append(StringUtil.concatWhitespace(getNiceProperty(properties.get(i)), maxLength[i]));
 		}
-		s += "\n";
+		s.append("\n");
 
 		if (horizontalLine)
 		{
-			s += whitespace;
+			s.append(whitespace);
 			for (int i = 0; i < properties.size(); i++)
 			{
 				if (i > 0)
-					s += "-|-";
+					s.append("-|-");
 				char[] line = new char[maxLength[i]];
 				Arrays.fill(line, '-');
-				s += new String(line);
+				s.append(new String(line));
 			}
-			s += "\n";
+			s.append("\n");
 		}
 
 		for (Result r : results)
 		{
-			s += whitespace;
+			s.append(whitespace);
 			for (int i = 0; i < properties.size(); i++)
 			{
 				if (i > 0)
-					s += " | ";
-				s += niceValue(r.getValue(properties.get(i)), maxLength[i], longToTime);
+					s.append(" | ");
+				s.append(niceValue(r.getValue(properties.get(i)), maxLength[i], longToTime));
 			}
-			s += "\n";
+			s.append("\n");
 		}
 
-		return s;
+		return s.toString();
 	}
 
 	public String getNiceProperty(String property)
@@ -319,6 +320,18 @@ public class ResultSet
 			else
 				s += "," + p;
 		return s;
+	}
+
+	public void sortResults(final String property, final Comparator<Object> comp)
+	{
+		Collections.sort(results, new Comparator<Result>()
+		{
+			@Override
+			public int compare(Result o1, Result o2)
+			{
+				return comp.compare(o1.getValue(property), o2.getValue(property));
+			}
+		});
 	}
 
 	public void sortResults(final String property)
@@ -1159,6 +1172,7 @@ public class ResultSet
 			{
 				//				System.out.println(" 2 " + key2);
 				List<Double> v = vals.get(key1, key2);
+				//				System.out.println(key1 + " " + key2 + " " + DoubleArraySummary.create(v));
 				dataset.add(v, key2, key1);
 				int s = vals.get(key1, key2).size();
 

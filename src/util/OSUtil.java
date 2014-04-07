@@ -18,4 +18,9 @@ public class OSUtil
 	{
 		return OS.contains("nix") || OS.contains("nux");
 	}
+
+	public static void main(String[] args)
+	{
+		System.out.println(OS);
+	}
 }

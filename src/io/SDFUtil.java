@@ -391,7 +391,8 @@ public class SDFUtil
 			b.close();
 			w.close();
 
-			out.renameTo(new File(outfile));
+			if (!FileUtil.robustRenameTo(out, new File(outfile)))
+				throw new Error("renaming or delete file error");
 		}
 		catch (FileNotFoundException e)
 		{

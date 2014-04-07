@@ -336,7 +336,18 @@ public class FileUtil
 			}
 		}
 		else
-			return source.renameTo(dest);
+		{
+			//file.renameTo failed on gome as well, use streams! 
+			if (!source.exists())
+				return false;
+			if (!copy(source, dest))
+				return false;
+			if (!dest.exists())
+				return false;
+			if (!source.delete())
+				return false;
+			return true;
+		}
 	}
 
 	/**
