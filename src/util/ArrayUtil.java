@@ -7,6 +7,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1198,89 +1199,6 @@ public class ArrayUtil
 		return ordering;
 	}
 
-	public static void main(String args[])
-	{
-		//		System.out.println(toString(toArray(getDistinctValues(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 }))));
-
-		//		System.out.println(toString(toArray(getDistinctValues(new String[] { "a", "a", "b" }))));
-
-		//		System.out.println(toString(toArray(getDistinctValues(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
-		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) }))));
-		//		System.out.println(new HashSet<Vector3f>(toList(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
-		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) })).size());
-		//		Object o[] = { "a", null };
-		//		Object o[] = null;
-		//		System.out.println(ArrayUtil.toString(o));
-
-		//		System.out.println(toString(getEntropy(new double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0 })));
-
-		//		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
-		//		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
-		//		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
-		//		{
-		//			public int compare(Integer o1, Integer o2)
-		//			{
-		//				return Math.abs(o1 - o2);
-		//			}
-		//		});
-		//		System.out.println(toString(ordering) + "\n");
-		//		System.out.println(toString(input1));
-		//		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
-
-		//		String s[] = { "ene", "miste", "mene" };
-		//		Integer[] rank = new Integer[] { 1, 3, 2 };
-		//		int order[] = getOrdering(rank, new Comparator<Integer>()
-		//		{
-		//			@Override
-		//			public int compare(Integer o1, Integer o2)
-		//			{
-		//				return o1.compareTo(o2);
-		//			}
-		//		}, true);
-		//		System.out.println(toString(order) + "\n");
-		//		System.out.println(toString(sortAccordingToOrdering(order, rank)) + "\n");
-		//		System.out.println(toString(sortAccordingToOrdering(order, s)) + "\n");
-
-		//		Integer[] input = new Integer[] { 1, 2, 3, 4, 5, 6 };
-		//		List<Integer[]> output = permute(input);
-
-		//		for (Integer[] a : output)
-		//			System.out.println(toString(a));
-
-		//		Object o[] = { "a", "b", "a", "c", "b", "b" };
-		//		System.out.println(toString(normalize(o)));
-
-		//		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
-		//		System.out.println(toString(normalize(d, false)));
-
-		//		Object s[] = { new Double(5), new Double(3) };
-		//		Double o[] = ArrayUtil.cast(Double.class, s);
-		//		System.out.println(o[0].getClass());
-
-		// double d[] = new double[] { 0.0, 100.0, 50, 22 };
-		// System.out.println(Arrays.toString(ArrayUtil.normalize(d)));
-
-		// Integer[] test = new Integer[66];
-		// for (int i = 0; i < test.length; i++)
-		// {
-		// test[i] = i;
-		// }
-		//
-		// scramble(test);
-		//
-		// List<Integer[]> l = split(test, 10);
-		//
-		// for (Integer[] integers : l)
-		// {
-		// System.out.print("[");
-		// for (Integer integer : integers)
-		// {
-		// System.out.printf(" %2s", integer.toString());
-		// }
-		// System.out.println(" ]");
-		// }
-	}
-
 	public static int[] indexArray(int size)
 	{
 		int array[] = new int[size];
@@ -1362,4 +1280,156 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static <T> boolean equals(T[] d1, T[] d2)
+	{
+		if (d1.length != d2.length)
+			return false;
+		for (int i = 0; i < d2.length; i++)
+			if (!ObjectUtil.equals(d1[i], d2[i]))
+				return false;
+		return true;
+	}
+
+	public static <T> boolean equals(T[] d1, T[] d2, int indices[])
+	{
+		if (indices == null)
+			return equals(d1, d2);
+		for (int i = 0; i < indices.length; i++)
+			if (!ObjectUtil.equals(d1[indices[i]], d2[indices[i]]))
+				return false;
+		return true;
+	}
+
+	public static boolean equals(int[] a1, int[] a2)
+	{
+		if (a1.length != a2.length)
+			return false;
+		for (int i = 0; i < a2.length; i++)
+			if (a1[i] != a2[i])
+				return false;
+		return true;
+	}
+
+	public static boolean redundant(String[] a1, String[] a2)
+	{
+		return redundant(a1, a2, null);
+	}
+
+	public static boolean redundant(String[] a1, String[] a2, int indices[])
+	{
+		if (a1.length != a2.length)
+			return false;
+		HashMap<String, String> map1 = new HashMap<String, String>();
+		HashMap<String, String> map2 = new HashMap<String, String>();
+
+		for (int j = 0; j < (indices != null ? indices.length : a2.length); j++)
+		{
+			int i = indices != null ? indices[j] : j;
+
+			if (a1[i] == null || a2[i] == null)
+			{
+				if (a1[i] != null || a2[i] != null)
+					return false;
+			}
+			else if (map1.containsKey(a1[i]) || map2.containsKey(a2[i]))
+			{
+				if (!map1.containsKey(a1[i]) || !map1.get(a1[i]).equals(a2[i]) || !map2.containsKey(a2[i])
+						|| !map2.get(a2[i]).equals(a1[i]))
+					return false;
+			}
+			else
+			{
+				map1.put(a1[i], a2[i]);
+				map2.put(a2[i], a1[i]);
+			}
+		}
+		return true;
+	}
+
+	public static void main(String args[])
+	{
+		String a1[] = { "a", "d", null, "a", "d", "y", "a" };
+		String a2[] = { "b", "c", null, "b", "c", "x", "b" };
+		System.out.println(redundant(a1, a2));
+
+		//		System.out.println(toString(toArray(getDistinctValues(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 }))));
+
+		//		System.out.println(toString(toArray(getDistinctValues(new String[] { "a", "a", "b" }))));
+
+		//		System.out.println(toString(toArray(getDistinctValues(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
+		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) }))));
+		//		System.out.println(new HashSet<Vector3f>(toList(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
+		//				new Vector3f(1.0f, 2.0f, 3.0f), new Vector3f(3.0f, 2.0f, 3.0f) })).size());
+		//		Object o[] = { "a", null };
+		//		Object o[] = null;
+		//		System.out.println(ArrayUtil.toString(o));
+
+		//		System.out.println(toString(getEntropy(new double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0 })));
+
+		//		Integer[] input1 = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		//		Integer[] input2 = new Integer[] { 7, 8, 5, 1, 11, 1 };
+		//		int[] ordering = naiveMap(input1, input2, new Comparator<Integer>()
+		//		{
+		//			public int compare(Integer o1, Integer o2)
+		//			{
+		//				return Math.abs(o1 - o2);
+		//			}
+		//		});
+		//		System.out.println(toString(ordering) + "\n");
+		//		System.out.println(toString(input1));
+		//		System.out.println(toString(sortAccordingToOrdering(ordering, input2)));
+
+		//		String s[] = { "ene", "miste", "mene" };
+		//		Integer[] rank = new Integer[] { 1, 3, 2 };
+		//		int order[] = getOrdering(rank, new Comparator<Integer>()
+		//		{
+		//			@Override
+		//			public int compare(Integer o1, Integer o2)
+		//			{
+		//				return o1.compareTo(o2);
+		//			}
+		//		}, true);
+		//		System.out.println(toString(order) + "\n");
+		//		System.out.println(toString(sortAccordingToOrdering(order, rank)) + "\n");
+		//		System.out.println(toString(sortAccordingToOrdering(order, s)) + "\n");
+
+		//		Integer[] input = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		//		List<Integer[]> output = permute(input);
+
+		//		for (Integer[] a : output)
+		//			System.out.println(toString(a));
+
+		//		Object o[] = { "a", "b", "a", "c", "b", "b" };
+		//		System.out.println(toString(normalize(o)));
+
+		//		Double d[] = new Double[] { -4.0, 2.0, 0.0, -5.0, 1.0, 5.0, null };
+		//		System.out.println(toString(normalize(d, false)));
+
+		//		Object s[] = { new Double(5), new Double(3) };
+		//		Double o[] = ArrayUtil.cast(Double.class, s);
+		//		System.out.println(o[0].getClass());
+
+		// double d[] = new double[] { 0.0, 100.0, 50, 22 };
+		// System.out.println(Arrays.toString(ArrayUtil.normalize(d)));
+
+		// Integer[] test = new Integer[66];
+		// for (int i = 0; i < test.length; i++)
+		// {
+		// test[i] = i;
+		// }
+		//
+		// scramble(test);
+		//
+		// List<Integer[]> l = split(test, 10);
+		//
+		// for (Integer[] integers : l)
+		// {
+		// System.out.print("[");
+		// for (Integer integer : integers)
+		// {
+		// System.out.printf(" %2s", integer.toString());
+		// }
+		// System.out.println(" ]");
+		// }
+	}
 }

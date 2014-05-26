@@ -238,4 +238,25 @@ public class CountedSet<T> implements ArraySummary
 		}
 	}
 
+	//	private int[] getCounts(boolean includingNull)
+	//	{
+	//		int counts[] = new int[getNumValues(includingNull)];
+	//		int i = 0;
+	//		for (T t : values())
+	//			if (includingNull || t != null)
+	//				counts[i++] = getCount(t);
+	//		return counts;
+	//	}
+	//
+	//	public boolean redundant(CountedSet<?> cs)
+	//	{
+	//		if (getNumValues() != cs.getNumValues())
+	//			return false;
+	//		if (getSum() != cs.getSum())
+	//			return false;
+	//		if (getNullCount() != cs.getNullCount())
+	//			return false;
+	//		return ArrayUtil.equals(getCounts(false), cs.getCounts(false));
+	//
+	//	}
 }

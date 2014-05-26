@@ -151,7 +151,7 @@ public class SDFUtil
 	}
 
 	public static void filter(String infile, String outfile, int[] includeIndices,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			DoubleKeyHashMap<Integer, String, Object> featureValues, boolean stripIncludedProperties,
 			HashMap<Integer, Object> newTitle)
 	{
 		SDFUtil.filter(infile, outfile, ArrayUtil.toList(includeIndices), featureValues, stripIncludedProperties,
@@ -159,7 +159,7 @@ public class SDFUtil
 	}
 
 	public static void filter(String infile, String outfile, List<Integer> includeIndices,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			DoubleKeyHashMap<Integer, String, Object> featureValues, boolean stripIncludedProperties,
 			HashMap<Integer, Object> newTitle)
 	{
 		filter(infile, outfile, includeIndices, true, featureValues, stripIncludedProperties, newTitle, false);
@@ -225,7 +225,7 @@ public class SDFUtil
 	//	}
 
 	private static void filter(String infile, String outfile, List<Integer> indices, boolean include,
-			DoubleKeyHashMap<Integer, Object, Object> featureValues, boolean stripIncludedProperties,
+			DoubleKeyHashMap<Integer, String, Object> featureValues, boolean stripIncludedProperties,
 			HashMap<Integer, Object> molName, boolean append)
 	{
 		File in = new File(infile);
@@ -271,7 +271,7 @@ public class SDFUtil
 
 				if (featureValues != null && featureValues.keySet1().size() > 0
 						&& featureValues.keySet2(index).size() > 0)
-					for (Object key : featureValues.keySet2(index))
+					for (String key : featureValues.keySet2(index))
 						if (featureValues.get(index, key) != null
 								&& featureValues.get(index, key).toString().trim().length() > 0)
 						{

@@ -167,7 +167,7 @@ public class ExternalTool
 			if (wait)
 			{
 				child.waitFor();
-				while (thError.isAlive())
+				while (th.isAlive() || thError.isAlive())
 				{
 					try
 					{
