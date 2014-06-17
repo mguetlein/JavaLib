@@ -11,11 +11,12 @@ public class PropertyUtil
 
 	public static String getPropertyMD5(Property p[], String additionalParam)
 	{
-		if (p == null)
-			return "no-props";
 		String s = additionalParam;
-		for (Property property : p)
-			s += property.getUniqueName() + " " + property.getValue();
+		if (p == null)
+			s += "no-props";
+		else
+			for (Property property : p)
+				s += property.getUniqueName() + " " + property.getValue();
 		return StringUtil.getMD5(s);
 	}
 
