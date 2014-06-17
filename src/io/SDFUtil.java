@@ -645,8 +645,8 @@ public class SDFUtil
 	public static void main(String args[])
 	{
 
-		CSVFile smiles = FileUtil.readCSV("/home/martin/data/david/RDT_oral_studies.smi", "	");
-		System.out.println(smiles.content.size());
+		//		CSVFile smiles = FileUtil.readCSV("/home/martin/data/david/RDT_oral_studies.smi", "	");
+		//		System.out.println(smiles.content.size());
 
 		//		String test = "asdf\nM  END\nasölkfj\nasdfkljasfd\n$$$$\n";
 		//		System.out.println(test);
@@ -678,8 +678,8 @@ public class SDFUtil
 		//		SDFUtil.filter("/home/martin/workspace/BMBF-MLC/data/CPDBAS/dataC.sdf",
 		//				"/home/martin/workspace/BMBF-MLC/data/CPDBAS/dataX.sdf", i);
 
-		//		reduce("/home/martin/.ches-mapper/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.sdf",
-		//				"/home/martin/data/ches-mapper/ISSCAN_v3a_1153_19Sept08.1222179139.cleaned.small.sdf", 0.2);
+		reduce("/home/martin/data/Tox21/TOX21S_v2a_8193_22Mar2012_cleanded.half.sdf",
+				"/home/martin/data/Tox21/TOX21S_v2a_8193_22Mar2012_cleanded.half2.sdf", 0.5, new Random());
 
 		//		reduce("/home/martin/data/chembl_artif/caffeine2505.sdf",
 		//				"/home/martin/data/chembl_artif/caffeine2505_small.sdf", 0.02, new Random());

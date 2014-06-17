@@ -137,17 +137,28 @@ public class CountedSet<T> implements ArraySummary
 			values.add(values.remove(0)); // move null to the back
 		if (!html)
 		{
-			String s = "";
+			StringBuffer sb = new StringBuffer();
 			for (T elem : values)
-				s += getCount(elem) + "\u00D7\u2009'" + String.valueOf(elem) + "', ";
+			{
+				sb.append(getCount(elem));
+				sb.append("\u00D7\u2009'");
+				sb.append(String.valueOf(elem));
+				sb.append("', ");
+			}
+			String s = sb.toString();
 			return s.substring(0, s.length() - 2) + "";
 		}
 		else
 		{
-			String s = "";
+			StringBuffer sb = new StringBuffer();
 			for (T elem : values)
-				s += getCount(elem) + "&times;&thinsp;<i>" + StringEscapeUtils.escapeHtml(String.valueOf(elem))
-						+ "</i>, ";
+			{
+				sb.append(getCount(elem));
+				sb.append("&times;&thinsp;<i>");
+				sb.append(StringEscapeUtils.escapeHtml(String.valueOf(elem)));
+				sb.append("</i>, ");
+			}
+			String s = sb.toString();
 			return s.substring(0, s.length() - 2) + "";
 		}
 	}
