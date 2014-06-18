@@ -13,7 +13,7 @@ public class ImageLoader
 	{
 		down, numeric, distinct, right, warning, info, error, hourglass, ok, tool, ches_mapper, ches_mapper_icon,
 		opentox, filter14_black, filter14, sort_black, sort, sort_bar, sort_bar_black, sort_bar14, sort_bar14_black,
-		sort_arrow, sort_arrow_black, down14, down14_black
+		sort_arrow, sort_arrow_black, down14, down14_black, up14
 	}
 
 	private static HashMap<Image, ImageIcon> map = new HashMap<Image, ImageIcon>();

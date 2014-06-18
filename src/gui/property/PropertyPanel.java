@@ -1,6 +1,7 @@
 package gui.property;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
@@ -106,7 +107,7 @@ public class PropertyPanel extends JPanel
 	{
 		//		Explorer.main(null);
 
-		Property[] props = new Property[6];
+		Property[] props = new Property[7];
 
 		props[0] = new StringProperty("Test-Property", "default");
 		props[0].setValue("value");
@@ -116,6 +117,7 @@ public class PropertyPanel extends JPanel
 		props[3] = new DoubleProperty("Double prop", 0.5);
 		props[4] = new DoubleProperty("Double prop small", 0.0001, 0.0, 1.0, 0.00001);
 		props[5] = new ColorGradientProperty("Color gradient", new ColorGradient());
+		props[6] = new ColorProperty("Color", Color.RED);
 
 		props = ArrayUtil.concat(Property.class, props, WekaPropertyUtil.getProperties(new SimpleKMeans()));
 

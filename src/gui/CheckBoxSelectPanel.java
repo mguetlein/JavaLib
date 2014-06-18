@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,5 +68,10 @@ public class CheckBoxSelectPanel extends JPanel
 	public int[] getSelectedIndices()
 	{
 		return list.getCheckBoxSelection().getSelectedIndices();
+	}
+
+	public void addListener(PropertyChangeListener l)
+	{
+		list.getCheckBoxSelection().addListener(l);
 	}
 }
