@@ -17,7 +17,7 @@ public class ColorPropertyCompound extends JButton implements PropertyCompound
 	public ColorPropertyCompound(ColorProperty property)
 	{
 		this.property = property;
-		setText("     ");
+		setText("          ");
 		setBackground(property.getValue());
 		addActionListener(new ActionListener()
 		{
