@@ -268,4 +268,9 @@ public class TaskDialog
 		SwingUtil.showInDialog(b);
 		System.exit(0);
 	}
+
+	public void setCancelButtonText(String string)
+	{
+		cancelButton.setText(string);
+	}
 }

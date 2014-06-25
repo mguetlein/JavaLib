@@ -1346,11 +1346,66 @@ public class ArrayUtil
 		return true;
 	}
 
+	public static double[] flatten(double[][] a)
+	{
+		double r[] = new double[a.length * a[0].length];
+		for (int i = 0; i < a.length; i++)
+			System.arraycopy(a[i], 0, r, i * a[0].length, a[0].length);
+		return r;
+	}
+
+	public static double[][] removeDiagonale(double[][] a)
+	{
+		if (a.length != a[0].length)
+			throw new IllegalArgumentException();
+		double r[][] = new double[a.length][a.length - 1];
+		for (int i = 0; i < a.length; i++)
+		{
+			System.arraycopy(a[i], 0, r[i], 0, i);
+			System.arraycopy(a[i], i + 1, r[i], i, a.length - (i + 1));
+		}
+		return r;
+	}
+
+	/**
+	 * without diagonale
+	 * 
+	 * @param a
+	 * @return
+	 */
+	public static double[] concatUpperTriangular(double[][] a)
+	{
+		if (a.length != a[0].length || a[0][a.length - 1] != a[a.length - 1][0]) // check corner entries
+			throw new IllegalArgumentException();
+
+		int l = (a.length * (a.length - 1)) / 2;
+		double r[] = new double[l];
+		int posR = 0;
+		for (int i = 0; i < a.length - 1; i++)
+		{
+			int posA = 1 + i;
+			l = a[0].length - posA;
+			if (a[i][posA] != a[posA][i]) // check at least a few entries to make sure its symmetrical
+				throw new IllegalArgumentException();
+			System.arraycopy(a[i], posA, r, posR, l);
+			posR += l;
+		}
+		return r;
+	}
+
 	public static void main(String args[])
 	{
-		String a1[] = { "a", "d", null, "a", "d", "y", "a" };
-		String a2[] = { "b", "c", null, "b", "c", "x", "b" };
-		System.out.println(redundant(a1, a2));
+		double[][] a = new double[][] { //
+		/*    */{ 0.0, 1.0, 2.0, 3.0 }, //
+				{ 1.0, 0.0, 4.0, 5.0 }, //
+				{ 2.0, 4.0, 0.0, 6.0 }, //
+				{ 3.0, 5.0, 6.0, 0.0 } };
+		System.out.println(ArrayUtil.toString(concatUpperTriangular(a)));
+		System.out.println(ArrayUtil.toString(removeDiagonale(a)));
+
+		//		String a1[] = { "a", "d", null, "a", "d", "y", "a" };
+		//		String a2[] = { "b", "c", null, "b", "c", "x", "b" };
+		//		System.out.println(redundant(a1, a2));
 
 		//		System.out.println(toString(toArray(getDistinctValues(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 }))));
 

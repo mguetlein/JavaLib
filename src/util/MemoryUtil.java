@@ -7,6 +7,11 @@ public class MemoryUtil
 		return formatByte(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
 	}
 
+	public static long megabyteToByte(double mb)
+	{
+		return (long) (mb * 1024 * 1024);
+	}
+
 	public static String formatByte(long bytes)
 	{
 		double kb = bytes / 1024.0;

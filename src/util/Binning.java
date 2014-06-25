@@ -2,8 +2,6 @@ package util;
 
 import java.util.Arrays;
 
-import org.apache.commons.math3.distribution.NormalDistribution;
-
 public class Binning
 {
 	double min;
@@ -85,8 +83,8 @@ public class Binning
 
 	public static void main(String[] args)
 	{
-		//		double d[] = new double[] { -1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10 };
-		double[] d = new NormalDistribution(0, 5).sample(1000);
+		double d[] = new double[] { -1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10 };
+		//double[] d = new NormalDistribution(0, 5).sample(1000);
 		Binning bin = new Binning(d, 20, false);
 		System.out.println(bin);
 		System.out.println(bin.getBin(-1));
