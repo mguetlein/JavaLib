@@ -1,6 +1,15 @@
 package gui.property;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import util.ColorUtil;
+import util.SwingUtil;
 
 public class ColorGradient
 {
@@ -84,9 +93,27 @@ public class ColorGradient
 
 	public static void main(String args[])
 	{
-		ColorGradient gc = new ColorGradient(Color.GREEN, Color.BLACK, Color.RED);
+		ColorGradient gc = new ColorGradient(Color.RED, Color.YELLOW, Color.BLUE);
 		System.out.println(gc);
 		System.out.println(ColorGradient.parseColorGradient(gc.toString()));
+
+		JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		int steps = 100;
+		for (int i = 0; i < steps + 1; i++)
+		{
+			double ratio = i / (double) steps;
+			JLabel l = new JLabel("");
+			l.setToolTipText(ratio + "");
+			l.setFont(l.getFont().deriveFont(8.0F));
+			l.setHorizontalAlignment(SwingConstants.CENTER);
+			l.setOpaque(true);
+			l.setBackground(gc.getColor(ratio));
+			l.setForeground(ColorUtil.getForegroundColor(l.getBackground()));
+			l.setPreferredSize(new Dimension(5, 50));
+			p.add(l);
+		}
+		SwingUtil.showInDialog(p);
+		System.exit(1);
 	}
 
 	public Color getHigh()

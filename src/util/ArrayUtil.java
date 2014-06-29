@@ -656,6 +656,22 @@ public class ArrayUtil
 		return c;
 	}
 
+	public static <T> T[] push(T[] array, T elem)
+	{
+		if (array.length == 0)
+			throw new IllegalArgumentException("no entry in first array");
+		return push(array[0].getClass(), array, elem);
+	}
+
+	public static <T> T[] push(Class<?> type, T[] array, T elem)
+	{
+		@SuppressWarnings("unchecked")
+		T[] mergedArray = (T[]) Array.newInstance(type, array.length + 1);
+		System.arraycopy(array, 0, mergedArray, 0, array.length);
+		mergedArray[mergedArray.length - 1] = elem;
+		return mergedArray;
+	}
+
 	public static <T> T[] concat(T[]... arrays)
 	{
 		if (arrays[0].length == 0)
