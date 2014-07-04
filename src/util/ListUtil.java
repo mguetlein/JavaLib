@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 public class ListUtil
@@ -135,6 +136,7 @@ public class ListUtil
 		return l;
 	}
 
+	@SafeVarargs
 	public static <T> List<T> concat(List<T>... lists)
 	{
 		List<T> l = new ArrayList<T>();
@@ -215,6 +217,22 @@ public class ListUtil
 			if (filter.accept(t))
 				l.add(t);
 		return l;
+	}
+
+	public static <T> void scramble(List<T> list)
+	{
+		scramble(list, new Random());
+	}
+
+	public static <T> void scramble(List<T> list, Random r)
+	{
+		for (int i = 0; i < list.size(); i++)
+		{
+			int j = r.nextInt(list.size());
+			T tmp = list.get(j);
+			list.set(j, list.get(i));
+			list.set(i, tmp);
+		}
 	}
 
 }

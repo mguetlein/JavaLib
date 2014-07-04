@@ -19,6 +19,8 @@ import java.util.Vector;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.apache.commons.math3.util.FastMath;
 
+import util.ListUtil.Filter;
+
 public class ArrayUtil
 {
 	public static String toCSVString(Object a[])
@@ -250,13 +252,15 @@ public class ArrayUtil
 
 	public static <T> T[] removeDuplicates(T[] array)
 	{
-		if (array.length == 0 || array[0] == null)
-			throw new IllegalArgumentException("no first entry in array");
+		if (array.length < 2)
+			return array;
 		return removeDuplicates(array[0].getClass(), array);
 	}
 
 	public static <T> T[] removeDuplicates(Class<?> type, T[] array)
 	{
+		if (array.length < 2)
+			return array;
 		HashSet<T> set = new HashSet<T>(toList(array));
 		@SuppressWarnings("unchecked")
 		T[] c = (T[]) Array.newInstance(type, set.size());
@@ -1083,6 +1087,11 @@ public class ArrayUtil
 		return c;
 	}
 
+	public static <T> T[] filter(Class<T> type, T[] a, Filter<T> filter)
+	{
+		return ArrayUtil.toArray(type, ListUtil.filter(ArrayUtil.toList(a), filter));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> T[] removeAt(Class<T> type, T[] a, int index)
 	{
@@ -1503,4 +1512,5 @@ public class ArrayUtil
 		// System.out.println(" ]");
 		// }
 	}
+
 }

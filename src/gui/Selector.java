@@ -40,62 +40,30 @@ import util.ImageLoader;
 import util.ListUtil;
 import util.SwingUtil;
 
-public abstract class Selector<T> extends JPanel
+public abstract class Selector<C, T> extends JPanel
 {
-	Class<T> clazz;
+	Class<C> clazzC;
+	Class<T> clazzT;
 
-	private static HashMap<String, Category> categories = new HashMap<String, Category>();
+	HashMap<C, DefaultMutableTreeNode> nodeMap = new HashMap<C, DefaultMutableTreeNode>();
 
-	private static class Category
+	private DefaultMutableTreeNode getCategoryNode(C category)
 	{
-		private String s;
-
-		public static Category get(String s)
-		{
-			if (!categories.containsKey(s))
-			{
-				Category c = new Category();
-				c.s = s;
-				categories.put(s, c);
-			}
-			return categories.get(s);
-		}
-
-		public String toString()
-		{
-			return s;
-		}
-
-		public boolean equals(Object o)
-		{
-			return o instanceof Category && ((Category) o).s.equals(s);
-		}
+		return nodeMap.get(category);
 	}
-
-	HashMap<Category, DefaultMutableTreeNode> nodeMap = new HashMap<Category, DefaultMutableTreeNode>();
-
-	private DefaultMutableTreeNode getCategoryNode(String category)
-	{
-		return nodeMap.get(Category.get(category));
-	}
-
-	//	LinkedHashMap<Category[], Vector<T>> elements = new LinkedHashMap<Category[], Vector<T>>();
-
-	//	DefaultListModel searchListModel = new DefaultListModel();
-	//	JList searchList = new JList(searchListModel);
 
 	DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 	DefaultTreeModel searchTreeModel = new DefaultTreeModel(root);
 	JTree searchTree = new JTree(searchTreeModel);
 
-	DefaultListModel selectListModel = new DefaultListModel();
-	JList selectList = new JList(selectListModel);
+	DefaultListModel<Object> selectListModel = new DefaultListModel<>();
+	JList<Object> selectList = new JList<>(selectListModel);
 
 	JButton addButton = new JButton("add");
 	JButton remButton = new JButton("remove");
 
 	boolean selfUpdateSelection = false;
-	String highlightedCategory = null;
+	C highlightedCategory = null;
 	T highlightedElement = null;
 
 	public static final String PROPERTY_SELECTION_CHANGED = "PROPERTY_SELECTION_CHANGED";
@@ -104,10 +72,16 @@ public abstract class Selector<T> extends JPanel
 	public static final String PROPERTY_EMPTY_ADD = "PROPERTY_EMPTY_ADD";
 	public static final String PROPERTY_EMPTY_REMOVE = "PROPERTY_EMPTY_REMOVE";
 
-	public Selector(Class<T> clazz, String rootName, int visibleRowCount)
+	@SuppressWarnings("unchecked")
+	public Selector(Class<T> clazzT, C rootCategory, int visibleRowCount)
 	{
-		this.clazz = clazz;
-		root.setUserObject(rootName);
+		this.clazzT = clazzT;
+		if (rootCategory == null)
+			throw new IllegalArgumentException("root cannot be null");
+		this.clazzC = (Class<C>) rootCategory.getClass();
+		if (clazzC == clazzT)
+			throw new IllegalStateException("category and elements must have different classes");
+		root.setUserObject(rootCategory);
 		buildLayout(visibleRowCount);
 		addListeners();
 	}
@@ -135,7 +109,7 @@ public abstract class Selector<T> extends JPanel
 
 	public abstract Icon getIcon(T elem);
 
-	public abstract ImageIcon getCategoryIcon(String name);
+	public abstract ImageIcon getCategoryIcon(C category);
 
 	private void buildLayout(int visibleRowCount)
 	{
@@ -153,14 +127,14 @@ public abstract class Selector<T> extends JPanel
 			{
 				JLabel l = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-				if (clazz.isInstance(node.getUserObject()))
+				if (clazzT.isInstance(node.getUserObject()))
 				{
 					l.setText(Selector.this.getString((T) node.getUserObject()));
 					l.setIcon(Selector.this.getIcon((T) node.getUserObject()));
 				}
-				else if (Category.class.isInstance(node.getUserObject()))
+				else if (clazzC.isInstance(node.getUserObject()))
 				{
-					ImageIcon icon = Selector.this.getCategoryIcon(node.getUserObject().toString());
+					ImageIcon icon = Selector.this.getCategoryIcon((C) node.getUserObject());
 					if (icon != null)
 						l.setIcon(icon);
 				}
@@ -173,7 +147,7 @@ public abstract class Selector<T> extends JPanel
 
 			@SuppressWarnings("unchecked")
 			@Override
-			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 					boolean cellHasFocus)
 			{
 				JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -255,9 +229,9 @@ public abstract class Selector<T> extends JPanel
 					for (TreePath elem : searchTree.getSelectionPaths())
 					{
 						DefaultMutableTreeNode node = (DefaultMutableTreeNode) elem.getLastPathComponent();
-						if (clazz.isInstance(node.getUserObject()))
+						if (clazzT.isInstance(node.getUserObject()))
 							elements.add((T) node.getUserObject());
-						else if (Category.class.isInstance(node.getUserObject()))
+						else if (clazzC.isInstance(node.getUserObject()))
 							for (DefaultMutableTreeNode leaf : TreeUtil.getLeafs(node))
 								elements.add((T) leaf.getUserObject());
 					}
@@ -270,7 +244,7 @@ public abstract class Selector<T> extends JPanel
 					else
 						invalid.add(t);
 				if (selected.size() > 0)
-					setSelected(ListUtil.toArray(clazz, selected));
+					setSelected(ListUtil.toArray(clazzT, selected));
 
 				if (elements.size() > 0)
 					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
@@ -288,7 +262,7 @@ public abstract class Selector<T> extends JPanel
 			{
 				selfUpdateSelection = true;
 				boolean selected = false;
-				for (Object elem : selectList.getSelectedValues())
+				for (Object elem : selectList.getSelectedValuesList())
 				{
 					selectListModel.removeElement(elem);
 					selected = true;
@@ -307,13 +281,13 @@ public abstract class Selector<T> extends JPanel
 	private void updateHighlight()
 	{
 		T oldHighlight = highlightedElement;
-		String oldHighlight2 = highlightedCategory;
+		C oldHighlight2 = highlightedCategory;
 
 		highlightedElement = null;
 		if (searchTree.getSelectionPath() != null)
 		{
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
-			if (clazz.isInstance(node.getUserObject()))
+			if (clazzT.isInstance(node.getUserObject()))
 				highlightedElement = (T) ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
 						.getUserObject();
 		}
@@ -325,10 +299,10 @@ public abstract class Selector<T> extends JPanel
 		{
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent();
 			if (node == root)
-				highlightedCategory = root.getUserObject().toString();
-			else if (Category.class.isInstance(node.getUserObject()))
-				highlightedCategory = ((DefaultMutableTreeNode) searchTree.getSelectionPath().getLastPathComponent())
-						.getUserObject().toString();
+				highlightedCategory = (C) root.getUserObject();
+			else if (clazzC.isInstance(node.getUserObject()))
+				highlightedCategory = (C) ((DefaultMutableTreeNode) searchTree.getSelectionPath()
+						.getLastPathComponent()).getUserObject();
 		}
 
 		if (oldHighlight != highlightedElement || oldHighlight2 != highlightedCategory)
@@ -340,16 +314,15 @@ public abstract class Selector<T> extends JPanel
 		return highlightedElement;
 	}
 
-	public String getHighlightedCategory()
+	public C getHighlightedCategory()
 	{
 		return highlightedCategory;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void setCategorySelected(String name, boolean fireAddEvent)
+	public void setCategorySelected(C category, boolean fireAddEvent)
 	{
-		Category c = Category.get(name);
-		DefaultMutableTreeNode parent = TreeUtil.getChild(root, c);
+		DefaultMutableTreeNode parent = TreeUtil.getChild(root, category);
 		if (parent == null)
 			return;
 		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
@@ -394,16 +367,16 @@ public abstract class Selector<T> extends JPanel
 	@SuppressWarnings("unchecked")
 	public T[] getSelected()
 	{
-		T a[] = (T[]) Array.newInstance(clazz, selectListModel.getSize());
+		T a[] = (T[]) Array.newInstance(clazzT, selectListModel.getSize());
 		for (int i = 0; i < a.length; i++)
 			a[i] = (T) selectListModel.getElementAt(i);
 		return a;
 	}
 
 	@SuppressWarnings("unchecked")
-	public T[] getSelected(String name)
+	public T[] getSelected(C category)
 	{
-		DefaultMutableTreeNode parent = getCategoryNode(name);
+		DefaultMutableTreeNode parent = getCategoryNode(category);
 		if (parent == null)
 			return null;
 		List<DefaultMutableTreeNode> leafs = TreeUtil.getLeafs(parent);
@@ -423,7 +396,7 @@ public abstract class Selector<T> extends JPanel
 			if (match)
 				selected.add((T) selectListModel.getElementAt(i));
 		}
-		T a[] = (T[]) Array.newInstance(clazz, selected.size());
+		T a[] = (T[]) Array.newInstance(clazzT, selected.size());
 		return selected.toArray(a);
 	}
 
@@ -446,35 +419,42 @@ public abstract class Selector<T> extends JPanel
 		nodeMap.clear();
 	}
 
-	public void addElements(String name, T... elements)
+	@SuppressWarnings("unchecked")
+	public void addElements(C category, T... elements)
 	{
-		addElementList(new String[] { name }, elements);
+		C a[] = (C[]) Array.newInstance(category.getClass(), 1);
+		a[0] = category;
+		addElementList(a, elements);
 	}
 
-	public void addElements(String name[], T... elements)
+	@SuppressWarnings("unchecked")
+	public void addElements(C categories[], T... elements)
 	{
-		addElementList(name, elements);
+		addElementList(categories, elements);
 	}
 
-	public void addElementList(String name, T[] elements)
+	@SuppressWarnings("unchecked")
+	public void addElementList(C category, T[] elements)
 	{
-		addElementList(new String[] { name }, elements);
+		C a[] = (C[]) Array.newInstance(category.getClass(), 1);
+		a[0] = category;
+		addElementList(category, elements);
 	}
 
-	public void addElementList(String name[], T[] elements)
+	public void addElementList(C categories[], T[] elements)
 	{
 		Vector<T> v = new Vector<T>();
 		for (T t : elements)
 			v.add(t);
 
 		DefaultMutableTreeNode parent = root;
-		for (String n : name)
+		for (C c : categories)
 		{
-			DefaultMutableTreeNode alreadyExists = getCategoryNode(n);
+			DefaultMutableTreeNode alreadyExists = getCategoryNode(c);
 			if (alreadyExists == null)
 			{
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(Category.get(n));
-				nodeMap.put(Category.get(n), node);
+				DefaultMutableTreeNode node = new DefaultMutableTreeNode(c);
+				nodeMap.put(c, node);
 				addNodeToDefaultTreeModel(searchTreeModel, parent, node);
 				parent = node;
 			}
@@ -487,7 +467,36 @@ public abstract class Selector<T> extends JPanel
 
 	public static void main(String args[])
 	{
-		final Selector<String> sel = new Selector<String>(String.class, "Tiere", 12)
+		final class WrappedString
+		{
+			String s;
+
+			public WrappedString(String s)
+			{
+				this.s = s;
+			}
+
+			@Override
+			public String toString()
+			{
+				return s;
+			}
+
+			@Override
+			public boolean equals(Object obj)
+			{
+				return obj instanceof WrappedString && s.equals(((WrappedString) obj).s);
+			}
+
+			@Override
+			public int hashCode()
+			{
+				return s.hashCode();
+			}
+		}
+
+		final Selector<WrappedString, String> sel = new Selector<WrappedString, String>(String.class,
+				new WrappedString("Tiere"), 12)
 		{
 			public ImageIcon getIcon(String renderable)
 			{
@@ -501,7 +510,7 @@ public abstract class Selector<T> extends JPanel
 			}
 
 			@Override
-			public ImageIcon getCategoryIcon(String name)
+			public ImageIcon getCategoryIcon(WrappedString name)
 			{
 				return ImageLoader.getImage(ImageLoader.Image.info);
 			}
@@ -521,13 +530,16 @@ public abstract class Selector<T> extends JPanel
 						+ sel.getHighlightedCategory());
 			}
 		});
-		sel.addElements("Säugetiere", "Hund", "Katze", "Maus", "Nicht-hinzufügbar");
-		sel.addElements("Fische", "Hai", "Kabeljau");
-		sel.addElements("Vögel", "Spatz", "Adler", "Strauß", "Amsel");
-		sel.addElements("Unmögliche Tiere");
-		sel.addElements(new String[] { "Übergruppe", "Untergruppe" }, "Herdentier 1", "Herdentier 2");
-		sel.addElements(new String[] { "Übergruppe", "Untergruppe2" }, "Herdentier 3");
-		sel.addElements("Insekten", "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5", "Ameise6", "Ameise7");
+		sel.addElements(new WrappedString("Säugetiere"), "Hund", "Katze", "Maus", "Nicht-hinzufügbar");
+		sel.addElements(new WrappedString("Fische"), "Hai", "Kabeljau");
+		sel.addElements(new WrappedString("Vögel"), "Spatz", "Adler", "Strauß", "Amsel");
+		sel.addElements(new WrappedString("Unmögliche Tiere"));
+		sel.addElements(new WrappedString[] { new WrappedString("Übergruppe"), new WrappedString("Untergruppe") },
+				"Herdentier 1", "Herdentier 2");
+		sel.addElements(new WrappedString[] { new WrappedString("Übergruppe"), new WrappedString("Untergruppe2") },
+				"Herdentier 3");
+		sel.addElements(new WrappedString("Insekten"), "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5",
+				"Ameise6", "Ameise7");
 		sel.addKeyListener(new KeyAdapter()
 		{
 			public void keyTyped(KeyEvent e)
@@ -536,17 +548,17 @@ public abstract class Selector<T> extends JPanel
 			}
 
 		});
-		sel.setCategorySelected("Säugetiere", false);
-		sel.expand("Übergruppe");
+		sel.setCategorySelected(new WrappedString("Säugetiere"), false);
+		sel.expand(new WrappedString("Übergruppe"));
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
 	}
 
-	public void expand(String name)
+	public void expand(C category)
 	{
-		DefaultMutableTreeNode node = getCategoryNode(name);
+		DefaultMutableTreeNode node = getCategoryNode(category);
 		if (node == null)
-			throw new IllegalArgumentException("not found: " + name);
+			throw new IllegalArgumentException("not found: " + category);
 		TreePath path = new TreePath(node.getPath());
 		searchTree.expandPath(path);
 	}

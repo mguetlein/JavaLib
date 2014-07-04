@@ -1,5 +1,6 @@
 package util;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -62,6 +63,12 @@ public class DoubleKeyHashMap<T1, T2, T3>
 	public void clear()
 	{
 		map.clear();
+	}
+
+	public void removeWithKey2(T2 key2)
+	{
+		for (HashMap<T2, T3> m : map.values())
+			m.remove(key2);
 	}
 
 }

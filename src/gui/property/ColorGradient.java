@@ -93,7 +93,7 @@ public class ColorGradient
 
 	public static void main(String args[])
 	{
-		ColorGradient gc = new ColorGradient(Color.RED, Color.YELLOW, Color.BLUE);
+		ColorGradient gc = new ColorGradient(Color.RED, Color.GREEN, Color.BLUE);
 		System.out.println(gc);
 		System.out.println(ColorGradient.parseColorGradient(gc.toString()));
 

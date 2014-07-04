@@ -627,7 +627,10 @@ public class FileUtil
 
 	public static void main(String args[])
 	{
-		copy(new File("/tmp/res1"), new File("/tmp/res3"));
+		CSVFile csv = FileUtil.readCSV("/tmp/caco2_20.csv.noCache.0.0.0.0.csv", ",");
+		System.out.println(ArrayUtil.toString(csv.getHeader()));
+
+		//copy(new File("/tmp/res1"), new File("/tmp/res3"));
 
 		//CSVFile csv = FileUtil.readCSV("/home/martin/.ches-mapper/structural_fragments/ToxTree_CramerRules.csv");
 		//		CSVFile csv = FileUtil
