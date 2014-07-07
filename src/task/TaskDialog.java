@@ -212,7 +212,14 @@ public class TaskDialog
 						verboseLabel.setText(task.getError().detail);
 						pack();
 						SwingUtil.waitWhileVisible(dialog);
-						dialog.dispose();
+						SwingUtil.invokeAndWait(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								dialog.dispose();
+							}
+						});
 						break;
 					case finished:
 						dialog.dispose();
