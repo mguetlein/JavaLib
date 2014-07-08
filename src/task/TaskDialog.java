@@ -53,13 +53,21 @@ public class TaskDialog
 		this(task, owner, -1);
 	}
 
-	private TaskDialog(Task task, Window owner, int screen)
+	private TaskDialog(final Task task, final Window owner, final int screen)
 	{
 		this.task = (TaskImpl) task;
 		this.warningDialogOwner = owner;
-		buildDialog(owner, screen);
-		addListeners();
-		dialog.setVisible(true);
+		SwingUtil.invokeAndWait(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				buildDialog(owner, screen);
+				addListeners();
+				if (task.isRunning())//still not entirely safe, should synchronize this
+					dialog.setVisible(true);
+			}
+		});
 	}
 
 	public void setWarningDialogOwner(Window owner)
@@ -202,7 +210,14 @@ public class TaskDialog
 						});
 						break;
 					case cancelled:
-						dialog.dispose();
+						SwingUtil.invokeAndWait(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								dialog.dispose();
+							}
+						});
 						break;
 					case failed:
 						updateTitle();
@@ -222,7 +237,14 @@ public class TaskDialog
 						});
 						break;
 					case finished:
-						dialog.dispose();
+						SwingUtil.invokeAndWait(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								dialog.dispose();
+							}
+						});
 						if (task.hasWarnings())
 							showWarningDialog();
 						break;

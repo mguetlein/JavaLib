@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -261,7 +262,7 @@ public class ArrayUtil
 	{
 		if (array.length < 2)
 			return array;
-		HashSet<T> set = new HashSet<T>(toList(array));
+		LinkedHashSet<T> set = new LinkedHashSet<T>(toList(array));
 		@SuppressWarnings("unchecked")
 		T[] c = (T[]) Array.newInstance(type, set.size());
 		set.toArray(c);
@@ -1420,13 +1421,16 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		double[][] a = new double[][] { //
-		/*    */{ 0.0, 1.0, 2.0, 3.0 }, //
-				{ 1.0, 0.0, 4.0, 5.0 }, //
-				{ 2.0, 4.0, 0.0, 6.0 }, //
-				{ 3.0, 5.0, 6.0, 0.0 } };
-		System.out.println(ArrayUtil.toString(concatUpperTriangular(a)));
-		System.out.println(ArrayUtil.toString(removeDiagonale(a)));
+		Double[] a = new Double[] { 0.0, 1.0, 2.0, 3.0, 1.0, 0.0, 4.0, 5.0 };
+		System.out.println(ArrayUtil.toString(removeDuplicates(a)));
+
+		//		double[][] a = new double[][] { //
+		//		/*    */{ 0.0, 1.0, 2.0, 3.0 }, //
+		//				{ 1.0, 0.0, 4.0, 5.0 }, //
+		//				{ 2.0, 4.0, 0.0, 6.0 }, //
+		//				{ 3.0, 5.0, 6.0, 0.0 } };
+		//		System.out.println(ArrayUtil.toString(concatUpperTriangular(a)));
+		//		System.out.println(ArrayUtil.toString(removeDiagonale(a)));
 
 		//		String a1[] = { "a", "d", null, "a", "d", "y", "a" };
 		//		String a2[] = { "b", "c", null, "b", "c", "x", "b" };
@@ -1512,5 +1516,4 @@ public class ArrayUtil
 		// System.out.println(" ]");
 		// }
 	}
-
 }
