@@ -49,9 +49,9 @@ public class SelectProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new SelectPropertyCompound(this);
+		return new SelectPropertyComponent(this);
 	}
 
 	@Override

@@ -14,14 +14,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class FilePropertyCompound extends JPanel implements PropertyCompound
+public class FilePropertyComponent extends JPanel implements PropertyComponent
 {
 	FileProperty property;
 	JTextField textField;
 	JButton button;
 	JFileChooser fileChooser;
 
-	public FilePropertyCompound(FileProperty property)
+	public FilePropertyComponent(FileProperty property)
 	{
 		this.property = property;
 		textField = new JTextField();
@@ -63,8 +63,8 @@ public class FilePropertyCompound extends JPanel implements PropertyCompound
 
 	private void updateTextField()
 	{
-		textField.setText(FilePropertyCompound.this.property.getValue() == null ? ""
-				: FilePropertyCompound.this.property.getValue().getAbsolutePath());
+		textField.setText(FilePropertyComponent.this.property.getValue() == null ? ""
+				: FilePropertyComponent.this.property.getValue().getAbsolutePath());
 	}
 
 	private void selectFile()
@@ -77,7 +77,7 @@ public class FilePropertyCompound extends JPanel implements PropertyCompound
 		File f = fileChooser.getSelectedFile();
 		if (f != null)
 		{
-			FilePropertyCompound.this.property.setValue(f);
+			FilePropertyComponent.this.property.setValue(f);
 			updateTextField();
 		}
 	}

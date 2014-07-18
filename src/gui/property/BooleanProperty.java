@@ -22,9 +22,9 @@ public class BooleanProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new BooleanPropertyCompound(this);
+		return new BooleanPropertyComponent(this);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package gui.property;
 
-public interface PropertyCompound
+public interface PropertyComponent
 {
 	void setEnabled(boolean b);
 }

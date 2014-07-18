@@ -10,12 +10,12 @@ import javax.swing.SwingUtilities;
 
 import util.ObjectUtil;
 
-public class SelectPropertyCompound extends JComboBox implements PropertyCompound
+public class SelectPropertyComponent extends JComboBox implements PropertyComponent
 {
 	SelectProperty property;
 	boolean update;
 
-	public SelectPropertyCompound(SelectProperty property)
+	public SelectPropertyComponent(SelectProperty property)
 	{
 		super(property.getValues());
 		this.property = property;
@@ -32,7 +32,7 @@ public class SelectPropertyCompound extends JComboBox implements PropertyCompoun
 						if (update)
 							return;
 						update = true;
-						SelectPropertyCompound.this.property.setValue(getSelectedItem());
+						SelectPropertyComponent.this.property.setValue(getSelectedItem());
 						update = false;
 					}
 				});
@@ -49,22 +49,22 @@ public class SelectPropertyCompound extends JComboBox implements PropertyCompoun
 				update = true;
 
 				boolean objectsChanged = false;
-				Object o1[] = SelectPropertyCompound.this.property.getValues();
-				if (o1.length != SelectPropertyCompound.this.getItemCount())
+				Object o1[] = SelectPropertyComponent.this.property.getValues();
+				if (o1.length != SelectPropertyComponent.this.getItemCount())
 					objectsChanged = true;
 				else
 				{
 					for (int i = 0; i < o1.length; i++)
-						if (!ObjectUtil.equals(o1[i], SelectPropertyCompound.this.getItemAt(i)))
+						if (!ObjectUtil.equals(o1[i], SelectPropertyComponent.this.getItemAt(i)))
 							objectsChanged = true;
 				}
 				if (objectsChanged)
 				{
-					SelectPropertyCompound.this.removeAllItems();
+					SelectPropertyComponent.this.removeAllItems();
 					for (int i = 0; i < o1.length; i++)
-						SelectPropertyCompound.this.addItem(o1[i]);
+						SelectPropertyComponent.this.addItem(o1[i]);
 				}
-				setSelectedItem(SelectPropertyCompound.this.property.getValue());
+				setSelectedItem(SelectPropertyComponent.this.property.getValue());
 				update = false;
 			}
 		});

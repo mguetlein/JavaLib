@@ -23,7 +23,7 @@ import com.jgoodies.forms.layout.FormLayout;
 public class PropertyPanel extends JPanel
 {
 	Property properties[];
-	PropertyCompound propertyCompounds[];
+	PropertyComponent propertyComponents[];
 
 	Properties javaProperties;
 	String propertyFile;
@@ -57,6 +57,14 @@ public class PropertyPanel extends JPanel
 		return properties;
 	}
 
+	public PropertyComponent getComponentForProperty(Property p)
+	{
+		for (int i = 0; i < properties.length; i++)
+			if (properties[i] == p)
+				return propertyComponents[i];
+		return null;
+	}
+
 	public void addPropertyChangeListenerToProperties(PropertyChangeListener l)
 	{
 		for (Property p : properties)
@@ -73,7 +81,7 @@ public class PropertyPanel extends JPanel
 	public void setEnabled(boolean b)
 	{
 		defaultButton.setEnabled(b);
-		for (PropertyCompound p : propertyCompounds)
+		for (PropertyComponent p : propertyComponents)
 			p.setEnabled(b);
 	}
 
@@ -84,15 +92,15 @@ public class PropertyPanel extends JPanel
 
 		if (properties != null)
 		{
-			propertyCompounds = new PropertyCompound[properties.length];
+			propertyComponents = new PropertyComponent[properties.length];
 			int i = 0;
 			for (Property p : properties)
 			{
 				if (javaProperties != null)
 					p.load(javaProperties);
-				propertyCompounds[i] = (PropertyCompound) p.getPropertyCompound();
+				propertyComponents[i] = (PropertyComponent) p.getPropertyComponent();
 				builder.append(p.getDisplayName() + ":");
-				builder.append((JComponent) propertyCompounds[i++]);
+				builder.append((JComponent) propertyComponents[i++]);
 			}
 			if (properties.length > 0)
 			{

@@ -20,9 +20,9 @@ public class WekaProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new WekaPropertyCompound(this);
+		return new WekaPropertyComponent(this);
 	}
 
 	@Override

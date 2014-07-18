@@ -40,9 +40,9 @@ public class DoubleProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new DoublePropertyCompound(this);
+		return new DoublePropertyComponent(this);
 	}
 
 	@Override

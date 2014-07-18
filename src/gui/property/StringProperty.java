@@ -17,9 +17,9 @@ public class StringProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new StringPropertyCompound(this);
+		return new StringPropertyComponent(this);
 	}
 
 	@Override

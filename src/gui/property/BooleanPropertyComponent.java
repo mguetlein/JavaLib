@@ -1,24 +1,21 @@
 package gui.property;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
+import javax.swing.JCheckBox;
 
-public class ColorPropertyCompound extends JButton implements PropertyCompound
+public class BooleanPropertyComponent extends JCheckBox implements PropertyComponent
 {
-	ColorProperty property;
+	BooleanProperty property;
 	boolean update;
 
-	public ColorPropertyCompound(ColorProperty property)
+	public BooleanPropertyComponent(BooleanProperty property)
 	{
 		this.property = property;
-		setText("          ");
-		setBackground(property.getValue());
+		setSelected(property.getValue());
 		addActionListener(new ActionListener()
 		{
 			@Override
@@ -27,13 +24,7 @@ public class ColorPropertyCompound extends JButton implements PropertyCompound
 				if (update)
 					return;
 				update = true;
-				Color c = JColorChooser.showDialog(ColorPropertyCompound.this.getTopLevelAncestor(), "Select Color",
-						getBackground());
-				if (c != null)
-				{
-					setBackground(c);
-					ColorPropertyCompound.this.property.setValue(c);
-				}
+				BooleanPropertyComponent.this.property.setValue(isSelected());
 				update = false;
 			}
 		});
@@ -46,7 +37,7 @@ public class ColorPropertyCompound extends JButton implements PropertyCompound
 				if (update)
 					return;
 				update = true;
-				setBackground(ColorPropertyCompound.this.property.getValue());
+				setSelected(BooleanPropertyComponent.this.property.getValue());
 				update = false;
 			}
 		});

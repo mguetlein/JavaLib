@@ -8,12 +8,12 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
-public class StringPropertyCompound extends JTextField implements PropertyCompound
+public class StringPropertyComponent extends JTextField implements PropertyComponent
 {
 	StringProperty property;
 	boolean update;
 
-	public StringPropertyCompound(StringProperty property)
+	public StringPropertyComponent(StringProperty property)
 	{
 		super(15);
 		this.property = property;
@@ -26,7 +26,7 @@ public class StringPropertyCompound extends JTextField implements PropertyCompou
 				if (update)
 					return;
 				update = true;
-				StringPropertyCompound.this.property.setValue(getText());
+				StringPropertyComponent.this.property.setValue(getText());
 				update = false;
 			}
 		});
@@ -39,7 +39,7 @@ public class StringPropertyCompound extends JTextField implements PropertyCompou
 				if (update)
 					return;
 				update = true;
-				setText(StringPropertyCompound.this.property.getValue());
+				setText(StringPropertyComponent.this.property.getValue());
 				update = false;
 			}
 		});

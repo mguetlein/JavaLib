@@ -30,9 +30,9 @@ public class ColorProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new ColorPropertyCompound(this);
+		return new ColorPropertyComponent(this);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ import util.SwingUtil;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
-public class ColorGradientPropertyCompound extends JPanel implements PropertyCompound
+public class ColorGradientPropertyComponent extends JPanel implements PropertyComponent
 {
 	ColorGradientProperty property;
 
@@ -25,7 +25,7 @@ public class ColorGradientPropertyCompound extends JPanel implements PropertyCom
 	JButton low;
 	JButton reverse;
 
-	public ColorGradientPropertyCompound(ColorGradientProperty property)
+	public ColorGradientPropertyComponent(ColorGradientProperty property)
 	{
 		super();
 		this.property = property;
@@ -48,7 +48,7 @@ public class ColorGradientPropertyCompound extends JPanel implements PropertyCom
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Color c = JColorChooser.showDialog(ColorGradientPropertyCompound.this.getTopLevelAncestor(),
+				Color c = JColorChooser.showDialog(ColorGradientPropertyComponent.this.getTopLevelAncestor(),
 						"Select Color", ((JButton) e.getSource()).getBackground());
 				if (c != null && !((JButton) e.getSource()).getBackground().equals(c))
 				{
@@ -68,7 +68,7 @@ public class ColorGradientPropertyCompound extends JPanel implements PropertyCom
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ColorGradientPropertyCompound.this.property.reverse();
+				ColorGradientPropertyComponent.this.property.reverse();
 			}
 		});
 
@@ -100,7 +100,7 @@ public class ColorGradientPropertyCompound extends JPanel implements PropertyCom
 	public static void main(String[] args)
 	{
 		SwingUtil
-				.showInDialog(new ColorGradientPropertyCompound(new ColorGradientProperty("test", new ColorGradient())));
+				.showInDialog(new ColorGradientPropertyComponent(new ColorGradientProperty("test", new ColorGradient())));
 	}
 
 }

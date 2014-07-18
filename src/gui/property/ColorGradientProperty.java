@@ -22,9 +22,9 @@ public class ColorGradientProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new ColorGradientPropertyCompound(this);
+		return new ColorGradientPropertyComponent(this);
 	}
 
 	@Override

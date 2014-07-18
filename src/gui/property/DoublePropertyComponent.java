@@ -10,7 +10,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class DoublePropertyCompound extends JSpinner implements PropertyCompound
+public class DoublePropertyComponent extends JSpinner implements PropertyComponent
 {
 	DoubleProperty property;
 	boolean update;
@@ -28,7 +28,7 @@ public class DoublePropertyCompound extends JSpinner implements PropertyCompound
 			return super.createEditor(model);
 	}
 
-	public DoublePropertyCompound(DoubleProperty property)
+	public DoublePropertyComponent(DoubleProperty property)
 	{
 		super(new SpinnerNumberModel((double) property.getValue(), (double) property.getMinValue(),
 				(double) property.getMaxValue(), (double) property.getStepWidth()));
@@ -45,7 +45,7 @@ public class DoublePropertyCompound extends JSpinner implements PropertyCompound
 				if (update)
 					return;
 				update = true;
-				DoublePropertyCompound.this.property.setValue((Double) getValue());
+				DoublePropertyComponent.this.property.setValue((Double) getValue());
 				update = false;
 			}
 		});
@@ -58,7 +58,7 @@ public class DoublePropertyCompound extends JSpinner implements PropertyCompound
 				if (update)
 					return;
 				update = true;
-				setValue(DoublePropertyCompound.this.property.getValue());
+				setValue(DoublePropertyComponent.this.property.getValue());
 				update = false;
 			}
 		});

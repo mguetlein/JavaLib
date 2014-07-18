@@ -13,12 +13,12 @@ import javax.swing.JList;
 import weka.core.SelectedTag;
 import weka.core.Tag;
 
-public class SelectedTagPropertyCompound extends JComboBox implements PropertyCompound
+public class SelectedTagPropertyComponent extends JComboBox implements PropertyComponent
 {
 	SelectedTagProperty property;
 	boolean update;
 
-	public SelectedTagPropertyCompound(SelectedTagProperty property)
+	public SelectedTagPropertyComponent(SelectedTagProperty property)
 	{
 		super(property.getValue().getTags());
 		setSelectedItem(property.getValue().getSelectedTag());
@@ -39,13 +39,13 @@ public class SelectedTagPropertyCompound extends JComboBox implements PropertyCo
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (getSelectedItem() != SelectedTagPropertyCompound.this.property.getValue().getSelectedTag())
+				if (getSelectedItem() != SelectedTagPropertyComponent.this.property.getValue().getSelectedTag())
 				{
 					if (update)
 						return;
 					update = true;
-					SelectedTagPropertyCompound.this.property.setValue(new SelectedTag(getSelectedIndex(),
-							SelectedTagPropertyCompound.this.property.getValue().getTags()));
+					SelectedTagPropertyComponent.this.property.setValue(new SelectedTag(getSelectedIndex(),
+							SelectedTagPropertyComponent.this.property.getValue().getTags()));
 					update = false;
 				}
 			}
@@ -59,7 +59,7 @@ public class SelectedTagPropertyCompound extends JComboBox implements PropertyCo
 				if (update)
 					return;
 				update = true;
-				setSelectedItem(SelectedTagPropertyCompound.this.property.getValue().getSelectedTag());
+				setSelectedItem(SelectedTagPropertyComponent.this.property.getValue().getSelectedTag());
 				update = false;
 			}
 		});

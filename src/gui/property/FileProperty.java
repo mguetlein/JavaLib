@@ -25,9 +25,9 @@ public class FileProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new FilePropertyCompound(this);
+		return new FilePropertyComponent(this);
 	}
 
 	@Override

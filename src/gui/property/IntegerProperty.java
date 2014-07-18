@@ -43,9 +43,9 @@ public class IntegerProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new IntegerPropertyCompound(this);
+		return new IntegerPropertyComponent(this);
 	}
 
 	@Override

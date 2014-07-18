@@ -9,12 +9,12 @@ import javax.swing.JPanel;
 import weka.core.DistanceFunction;
 import weka.gui.GenericObjectEditor;
 
-public class WekaPropertyCompound extends JPanel implements PropertyCompound
+public class WekaPropertyComponent extends JPanel implements PropertyComponent
 {
 	WekaProperty property;
 	GenericObjectEditor editor;
 
-	public WekaPropertyCompound(WekaProperty property)
+	public WekaPropertyComponent(WekaProperty property)
 	{
 		this.property = property;
 		editor = new GenericObjectEditor();

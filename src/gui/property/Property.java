@@ -15,7 +15,7 @@ public interface Property
 
 	public void setValue(Object value);
 
-	public JComponent getPropertyCompound();
+	public JComponent getPropertyComponent();
 
 	public void load(Properties javaProperties);
 

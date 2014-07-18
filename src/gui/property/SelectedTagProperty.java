@@ -19,9 +19,9 @@ public class SelectedTagProperty extends AbstractProperty
 	}
 
 	@Override
-	public JComponent getPropertyCompound()
+	public JComponent getPropertyComponent()
 	{
-		return new SelectedTagPropertyCompound(this);
+		return new SelectedTagPropertyComponent(this);
 	}
 
 	@Override

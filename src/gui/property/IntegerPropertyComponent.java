@@ -8,12 +8,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class IntegerPropertyCompound extends JSpinner implements PropertyCompound
+public class IntegerPropertyComponent extends JSpinner implements PropertyComponent
 {
 	IntegerProperty property;
 	boolean update;
 
-	public IntegerPropertyCompound(IntegerProperty property)
+	public IntegerPropertyComponent(IntegerProperty property)
 	{
 		super(new SpinnerNumberModel((int) property.getValue(), (int) property.getMinValue(),
 				(int) property.getMaxValue(), 1));
@@ -29,7 +29,7 @@ public class IntegerPropertyCompound extends JSpinner implements PropertyCompoun
 				if (update)
 					return;
 				update = true;
-				IntegerPropertyCompound.this.property.setValue((Integer) getValue());
+				IntegerPropertyComponent.this.property.setValue((Integer) getValue());
 				update = false;
 			}
 		});
@@ -42,7 +42,7 @@ public class IntegerPropertyCompound extends JSpinner implements PropertyCompoun
 				if (update)
 					return;
 				update = true;
-				setValue(IntegerPropertyCompound.this.property.getValue());
+				setValue(IntegerPropertyComponent.this.property.getValue());
 				update = false;
 			}
 		});
