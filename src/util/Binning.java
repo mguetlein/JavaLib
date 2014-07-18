@@ -1,12 +1,17 @@
 package util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.stat.inference.TestUtils;
 
 public class Binning
 {
 	double min;
 	double max;
-	double step;
+	double width;
 	int bins;
 	long counts[];
 
@@ -22,9 +27,9 @@ public class Binning
 	private void doBin(double[] sortedValues, int bins, boolean acceptNullBins)
 	{
 		this.bins = bins;
-		step = (max - min) / (double) bins;
+		width = (max - min) / (double) bins;
 		counts = new long[bins];
-		double maxT = min + step;
+		double maxT = min + width;
 		int valueIndex = 0;
 		for (int i = 0; i < bins; i++)
 		{
@@ -38,7 +43,7 @@ public class Binning
 				doBin(sortedValues, bins - 1, acceptNullBins);
 				return;
 			}
-			maxT += step;
+			maxT += width;
 		}
 	}
 
@@ -50,7 +55,7 @@ public class Binning
 			return bins - 1;
 		if (value == min)
 			return 0;
-		int bin = (int) ((value - min) / step);
+		int bin = (int) ((value - min) / width);
 		if (bin >= bins || bin < 0)
 			throw new IllegalStateException("bin:" + bin + " for value " + value + "\n" + this);
 		return bin;
@@ -77,16 +82,36 @@ public class Binning
 		s += "counts: " + ArrayUtil.toString(counts) + "\n";
 		s += "min: " + min + "\n";
 		s += "max: " + max + "\n";
-		s += "step: " + step;
+		s += "width: " + width;
 		return s;
 	}
 
 	public static void main(String[] args)
 	{
-		double d[] = new double[] { -1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10 };
-		//double[] d = new NormalDistribution(0, 5).sample(1000);
-		Binning bin = new Binning(d, 20, false);
-		System.out.println(bin);
-		System.out.println(bin.getBin(-1));
+		//double d[] = new double[] { -1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10 };
+		double[] d = new NormalDistribution(0, 5).sample(30);
+		d[d.length - 1] = 20;
+		for (boolean b : new boolean[] { true, false })
+		{
+			Binning bin = new Binning(d, 20, b);
+			System.out.println(bin);
+			long l1[] = bin.getAllCounts();
+			long l2[] = bin.getSelectedCounts(20);
+			List<Long> l1n = new ArrayList<Long>();
+			List<Long> l2n = new ArrayList<Long>();
+			for (int i = 0; i < l1.length; i++)
+			{
+				if (l1[i] > 0 || l2[i] > 0)
+				{
+					l1n.add(l1[i]);
+					l2n.add(l2[i]);
+				}
+			}
+			System.out.println(ListUtil.toString(l1n));
+			System.out.println(ListUtil.toString(l2n));
+			double p = TestUtils.chiSquareTestDataSetsComparison(ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l1n)),
+					ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l2n)));
+			System.out.println(p);
+		}
 	}
 }

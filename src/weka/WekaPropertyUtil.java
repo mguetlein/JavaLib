@@ -225,7 +225,7 @@ public class WekaPropertyUtil
 			System.out.println(p);
 			if (p instanceof WekaProperty)
 			{
-				p.getPropertyCompound();
+				p.getPropertyComponent();
 			}
 		}
 	}

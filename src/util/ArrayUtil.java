@@ -328,6 +328,14 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static long[] toPrimitiveLongArray(Long[] array)
+	{
+		long[] d = new long[array.length];
+		for (int i = 0; i < d.length; i++)
+			d[i] = array[i];
+		return d;
+	}
+
 	public static boolean[] toPrimitiveBooleanArray(Collection<Boolean> bools)
 	{
 		boolean[] d = new boolean[bools.size()];
@@ -1516,4 +1524,5 @@ public class ArrayUtil
 		// System.out.println(" ]");
 		// }
 	}
+
 }

@@ -39,6 +39,7 @@ import javax.swing.tree.TreePath;
 import util.ImageLoader;
 import util.ListUtil;
 import util.SwingUtil;
+import util.ThreadUtil;
 
 public abstract class Selector<C, T> extends JPanel
 {
@@ -244,7 +245,7 @@ public abstract class Selector<C, T> extends JPanel
 					else
 						invalid.add(t);
 				if (selected.size() > 0)
-					setSelected(ListUtil.toArray(clazzT, selected));
+					setSelected(ListUtil.toArray(clazzT, selected), false);
 
 				if (elements.size() > 0)
 					firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
@@ -275,6 +276,17 @@ public abstract class Selector<C, T> extends JPanel
 					firePropertyChange(PROPERTY_EMPTY_REMOVE, true, false);
 			}
 		});
+	}
+
+	public void clearSelection(boolean fireEvent)
+	{
+		if (selectListModel.size() > 0)
+		{
+			selectListModel.removeAllElements();
+			updateHighlight();
+			if (fireEvent)
+				firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -333,12 +345,12 @@ public abstract class Selector<C, T> extends JPanel
 			firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 	}
 
-	public void setSelected(T elem)
+	public void setSelected(T elem, boolean fireEvent)
 	{
-		setSelected(elem, false);
+		setSelected(elem, false, fireEvent);
 	}
 
-	private void setSelected(T elem, boolean skipMatchTest)
+	private void setSelected(T elem, boolean skipMatchTest, boolean fireEvent)
 	{
 		boolean match = false;
 		if (skipMatchTest)
@@ -354,14 +366,23 @@ public abstract class Selector<C, T> extends JPanel
 				}
 			}
 		}
+		boolean add = false;
 		if (match && selectListModel.indexOf(elem) == -1)
+		{
+			add = true;
 			selectListModel.addElement(elem);
+		}
+		if (add && fireEvent)
+			firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 	}
 
-	public void setSelected(T[] elements)
+	public void setSelected(T[] elements, boolean fireEvent)
 	{
+		int num = selectListModel.getSize();
 		for (T elem : elements)
-			setSelected(elem);
+			setSelected(elem, false);
+		if (selectListModel.getSize() > num && fireEvent)
+			firePropertyChange(PROPERTY_SELECTION_CHANGED, true, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -550,6 +571,19 @@ public abstract class Selector<C, T> extends JPanel
 		});
 		sel.setCategorySelected(new WrappedString("Säugetiere"), false);
 		sel.expand(new WrappedString("Übergruppe"));
+		sel.highlight(new WrappedString("Übergruppe"));
+		Thread th = new Thread(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				ThreadUtil.sleep(3000);
+				System.out.println("clear");
+				sel.clearSelection(true);
+			}
+		});
+		th.start();
 		SwingUtil.showInDialog(sel);
 		System.exit(0);
 	}
@@ -561,6 +595,16 @@ public abstract class Selector<C, T> extends JPanel
 			throw new IllegalArgumentException("not found: " + category);
 		TreePath path = new TreePath(node.getPath());
 		searchTree.expandPath(path);
+	}
+
+	public void highlight(C category)
+	{
+		expand(category);
+		DefaultMutableTreeNode node = getCategoryNode(category);
+		if (node == null)
+			throw new IllegalArgumentException("not found: " + category);
+		TreePath path = new TreePath(node.getPath());
+		searchTree.setSelectionPath(path);
 	}
 
 	public void repaintSelector()

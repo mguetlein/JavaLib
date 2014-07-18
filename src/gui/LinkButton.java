@@ -45,8 +45,7 @@ public class LinkButton extends JLabel
 			public void mousePressed(MouseEvent e)
 			{
 				if (isEnabled())
-					for (ActionListener l : actionListeners)
-						l.actionPerformed(new ActionEvent(LinkButton.this, -1, ""));
+					doAction();
 			}
 
 			@Override
@@ -61,6 +60,12 @@ public class LinkButton extends JLabel
 				enabledHovering(false);
 			}
 		});
+	}
+
+	public void doAction()
+	{
+		for (ActionListener l : actionListeners)
+			l.actionPerformed(new ActionEvent(LinkButton.this, -1, ""));
 	}
 
 	protected void enabledHovering(boolean hoverTrue)
@@ -124,7 +129,6 @@ public class LinkButton extends JLabel
 		LinkButton l = new LinkButton("test-button");
 		l.addActionListener(new ActionListener()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
