@@ -13,9 +13,11 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -38,9 +40,57 @@ public class Logger
 {
 	String logfile;
 	BufferedWriter fileWriter;
+	boolean logging = false;
 	boolean printToSystemOut;
 	StringBuffer stringBuffer;
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final PrintStream origStdErr = System.err;
+	private static final PrintStream origStdOut = System.out;
+	private static final String lineSeparator = System.getProperty("line.separator");
+
+	public void logFromStdOut()
+	{
+		logFromStd(false);
+	}
+
+	public void logFromStdErr()
+	{
+		logFromStd(true);
+	}
+
+	private void logFromStd(final boolean err)
+	{
+		PrintStream ps = new PrintStream(new ByteArrayOutputStream()
+		{
+			@Override
+			public void flush() throws IOException
+			{
+				String record;
+				synchronized (this)
+				{
+					super.flush();
+					record = this.toString();
+					super.reset();
+					if (record.length() == 0 || record.equals(lineSeparator))
+						return;
+					if (logging)
+					{
+						if (err)
+							origStdErr.println(record);
+						else
+							origStdOut.println(record);
+					}
+					else
+						println(record, err ? Status.error : Status.info);
+				}
+			}
+		}, true);
+		if (err)
+			System.setErr(ps);
+		else
+			System.setOut(ps);
+
+	}
 
 	public Logger(String logfile, boolean printToSystemOut)
 	{
@@ -149,6 +199,7 @@ public class Logger
 
 	private synchronized void println(String msg, Status status)
 	{
+		logging = true;
 		String logMsg = dateFormat.format(new Date()) + " - " + status.getChar() + " - " + msg;
 		stringBuffer.append(logMsg);
 		stringBuffer.append("\n");
@@ -173,6 +224,7 @@ public class Logger
 			else
 				System.err.println(msg);
 		}
+		logging = false;
 	}
 
 	public void showDialog(Window owner)
@@ -236,6 +288,9 @@ public class Logger
 	public static void main(String args[]) throws IOException
 	{
 		Logger l = new Logger("/tmp/logfile", true);
+		l.logFromStd(true);
+		l.logFromStd(false);
+
 		l.info("hallo leucin");
 		Random r = new Random();
 		for (int i = 0; i < 1; i++)
@@ -243,7 +298,11 @@ public class Logger
 		l.info("test 1");
 		l.error(new IllegalStateException("bla"));
 		l.info("info after error");
-		System.out.println(">>> logged >>>\n" + l.getText());
+		//System.out.println(">>> logged >>>\n" + l.getText());
+
+		new IllegalArgumentException("osterhase").printStackTrace();
+		System.out.println("weihnachtsmann");
+
 		l.showDialog(null);
 		System.exit(0);
 	}
