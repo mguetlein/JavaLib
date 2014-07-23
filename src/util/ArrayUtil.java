@@ -1445,7 +1445,6 @@ public class ArrayUtil
 		//		System.out.println(redundant(a1, a2));
 
 		//		System.out.println(toString(toArray(getDistinctValues(new Double[] { 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 5.0 }))));
-
 		//		System.out.println(toString(toArray(getDistinctValues(new String[] { "a", "a", "b" }))));
 
 		//		System.out.println(toString(toArray(getDistinctValues(new Vector3f[] { new Vector3f(3.0f, 2.0f, 3.0f),
