@@ -249,6 +249,31 @@ public class CountedSet<T> implements ArraySummary
 		}
 	}
 
+	/**
+	 * returns the non-null mode when there is no second non-null mode (with equal counts), else null
+	 */
+	public T getUniqueMode()
+	{
+		List<T> values = values();
+		T uniqueMode = null;
+		for (T t : values)
+		{
+			if (t != null)
+			{
+				if (uniqueMode == null)
+					uniqueMode = t;
+				else
+				{
+					if (getCount(uniqueMode) > getCount(t))
+						return uniqueMode;
+					else
+						return null;
+				}
+			}
+		}
+		return uniqueMode;
+	}
+
 	//	private int[] getCounts(boolean includingNull)
 	//	{
 	//		int counts[] = new int[getNumValues(includingNull)];

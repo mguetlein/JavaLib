@@ -9,6 +9,7 @@ import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import util.ArrayUtil;
@@ -118,11 +119,22 @@ public class CheckBoxSelectDialog extends JDialog
 
 	public static void main(String args[])
 	{
-		String s[] = { "ene", "mene", "miste" };
-		int ss[] = CheckBoxSelectDialog.selectIndices(null, "test-select-dialog", "description text", s, true);
-		if (ss != null)
-			System.out.println(ArrayUtil.toString(ss));
-		else
-			System.out.println("nothing");
+		SwingUtilities.invokeLater(new Runnable()
+		{
+
+			@Override
+			public void run()
+			{
+				String s[] = { "ene", "mene", "miste", "a", "b", "c", "d", "e", "f", "g", "h" };
+				boolean b[] = new boolean[s.length];
+				b[b.length - 2] = true;
+				int ss[] = CheckBoxSelectDialog.selectIndices(null, "test-select-dialog", "description text", s, b);
+				if (ss != null)
+					System.out.println(ArrayUtil.toString(ss));
+				else
+					System.out.println("nothing");
+			}
+		});
+
 	}
 }

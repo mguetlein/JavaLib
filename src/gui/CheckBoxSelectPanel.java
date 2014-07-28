@@ -30,6 +30,16 @@ public class CheckBoxSelectPanel extends JPanel
 			if (selection[i])
 				selected.add(i);
 		list.getCheckBoxSelection().setSelectedIndices(ArrayUtil.toPrimitiveIntArray(selected));
+
+		for (int i = 0; i < selection.length; i++)
+		{
+			if (selection[i])
+			{
+				list.ensureIndexIsVisible(i);
+				break;
+			}
+		}
+
 		//System.out.println("selected: " + ArrayUtil.toString(list.getCheckBoxSelection().getSelectedIndices()));
 	}
 
