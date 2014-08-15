@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
@@ -20,6 +21,8 @@ public class StringImageIcon extends ImageIcon
 	private String s;
 	private Font f;
 	private Color c;
+	private Color background;
+	private Insets insets = new Insets(0, 0, 0, 0);
 	FontMetrics fm;
 
 	public StringImageIcon(String s, Font f, Color c)
@@ -33,10 +36,15 @@ public class StringImageIcon extends ImageIcon
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y)
 	{
+		if (background != null)
+		{
+			g.setColor(background);
+			g.fillRect(x, y, getIconWidth(), getIconHeight());
+		}
 		g.setColor(this.c);
 		g.setFont(f);
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.drawString(s, x, y + fm.getAscent());
+		g.drawString(s, x + insets.left, y + fm.getAscent() + insets.top);
 	}
 
 	@Override
@@ -50,13 +58,23 @@ public class StringImageIcon extends ImageIcon
 	@Override
 	public int getIconWidth()
 	{
-		return fm.stringWidth(s);
+		return fm.stringWidth(s) + insets.left + insets.right;
 	}
 
 	@Override
 	public int getIconHeight()
 	{
-		return fm.getAscent() + fm.getDescent();
+		return fm.getAscent() + fm.getDescent() + insets.top + insets.bottom;
+	}
+
+	public void setBackground(Color c)
+	{
+		background = c;
+	}
+
+	public void setInsets(Insets insets)
+	{
+		this.insets = insets;
 	}
 
 	public static void main(String[] args)

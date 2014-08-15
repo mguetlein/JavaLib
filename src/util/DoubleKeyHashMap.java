@@ -2,6 +2,7 @@ package util;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Random;
 import java.util.Set;
 
 public class DoubleKeyHashMap<T1, T2, T3>
@@ -69,6 +70,48 @@ public class DoubleKeyHashMap<T1, T2, T3>
 	{
 		for (HashMap<T2, T3> m : map.values())
 			m.remove(key2);
+	}
+
+	public static void main(String[] args)
+	{
+		Random r = new Random();
+		DoubleKeyHashMap<String, Integer, Double> test = new DoubleKeyHashMap<String, Integer, Double>();
+		HashMap<String, Double> test2 = new HashMap<String, Double>();
+
+		int inserts = 0;
+		int inserts2 = 0;
+		for (int j = 0; j < 1000000; j++)
+		{
+			String s = StringUtil.randomString(0, 3, r);
+			Integer i = r.nextInt(10);
+			Double d = r.nextDouble();
+
+			StopWatchUtil.start("double");
+			if (!test.containsKeyPair(s, i))
+			{
+				inserts++;
+				test.put(s, i, d);
+			}
+			StopWatchUtil.stop("double");
+
+			StopWatchUtil.start("string-key");
+			StringBuffer b = new StringBuffer();
+			b.append(s);
+			b.append("#");
+			b.append(i);
+			String k = b.toString();
+			if (!test2.containsKey(k))
+			{
+				inserts2++;
+				test2.put(k, d);
+			}
+			StopWatchUtil.stop("string-key");
+		}
+
+		System.out.println(inserts);
+		System.out.println(inserts2);
+		StopWatchUtil.print();
+
 	}
 
 }
