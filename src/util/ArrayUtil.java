@@ -294,6 +294,14 @@ public class ArrayUtil
 		return d;
 	}
 
+	public static double[] toPrimitiveDoubleArray(float[] ints)
+	{
+		double[] d = new double[ints.length];
+		for (int j = 0; j < d.length; j++)
+			d[j] = ints[j];
+		return d;
+	}
+
 	public static double[] toPrimitiveDoubleArray(Collection<Double> doubles)
 	{
 		double[] d = new double[doubles.size()];
@@ -810,6 +818,24 @@ public class ArrayUtil
 	public static String toString(int array[])
 	{
 		return toString(array, -1);
+	}
+
+	public static String toNiceString(double[] a)
+	{
+		return toNiceString(a, 2);
+	}
+
+	public static String toNiceString(float[] a)
+	{
+		return toNiceString(toPrimitiveDoubleArray(a), 2);
+	}
+
+	public static String toNiceString(double[] a, int dec)
+	{
+		String s[] = new String[a.length];
+		for (int i = 0; i < s.length; i++)
+			s[i] = StringUtil.formatDouble(a[i], dec);
+		return toString(s);
 	}
 
 	public static String toString(int array[], int formatSpace)
@@ -1425,6 +1451,21 @@ public class ArrayUtil
 			posR += l;
 		}
 		return r;
+	}
+
+	public static int getMinIndex(float[] array)
+	{
+		float min = Float.MAX_VALUE;
+		int idx = -1;
+		for (int i = 0; i < array.length; i++)
+		{
+			if (array[i] < min)
+			{
+				min = array[i];
+				idx = i;
+			}
+		}
+		return idx;
 	}
 
 	public static void main(String args[])

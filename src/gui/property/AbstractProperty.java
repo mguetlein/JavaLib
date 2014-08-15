@@ -1,5 +1,6 @@
 package gui.property;
 
+import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileOutputStream;
@@ -13,6 +14,7 @@ public abstract class AbstractProperty implements Property
 	String name;
 	private String uniqueName;
 	protected String displayName;
+	private Color highlightColor;
 
 	List<PropertyChangeListener> listeners = new ArrayList<PropertyChangeListener>();
 
@@ -112,5 +114,17 @@ public abstract class AbstractProperty implements Property
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void setHighlightColor(Color col)
+	{
+		this.highlightColor = col;
+	}
+
+	@Override
+	public Color getHighlightColor()
+	{
+		return highlightColor;
 	}
 }

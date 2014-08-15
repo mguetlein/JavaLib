@@ -45,10 +45,10 @@ public class MessagePanel extends JPanel
 				if (detailString == null)
 				{
 					if (details == null || details.length() == 0)
-						detailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 70).replaceAll("\n", "<br>")
 								+ "</b></html>";
 					else
-						detailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
+						detailString = "<html><b>" + StringUtil.wordWrap(message, 70).replaceAll("\n", "<br>")
 								+ "</b><br>" + StringUtil.wordWrap(details, 80).replaceAll("\n", "<br>") + "</html>";
 				}
 				return detailString;
@@ -56,7 +56,7 @@ public class MessagePanel extends JPanel
 			else
 			{
 				if (noDetailString == null)
-					noDetailString = "<html><b>" + StringUtil.wordWrap(message, 80).replaceAll("\n", "<br>")
+					noDetailString = "<html><b>" + StringUtil.wordWrap(message, 70).replaceAll("\n", "<br>")
 							+ "</b></html>";
 				return noDetailString;
 			}

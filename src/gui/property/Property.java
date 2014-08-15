@@ -1,5 +1,6 @@
 package gui.property;
 
+import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.util.Properties;
 
@@ -32,5 +33,9 @@ public interface Property
 	public String getDisplayName();
 
 	public String getUniqueName();
+
+	public void setHighlightColor(Color col);
+
+	public Color getHighlightColor();
 
 }

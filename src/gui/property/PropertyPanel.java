@@ -2,13 +2,17 @@ package gui.property;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.util.Properties;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import util.ArrayUtil;
@@ -85,6 +89,37 @@ public class PropertyPanel extends JPanel
 			p.setEnabled(b);
 	}
 
+	class ColorIcon implements Icon
+	{
+		Color col;
+		int size;
+
+		public ColorIcon(Color col)
+		{
+			this.col = col;
+			size = new JLabel("X").getPreferredSize().height;
+		}
+
+		@Override
+		public int getIconHeight()
+		{
+			return size;
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+			return size;
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+			g.setColor(col);
+			g.fillRect(0, 0, size, size);
+		}
+	}
+
 	private void buildLayout()
 	{
 		DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("pref,5dlu,fill:pref:grow"));
@@ -99,7 +134,10 @@ public class PropertyPanel extends JPanel
 				if (javaProperties != null)
 					p.load(javaProperties);
 				propertyComponents[i] = (PropertyComponent) p.getPropertyComponent();
-				builder.append(p.getDisplayName() + ":");
+				JLabel l = new JLabel(p.getDisplayName() + ":");
+				if (p.getHighlightColor() != null)
+					l.setIcon(new ColorIcon(p.getHighlightColor()));
+				builder.append(l);
 				builder.append((JComponent) propertyComponents[i++]);
 			}
 			if (properties.length > 0)
@@ -119,6 +157,7 @@ public class PropertyPanel extends JPanel
 
 		props[0] = new StringProperty("Test-Property", "default");
 		props[0].setValue("value");
+		props[0].setHighlightColor(Color.CYAN);
 		props[1] = new IntegerProperty("Test-Int-Property", 15);
 		props[1].setValue(10);
 		props[2] = new FileProperty("A file", null);

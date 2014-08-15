@@ -140,7 +140,7 @@ public class TaskDialog
 		{
 			public void run()
 			{
-				SwingUtil.showInDialog(pp, task.getName(), new Dimension(600, 400), null, (JFrame) warningDialogOwner);
+				SwingUtil.showInDialog(pp, task.getName(), new Dimension(600, 300), null, (JFrame) warningDialogOwner);
 			}
 		});
 		th.start();

@@ -1,6 +1,7 @@
 package util;
 
 import java.awt.Color;
+import java.util.Random;
 
 public class ColorUtil
 {
@@ -93,5 +94,16 @@ public class ColorUtil
 		String rgb = Integer.toHexString(color.getRGB());
 		rgb = rgb.substring(2, rgb.length());
 		return rgb;
+	}
+
+	public static Color getRandomColor(Random r)
+	{
+		return new Color(75 + (int) (150 * r.nextDouble()), 75 + (int) (150 * r.nextDouble()),
+				75 + (int) (150 * r.nextDouble()));
+	}
+
+	public static Color transparent(Color c, int alpha)
+	{
+		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 }

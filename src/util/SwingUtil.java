@@ -277,7 +277,7 @@ public class SwingUtil
 		p.setBorder(new EmptyBorder(10, 10, 10, 10));
 		d.getContentPane().add(p);
 		d.pack();
-		d.setLocationRelativeTo(null);
+		d.setLocationRelativeTo(owner);
 		d.setVisible(true);
 		if (!d.isModal())
 			waitWhileVisible(d);
@@ -401,7 +401,7 @@ public class SwingUtil
 		showInDialog(c, title, dim, runAfterVisible, owner, -1);
 	}
 
-	private static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
+	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
 			JFrame owner, int screenIndex)
 	{
 		final JDialog f = new JDialog(owner);
@@ -503,8 +503,13 @@ public class SwingUtil
 		//		loadingLabel(s);
 		//		showInDialog(s);
 
-		String s[] = { "ene", "mene", "miste" };
-		System.out.println(selectFromListWithDialog(ArrayUtil.toList(s), null, "select please", null, null));
+		JScrollPane s = new JScrollPane(new JList<String>(new String[] { "ene", "mene", "miste" }));
+		setDebugBorder(s);
+		removeDebugBorder(s);
+		showInDialog(s);
+
+		//		String s[] = { "ene", "mene", "miste" };
+		//		System.out.println(selectFromListWithDialog(ArrayUtil.toList(s), null, "select please", null, null));
 		System.exit(0);
 	}
 
@@ -516,7 +521,11 @@ public class SwingUtil
 	public static void setDebugBorder(JComponent comp, Color col)
 	{
 		comp.setBorder(new CompoundBorder(new LineBorder(col, 3), comp.getBorder()));
+	}
 
+	public static void removeDebugBorder(JComponent comp)
+	{
+		comp.setBorder(((CompoundBorder) comp.getBorder()).getInsideBorder());
 	}
 
 	public static void waitForAWTEventThread()
