@@ -1,170 +1,111 @@
 package jitter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import javax.vecmath.Vector3f;
 
 import util.ArrayUtil;
+import util.FileUtil;
+import util.MathUtil;
+import util.StopWatchUtil;
 import util.Vector3fUtil;
 
 public class Jittering
 {
 	public static boolean DEBUG = false;
 
-	Jitterable[] objects;
+	Vector3f[] v;
 	float minDist;
 	float stepWidth;
 	Random r;
-	float dist[][];
-	int neighbors[];
 	Vector3f dirs[];
-	float minMinDistInData;
-	float maxMinDistInData;
-	static boolean ignoreOffsets = false;
+	public static int STEPS = 10;
+	int steps = STEPS;
+	NNComputer nn;
 
-	public Jittering(Jitterable[] objects, Random r)
-	{
-		this(objects, -1, r);
-	}
-
-	public Jittering(Jitterable[] objects, float minDist, Random r)
+	public Jittering(Vector3f[] v, float minDist, Random r)
 	{
 		if (DEBUG)
 		{
 			System.out.println("before jittering");
-			for (Jitterable jitterable : objects)
-				System.out.println(Vector3fUtil.toNiceString(jitterable.getPosition()));
+			for (Vector3f vec : v)
+				System.out.println(Vector3fUtil.toNiceString(vec));
 		}
-		this.objects = objects;
+		this.v = v;
 		this.minDist = minDist;
 		this.r = r;
-		this.stepWidth = minDist / 10.0f;
-		dist = new float[objects.length][objects.length];
-		for (int i = 0; i < objects.length; i++)
-			dist[i][i] = Float.MAX_VALUE;
-		neighbors = new int[objects.length];
-		dirs = new Vector3f[objects.length];
+		dirs = new Vector3f[v.length];
 		computeDist();
 	}
 
 	public Vector3f getPosition(int i)
 	{
-		return objects[i].getPosition();
+		return v[i];
 	}
 
-	public float getMinMinDist()
+	/**
+	 * returns true if neighbors found < min dist
+	 */
+	private Boolean computeDist()
 	{
-		return minMinDistInData;
+		nn = new NNComputer(v, minDist);
+		nn.computeFast();
+		return nn.isNeighborFound();
 	}
 
-	public float getMaxMinDist()
-	{
-		return maxMinDistInData;
-	}
-
-	public void setMinDist(float minDist)
-	{
-		this.minDist = minDist;
-		this.stepWidth = minDist / 10.0f;
-	}
-
-	public boolean isJitteringDiscouraged()
-	{
-		return minMinDistInData / maxMinDistInData > 0.66;
-	}
-
-	private boolean computeDist()
-	{
-		boolean jitteringRequired = false;
-		minMinDistInData = Float.MAX_VALUE;
-		maxMinDistInData = 0;
-		for (int i = 0; i < objects.length - 1; i++)
-		{
-			for (int j = i + 1; j < objects.length; j++)
-			{
-				float d = Vector3fUtil.dist(objects[i].getPosition(), objects[j].getPosition());
-				dist[i][j] = d;
-				dist[j][i] = d;
-			}
-		}
-		for (int i = 0; i < neighbors.length; i++)
-		{
-			int idx = ArrayUtil.getMinIndex(dist[i]);
-			if (dist[i][idx] < minMinDistInData)
-				minMinDistInData = dist[i][idx];
-			if (dist[i][idx] > maxMinDistInData)
-				maxMinDistInData = dist[i][idx];
-			neighbors[i] = idx;
-			dirs[i] = null;
-			if (dist[i][idx] < minDist)
-				jitteringRequired = true;
-		}
-		if (DEBUG)
-			System.out.println("ratio: " + minMinDistInData / maxMinDistInData + " min:" + minMinDistInData + " max:"
-					+ maxMinDistInData);
-		return jitteringRequired;
-	}
-
+	/**
+	 * returns true if finished (no neighbors found < min dist)
+	 */
 	public boolean jitterStep()
 	{
+		if (stepWidth == 0)
+			this.stepWidth = minDist / (float) steps;
+
 		if (minDist <= 0)
 			throw new IllegalStateException("set min dist");
 
-		for (int i = 0; i < dirs.length; i++)
+		for (int i = 0; i < v.length; i++)
+			dirs[i] = null;
+		for (int i = 0; i < v.length; i++)
 		{
-			int neighbor = neighbors[i];
+			int neighbor = nn.getNeigbohrs()[i];
 			Vector3f dir;
-			if (dist[i][neighbor] >= minDist)
+			if (neighbor == -1)
 			{
 				dir = null;
 			}
-			else if (dirs[neighbor] != null && neighbors[neighbor] == i)
+			else if (dirs[neighbor] != null && nn.getNeigbohrs()[neighbor] == i)
 			{
 				dir = Vector3fUtil.negate(dirs[neighbor]);
 			}
-			else if (objects[i].getPosition().equals(objects[neighbor].getPosition()))
+			else if (v[i].equals(v[neighbor]))
 			{
 				dir = Vector3fUtil.randomVector(1.0F, r);
-				if (objects[i].getPosition().y == 0 && objects[neighbor].getPosition().y == 0)
+				if (v[i].y == 0 && v[neighbor].y == 0)
 					dir.y = 0;
-				if (objects[i].getPosition().z == 0 && objects[neighbor].getPosition().z == 0)
+				if (v[i].z == 0 && v[neighbor].z == 0)
 					dir.z = 0;
 				Vector3fUtil.normalize(dir, stepWidth);
 			}
 			else
 			{
-				if (ignoreOffsets)
-				{
-					dir = new Vector3f(objects[i].getPosition());
-					dir.sub(objects[neighbor].getPosition());
-				}
-				else
-				{
-					List<Vector3f> v1 = new ArrayList<Vector3f>();
-					for (Vector3f v : objects[i].getOffsets())
-						v1.add(Vector3fUtil.sum(v, objects[i].getPosition()));
-					List<Vector3f> v2 = new ArrayList<Vector3f>();
-					for (Vector3f v : objects[neighbor].getOffsets())
-						v2.add(Vector3fUtil.sum(v, objects[neighbor].getPosition()));
-
-					dir = new Vector3f(0, 0, 0);
-					for (int j1 = 0; j1 < v1.size(); j1++)
-						for (int j2 = 0; j2 < v2.size(); j2++)
-						{
-							Vector3f v = Vector3fUtil.direction(v1.get(j1), v2.get(j2));
-							//							System.out.println("v1 " + v1.get(j1));
-							//							System.out.println("v2 " + v2.get(j2));
-							//							System.out.println("v " + v + " " + v.length());
-							Vector3fUtil.normalize(v, dist[i][neighbor] / v.length());
-							//							System.out.println("v " + v + " " + v.length());
-							dir.add(v);
-						}
-				}
-				//				System.out.println("d " + dir);
+				dir = Vector3fUtil.direction(v[i], v[neighbor]);
+				//					List<Vector3f> v1 = new ArrayList<Vector3f>();
+				//					for (Vector3f v : objects[i].getOffsets())
+				//						v1.add(Vector3fUtil.sum(v, objects[i].getPosition()));
+				//					List<Vector3f> v2 = new ArrayList<Vector3f>();
+				//					for (Vector3f v : objects[neighbor].getOffsets())
+				//						v2.add(Vector3fUtil.sum(v, objects[neighbor].getPosition()));
+				//
+				//					dir = new Vector3f(0, 0, 0);
+				//					for (int j1 = 0; j1 < v1.size(); j1++)
+				//						for (int j2 = 0; j2 < v2.size(); j2++)
+				//						{
+				//							Vector3f v = Vector3fUtil.direction(v1.get(j1), v2.get(j2));
+				//							Vector3fUtil.normalize(v, dist[i][neighbor] / v.length());
+				//							dir.add(v);
+				//						}
 				Vector3fUtil.normalize(dir, stepWidth);
-				//System.out.println("d " + dir);
 			}
 			if (DEBUG && dir != null)
 				System.out.println("move " + i + " " + Vector3fUtil.toNiceString(dir) + " (l:" + dir.length() + ")");
@@ -174,7 +115,7 @@ public class Jittering
 		{
 			if (dirs[i] != null)
 			{
-				objects[i].getPosition().add(dirs[i]);
+				v[i].add(dirs[i]);
 			}
 		}
 		return !computeDist();
@@ -184,16 +125,67 @@ public class Jittering
 	{
 		if (DEBUG)
 			System.out.println("minDist: " + minDist + " steps: " + stepWidth);
+		long start = System.currentTimeMillis();
+		long reduceStepWidth = 2000; // reduce step-width if running longer than 2 seconds
+		this.stepWidth = minDist / (float) steps;
+
+		int i = 0;
 		while (!jitterStep())
 		{
-			//do nothing;
+			i++;
+			if (steps > 3 && System.currentTimeMillis() - start > reduceStepWidth)
+			{
+				reduceStepWidth += 1000;
+				steps = Math.max(3, steps - 1);
+				this.stepWidth = minDist / (float) steps;
+				System.out.println("jitter-iteration: " + i + " reducing step-width to " + steps);
+			}
 		}
 		if (DEBUG)
 		{
 			System.out.println("after jittering");
-			for (Jitterable jitterable : objects)
-				System.out.println(Vector3fUtil.toNiceString(jitterable.getPosition()));
+			for (Vector3f vec : v)
+				System.out.println(Vector3fUtil.toNiceString(vec));
 		}
 	}
 
+	public static void main(String[] args)
+	{
+		try
+		{
+			String s = FileUtil
+					.readStringFromFile("/home/martin/.ches-mapper/cache/TOX21S_v2a_8193_22Mar2012.ob_cleaned.c7be2e0e0f777fbed181e80b4f8273ea.0fde2d61225215e571ce44063f762178.embed.pos");
+			Vector3f[] v = new Vector3f[8165];
+			int i = 0;
+			for (String strings : s.split(","))
+				v[i++] = Vector3fUtil.deserialize(strings);
+
+			StopWatchUtil.start("brute");
+			NNComputer nn = new NNComputer(v);
+			nn.computeNaive();
+			StopWatchUtil.stop("brute");
+			float dist = nn.getMinMinDist();
+			float add = (nn.getMaxMinDist() - nn.getMinMinDist()) * 0.5f;
+			//		Jittering j = create(c.getCompounds(), null, 1);
+			//		float dist = j.getMinMinDist();
+			//		float add = (j.getMaxMinDist() - j.getMinMinDist()) * 0.5f;
+			double log[] = ArrayUtil.toPrimitiveDoubleArray(MathUtil.logBinning(10, 1.2));
+			float minDistances[] = new float[11];
+			for (int j = 1; j <= 10; j++)
+				minDistances[j] = dist + add * (float) log[j];
+			System.out.println(ArrayUtil.toNiceString(minDistances));
+
+			Jittering.STEPS = 10;
+			Jittering j = new Jittering(v, minDistances[1], new Random());
+			j.jitter();
+			StopWatchUtil.print();
+
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }

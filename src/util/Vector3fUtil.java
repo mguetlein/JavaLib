@@ -6,6 +6,8 @@ import java.util.Random;
 
 import javax.vecmath.Vector3f;
 
+import org.apache.commons.math3.util.FastMath;
+
 public class Vector3fUtil
 {
 	public static String serialize(Vector3f v)
@@ -61,9 +63,20 @@ public class Vector3fUtil
 
 	public static float dist(Vector3f v1, Vector3f v2)
 	{
-		Vector3f v = new Vector3f(v1);
-		v.sub(v2);
-		return v.length();
+		float sum = 0;
+		float dp = v1.x - v2.x;
+		sum += dp * dp;
+		dp = v1.y - v2.y;
+		sum += dp * dp;
+		dp = v1.z - v2.z;
+		sum += dp * dp;
+		return (float) FastMath.sqrt(sum);
+		//		Vector3f v = new Vector3f(v1);
+		//		v.sub(v2);
+		//		float f2 = v.length();
+		//		if (f != f2)
+		//			throw new IllegalStateException(f + " != " + f2);
+		//		return f;
 	}
 
 	public static Vector3f direction(Vector3f v1, Vector3f v2)

@@ -20,19 +20,25 @@ import util.ThreadUtil;
 public class DotTest
 {
 
-	static long seed = -2551159139782621652L;
-	static
-	{
-		seed = new Random().nextLong();
-		System.out.println(seed);
-	}
+	static long seed = -7455699964053764107L;
+	//	static
+	//	{
+	//		seed = new Random().nextLong();
+	//		System.out.println(seed);
+	//	}
 	Random r = new Random(seed);
 	int width = 400;
 	int height = 400;
 	int margin = 150;
-	int numDots = 20;
+	int numDots = 300;
 	int minDist = 10;
-	TripleDot[] dots = new TripleDot[numDots];
+	boolean anim = true;
+	static
+	{
+		Jittering.STEPS = 10;
+	}
+	//TripleDot[] dots = new TripleDot[numDots];
+	Dot[] dots = new Dot[numDots];
 
 	public DotTest()
 	{
@@ -45,7 +51,8 @@ public class DotTest
 				x = margin + r.nextFloat() * (width - margin * 2);
 				y = margin + r.nextFloat() * (height - margin * 2);
 			}
-			dots[i] = new TripleDot(x, y, ColorUtil.getRandomColor(r), r);//new Random(789));
+			//dots[i] = new TripleDot(x, y, ColorUtil.getRandomColor(r), r);//new Random(789));
+			dots[i] = new Dot(x, y, ColorUtil.getRandomColor(r));//new Random(789));
 		}
 		final JPanel p = new JPanel()
 		{
@@ -74,20 +81,28 @@ public class DotTest
 					public void run()
 					{
 						Jittering j = new Jittering(dots, minD, r);
-						while (!j.jitterStep())
+						if (!anim)
+							j.jitter();
+						else
 						{
-							ThreadUtil.sleep(20);
-							System.out.println("jittering");
-							SwingUtil.invokeAndWait(new Runnable()
+							int i = 0;
+							while (!j.jitterStep())
 							{
-
-								@Override
-								public void run()
+								i++;
+								System.out.println(i);
+								ThreadUtil.sleep(100);
+								//							System.out.println("jittering");
+								SwingUtil.invokeAndWait(new Runnable()
 								{
-									p.repaint();
-								}
-							});
+									@Override
+									public void run()
+									{
+										p.repaint();
+									}
+								});
+							}
 						}
+
 						System.out.println("jittering done");
 						p.repaint();
 						minD += minDist;

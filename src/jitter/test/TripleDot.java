@@ -6,10 +6,9 @@ import java.util.Random;
 
 import javax.vecmath.Vector3f;
 
-import jitter.Jitterable;
 import util.Vector3fUtil;
 
-public class TripleDot implements Jitterable
+public class TripleDot //implements Jitterable
 {
 	Vector3f pos = new Vector3f(0, 0, 0);
 	Vector3f offsets[];
@@ -43,13 +42,13 @@ public class TripleDot implements Jitterable
 		//		}
 	}
 
-	@Override
+	//	@Override
 	public Vector3f getPosition()
 	{
 		return pos;
 	}
 
-	@Override
+	//	@Override
 	public Vector3f[] getOffsets()
 	{
 		return offsets;
