@@ -39,6 +39,8 @@ public class TaskDialog
 	private JButton showLogButton;
 	private JLabel infoLabel;
 	private JLabel verboseLabel;
+
+	private boolean showWarningDialog = true;
 	Window warningDialogOwner;
 
 	String warningDialogMsg = "The following issues have occured during the mapping process:";
@@ -68,6 +70,11 @@ public class TaskDialog
 					dialog.setVisible(true);
 			}
 		});
+	}
+
+	public void setShowWarningDialog(boolean showWarningDialog)
+	{
+		this.showWarningDialog = showWarningDialog;
 	}
 
 	public void setWarningDialogOwner(Window owner)
@@ -245,7 +252,7 @@ public class TaskDialog
 								dialog.dispose();
 							}
 						});
-						if (task.hasWarnings())
+						if (task.hasWarnings() && showWarningDialog)
 							showWarningDialog();
 						break;
 					case warning:
