@@ -325,7 +325,7 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		captions.add("a");
 		vals.add(new double[] { 1, 2, 2 });
 		captions.add("b");
-		vals.add(new double[] { 1, 2, 4, 5, 1, 1, 1, 2, 2 });
+		vals.add(new double[] { 1, 2, 4, 5, 1, 1, 1, 2, 2, 10, 10, 10, 100, 100, 1000 });
 		{
 			final HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", captions, vals, 20);
 

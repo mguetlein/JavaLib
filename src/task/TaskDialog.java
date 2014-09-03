@@ -134,7 +134,12 @@ public class TaskDialog
 		dialog.setTitle(error + percent + task.getName());
 	}
 
-	private void showWarningDialog()
+	public boolean doWarningsExist()
+	{
+		return task.getWarnings().size() > 0;
+	}
+
+	public void showWarningDialog()
 	{
 		List<DetailMessage> warnings = task.getWarnings();
 		MessagePanel p = new MessagePanel();
@@ -309,4 +314,5 @@ public class TaskDialog
 	{
 		cancelButton.setText(string);
 	}
+
 }

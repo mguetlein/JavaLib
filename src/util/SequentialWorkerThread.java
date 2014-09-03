@@ -6,7 +6,9 @@ import java.util.List;
 public class SequentialWorkerThread
 {
 	List<String> names = new ArrayList<String>();
+	List<String> done = new ArrayList<String>();
 	List<Runnable> jobs = new ArrayList<Runnable>();
+	String currentName;
 
 	static boolean DEBUG = false;
 
@@ -21,13 +23,12 @@ public class SequentialWorkerThread
 				while (true)
 				{
 					Runnable job = null;
-					String name = null;
 					synchronized (jobs)
 					{
 						if (jobs.size() > 0)
 						{
 							job = jobs.remove(0);
-							name = names.remove(0);
+							currentName = names.remove(0);
 						}
 					}
 					if (job == null)
@@ -42,15 +43,31 @@ public class SequentialWorkerThread
 					else
 					{
 						if (DEBUG)
-							System.err.println("W> running '" + name + "'");
+							System.err.println("W> running '" + currentName + "'");
 						job.run();
 						if (DEBUG)
-							System.err.println("W> done '" + name + "'");
+							System.err.println("W> done '" + currentName + "'");
+						synchronized (jobs)
+						{
+							if (!names.contains(currentName))
+								done.add(currentName);
+							currentName = null;
+						}
+
 					}
 				}
 			}
 		}, "Sequential Worker Thread");
 		th.start();
+	}
+
+	public void clearQueue()
+	{
+		synchronized (jobs)
+		{
+			jobs.clear();
+			names.clear();
+		}
 	}
 
 	public boolean runningInThread()
@@ -71,6 +88,8 @@ public class SequentialWorkerThread
 			}
 			jobs.add(r);
 			names.add(name);
+			if (done.contains(name))
+				done.remove(name);
 		}
 	}
 
@@ -86,6 +105,18 @@ public class SequentialWorkerThread
 				names.add(0, names.remove(idx));
 			}
 		}
+	}
+
+	public boolean isDone(String name)
+	{
+		synchronized (jobs)
+		{
+			if (done.contains(name))
+				return true;
+			if (!names.contains(name) || name.equals(currentName))
+				throw new IllegalArgumentException();
+		}
+		return false;
 	}
 
 	public void removeNotStartedJobs()
