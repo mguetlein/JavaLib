@@ -27,12 +27,16 @@ public class BorderImageIcon extends ImageIcon
 		this.thickness = thickness;
 		this.col = col;
 		this.insets = insets;
-
 	}
 
 	public void setColor(Color col)
 	{
 		this.col = col;
+	}
+
+	public void setImg(ImageIcon img)
+	{
+		this.img = img;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ public class StringImageIcon extends ImageIcon
 	private Color c;
 	private Color background;
 	private Insets insets = new Insets(0, 0, 0, 0);
+	private boolean drawBorder = false;
 	FontMetrics fm;
 
 	public StringImageIcon(String s, Font f, Color c)
@@ -43,6 +44,8 @@ public class StringImageIcon extends ImageIcon
 		}
 		g.setColor(this.c);
 		g.setFont(f);
+		if (drawBorder)
+			g.drawRect(x, y, getIconWidth() - 1, getIconHeight() - 1);
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.drawString(s, x + insets.left, y + fm.getAscent() + insets.top);
 	}
@@ -77,10 +80,17 @@ public class StringImageIcon extends ImageIcon
 		this.insets = insets;
 	}
 
+	public void setDrawBorder(boolean b)
+	{
+		this.drawBorder = b;
+	}
+
 	public static void main(String[] args)
 	{
-		SwingUtil.showInDialog(new JLabel(new StringImageIcon("Test blub mit g und Ä", new JLabel().getFont(),
-				Color.BLACK)));
+		StringImageIcon ic = new StringImageIcon("Test blub mit g und Ä", new JLabel().getFont(), Color.BLACK);
+		ic.setDrawBorder(true);
+		ic.setInsets(new Insets(2, 2, 2, 2));
+		SwingUtil.showInDialog(new JLabel(ic));
 		System.exit(0);
 	}
 }
