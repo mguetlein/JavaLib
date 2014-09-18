@@ -157,6 +157,11 @@ public class CountedSet<T> implements ArraySummary
 				sb.append("&times;&thinsp;<i>");
 				sb.append(StringEscapeUtils.escapeHtml(String.valueOf(elem)));
 				sb.append("</i>, ");
+				if (sb.length() > 300)
+				{
+					sb.append("..."); // long html string may cause problems when used in swing components 
+					break; // not informative anyway
+				}
 			}
 			String s = sb.toString();
 			return s.substring(0, s.length() - 2) + "";

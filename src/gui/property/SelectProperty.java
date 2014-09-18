@@ -1,5 +1,6 @@
 package gui.property;
 
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.swing.JComponent;
@@ -11,6 +12,7 @@ public class SelectProperty extends AbstractProperty
 	private Object value;
 	private Object defaultValue;
 	private Object values[];
+	private HashMap<Object, String> renderValues;
 
 	public static String EMPTY = "nothing selected";
 
@@ -103,5 +105,18 @@ public class SelectProperty extends AbstractProperty
 			else
 				this.value = value;
 		}
+	}
+
+	public void setRenderValues(HashMap<Object, String> renderValues)
+	{
+		this.renderValues = renderValues;
+	}
+
+	public Object getRenderValue(Object value)
+	{
+		if (renderValues != null)
+			return renderValues.get(value);
+		else
+			return value;
 	}
 }

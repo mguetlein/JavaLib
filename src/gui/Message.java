@@ -1,11 +1,12 @@
 package gui;
 
+import javax.swing.Action;
+
 public class Message
 {
 	String string;
 	MessageType type;
-	String url;
-	String urlText;
+	Action action;
 
 	public Message(String string, MessageType type)
 	{
@@ -23,11 +24,10 @@ public class Message
 		return new Message(string, MessageType.Slow);
 	}
 
-	public static Message slowMessage(String string, String url, String urlText)
+	public static Message slowMessage(String string, Action action)
 	{
 		Message m = new Message(string, MessageType.Slow);
-		m.url = url;
-		m.urlText = urlText;
+		m.action = action;
 		return m;
 	}
 
@@ -51,13 +51,9 @@ public class Message
 		return type;
 	}
 
-	public String getURL()
+	public Action getAction()
 	{
-		return url;
+		return action;
 	}
 
-	public String getURLText()
-	{
-		return urlText;
-	}
 }

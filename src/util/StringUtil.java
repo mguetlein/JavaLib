@@ -727,4 +727,12 @@ public class StringUtil
 		}
 	}
 
+	public static boolean containsOnly(String x, char c)
+	{
+		for (int i = 0; i < x.length(); i++)
+			if (x.charAt(i) != c)
+				return false;
+		return true;
+	}
+
 }

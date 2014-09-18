@@ -2,6 +2,8 @@ package gui;
 
 import java.util.HashMap;
 
+import javax.swing.Action;
+
 public class Messages
 {
 	private HashMap<MessageType, Message> map = new HashMap<MessageType, Message>();
@@ -25,9 +27,9 @@ public class Messages
 		return new Messages(Message.slowMessage(string));
 	}
 
-	public static Messages slowMessage(String string, String url, String urlText)
+	public static Messages slowMessage(String string, Action action)
 	{
-		return new Messages(Message.slowMessage(string, url, urlText));
+		return new Messages(Message.slowMessage(string, action));
 	}
 
 	public static Messages warningMessage(String string)

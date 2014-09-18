@@ -1,11 +1,17 @@
 package gui.property;
 
+import gui.BoundsPopupMenuListener;
+
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.SwingUtilities;
 
 import util.ObjectUtil;
@@ -15,6 +21,7 @@ public class SelectPropertyComponent extends JComboBox implements PropertyCompon
 	SelectProperty property;
 	boolean update;
 
+	@SuppressWarnings("unchecked")
 	public SelectPropertyComponent(SelectProperty property)
 	{
 		super(property.getValues());
@@ -36,6 +43,17 @@ public class SelectPropertyComponent extends JComboBox implements PropertyCompon
 						update = false;
 					}
 				});
+			}
+		});
+
+		setRenderer(new DefaultListCellRenderer()
+		{
+			@Override
+			public Component getListCellRendererComponent(JList<? extends Object> list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus)
+			{
+				value = SelectPropertyComponent.this.property.getRenderValue(value);
+				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			}
 		});
 
@@ -68,5 +86,15 @@ public class SelectPropertyComponent extends JComboBox implements PropertyCompon
 				update = false;
 			}
 		});
+
+		BoundsPopupMenuListener listener = new BoundsPopupMenuListener(true, false);
+		this.addPopupMenuListener(listener);
+	}
+
+	@Override
+	public Dimension getPreferredSize()
+	{
+		Dimension d = super.getPreferredSize();
+		return new Dimension(Math.min(200, d.width), d.height);
 	}
 }

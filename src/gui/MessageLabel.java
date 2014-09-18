@@ -2,12 +2,11 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 
+import javax.swing.Action;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -21,7 +20,7 @@ public class MessageLabel extends JPanel
 	private JLabel infoIcon = new JLabel();
 	private JTextArea infoTextArea = new JTextArea();
 	private LinkButton link = new LinkButton("");
-	private String url;
+	private Action action;
 
 	public MessageLabel(Messages msgs)
 	{
@@ -57,14 +56,7 @@ public class MessageLabel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				try
-				{
-					Desktop.getDesktop().browse(new URI(url));
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				}
+				action.actionPerformed(e);
 			}
 		});
 		setOpaque(true);
@@ -101,11 +93,11 @@ public class MessageLabel extends JPanel
 		{
 			setIgnoreRepaint(true);
 			infoTextArea.setText(msg.getString());
-			if (msg.getURL() != null)
+			if (msg.getAction() != null)
 			{
 				link.setVisible(true);
-				url = msg.getURL();
-				link.setText(msg.getURLText() == null ? url : msg.getURLText());
+				action = msg.getAction();
+				link.setText(action.getValue(Action.NAME).toString());
 			}
 			else
 				link.setVisible(false);
