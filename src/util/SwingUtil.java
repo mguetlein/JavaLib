@@ -56,6 +56,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.JTextComponent;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 

@@ -235,4 +235,17 @@ public class ListUtil
 		}
 	}
 
+	public static String toCSVString(List<String> l)
+	{
+		if (l.size() == 0)
+			return "";
+		StringBuffer s = new StringBuffer();
+		for (String st : l)
+		{
+			s.append(st);
+			s.append(",");
+		}
+		return s.substring(0, s.length() - 1);
+	}
+
 }

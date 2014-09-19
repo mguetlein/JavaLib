@@ -19,6 +19,13 @@ public class Message
 		return new Message(string, MessageType.Info);
 	}
 
+	public static Message infoMessage(String string, Action action)
+	{
+		Message m = new Message(string, MessageType.Info);
+		m.action = action;
+		return m;
+	}
+
 	public static Message slowMessage(String string)
 	{
 		return new Message(string, MessageType.Slow);
