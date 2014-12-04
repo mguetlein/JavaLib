@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class CountedSet<T> implements ArraySummary
 {
@@ -155,7 +155,7 @@ public class CountedSet<T> implements ArraySummary
 			{
 				sb.append(getCount(elem));
 				sb.append("&times;&thinsp;<i>");
-				sb.append(StringEscapeUtils.escapeHtml(String.valueOf(elem)));
+				sb.append(StringEscapeUtils.escapeHtml4(String.valueOf(elem)));
 				sb.append("</i>, ");
 				if (sb.length() > 300)
 				{
