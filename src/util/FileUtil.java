@@ -12,10 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.SequenceInputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -84,18 +87,29 @@ public class FileUtil
 
 		public Double[] getDoubleColumn(String colName)
 		{
-			String s[] = getColumn(colName);
-			Double d[] = new Double[s.length];
-			for (int i = 0; i < d.length; i++)
+			try
 			{
-				Double v;
-				if (s[i] == null || s[i].length() == 0)
-					v = null;
-				else
-					v = Double.parseDouble(s[i]);
-				d[i] = v;
+				NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
+				String s[] = getColumn(colName);
+				Double d[] = new Double[s.length];
+				for (int i = 0; i < d.length; i++)
+				{
+					Double v;
+					if (s[i] == null || s[i].length() == 0)
+						v = null;
+					else
+					{
+						v = format.parse(s[i]).doubleValue();
+						//v = Double.parseDouble(s[i]);
+					}
+					d[i] = v;
+				}
+				return d;
 			}
-			return d;
+			catch (ParseException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 
 		public CSVFile removeRow(RowRemove remove)

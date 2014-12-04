@@ -56,6 +56,16 @@ public class ArrayUtil
 		return ss;
 	}
 
+	public static Double[] doubleFromCSVString(String s)
+	{
+		List<String> vals = StringUtil.split(s);
+		Double[] d = new Double[vals.size()];
+		for (int i = 0; i < d.length; i++)
+			if (vals.get(i) != null)
+				d[i] = Double.parseDouble(vals.get(i));
+		return d;
+	}
+
 	public static String intToCSVString(int a[])
 	{
 		StringBuffer s = new StringBuffer("");

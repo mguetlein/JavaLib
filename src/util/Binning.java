@@ -76,6 +76,19 @@ public class Binning
 		return l;
 	}
 
+	public long[] getSelectedCounts(double values[])
+	{
+		long[] l = new long[bins];
+		for (double v : values)
+		{
+			int bin = getBin(v);
+			if (bin == -1)
+				return null;
+			l[bin]++;
+		}
+		return l;
+	}
+
 	public String toString()
 	{
 		String s = "bins:   " + bins + "\n";

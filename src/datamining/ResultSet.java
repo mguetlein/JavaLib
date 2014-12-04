@@ -1,6 +1,7 @@
 package datamining;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,6 +20,7 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
@@ -34,6 +36,7 @@ import util.StringUtil;
 import util.SwingUtil;
 import util.TimeFormatUtil;
 import freechart.BarPlotPanel;
+import freechart.FreeChartUtil;
 
 public class ResultSet
 {
@@ -1094,6 +1097,19 @@ public class ResultSet
 		return p.getChartPanel();
 	}
 
+	public void boxPlotToFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+			String seriesProperty, List<String> categoryProperties)
+	{
+		boxPlotToFile(pngfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
+	}
+
+	public void boxPlotToFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+			String seriesProperty, List<String> categoryProperties, List<String> displayCategories)
+	{
+		FreeChartUtil.toFile(pngfilename,
+				boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories), dim);
+	}
+
 	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties)
 	{
@@ -1236,6 +1252,14 @@ public class ResultSet
 			}
 
 		}
+
+		chartPanel.getChart().getPlot().setBackgroundPaint(Color.WHITE);
+		if (chartPanel.getChart().getPlot() instanceof XYPlot)
+			((XYPlot) chartPanel.getChart().getPlot()).setRangeGridlinePaint(Color.GRAY);
+		else
+			((CategoryPlot) chartPanel.getChart().getPlot()).setRangeGridlinePaint(Color.GRAY);
+		chartPanel.getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
+
 		//		if (results.getResultValues(compareProp).size() == 1)
 		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
 		return chartPanel;

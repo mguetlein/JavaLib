@@ -15,10 +15,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 
+import util.ArrayUtil;
 import util.CorrelationMatrix;
 import util.CorrelationMatrix.PearsonBooleanCorrelationMatrix;
 import util.CorrelationMatrix.PearsonDoubleCorrelationMatrix;
 import util.CorrelationMatrix.SpearmanDoubleCorrelationMatrix;
+import util.FileUtil;
+import util.FileUtil.CSVFile;
 import util.StringUtil;
 import util.SwingUtil;
 
@@ -48,7 +51,7 @@ public class MatrixPanel extends JPanel
 
 	public void fill(Double d[][], String l[], Color c[][])
 	{
-		fill(d, l, c, null, null);
+		fill(d, l, l, c, null, null, null);
 	}
 
 	private String infoText(String text, String info)
@@ -62,7 +65,8 @@ public class MatrixPanel extends JPanel
 				+ "</div></html>";
 	}
 
-	public void fill(Double d[][], String l[], Color c[][], String dInfo[][], String lInfo[])
+	public void fill(Double d[][], String colNames[], String rowNames[], Color c[][], String dInfo[][],
+			String colInfo[], String rowInfo[])
 	{
 		//setLayout(new GridLayout(d.length + 1, d[0].length + 1, 1, 1));
 		ColumnSpec[] cols = new ColumnSpec[d.length + 1];
@@ -97,17 +101,17 @@ public class MatrixPanel extends JPanel
 				String text = "";
 				if (i == 0 && j > 0)
 				{
-					text = l[j - 1];
-					if (lInfo != null && lInfo[j - 1] != null)
-						text = infoText(text, lInfo[j - 1]);
+					text = colNames[j - 1];
+					if (colInfo != null && colInfo[j - 1] != null)
+						text = infoText(text, colInfo[j - 1]);
 				}
 				else if (i > 0 && j == 0)
 				{
-					text = l[i - 1];
+					text = rowNames[i - 1];
 					if (text.length() > 5)
 						text = text.substring(0, 3) + "..";
-					if (lInfo != null && lInfo[i - 1] != null)
-						text = infoText(text, lInfo[i - 1]);
+					if (rowInfo != null && rowInfo[i - 1] != null)
+						text = infoText(text, rowInfo[i - 1]);
 				}
 				else if (i > 0 && j > 0)
 				{
@@ -143,7 +147,7 @@ public class MatrixPanel extends JPanel
 
 	public void fill(CorrelationMatrix<?> m, String l[])
 	{
-		fill(m.getMatrix(), l, m.getColor(), m.getCellInfo(), m.getRowInfo());
+		fill(m.getMatrix(), l, l, m.getColor(), m.getCellInfo(), m.getRowInfo(), m.getRowInfo());
 	}
 
 	public void booleanCorrelationMatrix(List<Boolean[]> b, String l[])
@@ -277,8 +281,41 @@ public class MatrixPanel extends JPanel
 		this.subtitleString = subtitleString;
 	}
 
+	public static void fromCSV(String csvFile)
+	{
+		CSVFile csv = FileUtil.readCSV(csvFile);
+
+		MatrixPanel p = new MatrixPanel();
+		p.setTitleString(FileUtil.getFilename(csvFile));
+		p.setSubtitleString(csv.content.get(0)[0]);
+		p.setBackground(Color.WHITE);
+		p.fill(new Double[][] { { 1.0, 1.0 }, { 0.5, 0.5 }, { 0.6, 0.6 } }, new String[] { "a", "b" }, new String[] {
+				"e", "f", "g" }, null, null, new String[] { "aa", "bb" }, null);
+
+		JPanel pp = new JPanel();
+		pp.add(p);
+		pp.setPreferredSize(new Dimension(1000, 600));
+		SwingUtil.showInDialog(pp);
+
+	}
+
+	public static void testFromCsv()
+	{
+		String csv[][] = { { "Das ist der Untertitel", "Spalte 1", "Spalte 2", "Spalte 3" },
+				{ "Zeile 1", "0.1", "0.1", "0.1" }, { "Zeile 2", "0.1", "0.1", "0.1" },
+				{ "Zeile 3", "0.1", "0.1", "0.1" }, { "Zeile 4", "0.1", "0.1", "0.1" } };
+		String s = "";
+		for (String[] line : csv)
+			s += ArrayUtil.toCSVString(line) + "\n";
+		FileUtil.writeStringToFile("/tmp/test.csv", s);
+		fromCSV("/tmp/test.csv");
+		System.exit(0);
+	}
+
 	public static void main(String args[])
 	{
+		testFromCsv();
+
 		JPanel pp = new JPanel();
 
 		for (Boolean b : new Boolean[] { true, false })

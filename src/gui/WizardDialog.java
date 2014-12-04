@@ -37,33 +37,33 @@ import com.jgoodies.forms.layout.FormLayout;
 
 public class WizardDialog extends BlockableFrame
 {
-	JLabel titleLabel;
-	JTextArea descriptionTextArea;
+	protected JLabel titleLabel;
+	protected JTextArea descriptionTextArea;
 
-	JButton buttonNext;
-	JButton buttonPrev;
-	JButton buttonCancel;
-	JButton buttonFinish;
-	JButton buttonHelp;
-	JButton buttonImport;
+	protected JButton buttonNext;
+	protected JButton buttonPrev;
+	protected JButton buttonCancel;
+	protected JButton buttonFinish;
+	protected JButton buttonHelp;
+	protected JButton buttonImport;
 
-	JPanel centerPanel;
-	Vector<WizardPanel> panels;
-	int status = 0;
+	protected JPanel centerPanel;
+	protected Vector<WizardPanel> panels;
+	protected int status = 0;
 
-	String title;
-	Icon icon;
-	Icon additionalIcon;
+	protected String title;
+	protected Icon icon;
+	protected Icon additionalIcon;
 
-	DefaultListModel titleListModel;
-	JList titleList;
+	protected DefaultListModel titleListModel;
+	protected JList titleList;
 
-	MessageLabel messageLabel;
+	protected MessageLabel messageLabel;
 
-	JLabel iconLabel;
-	JLabel additionalIconLabel;
+	protected JLabel iconLabel;
+	protected JLabel additionalIconLabel;
 
-	String helpURL;
+	protected String helpURL;
 
 	public WizardDialog(JFrame owner, String title, Icon icon)
 	{
