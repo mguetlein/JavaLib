@@ -148,7 +148,10 @@ public class Result
 			if (s.length() > 0)
 				s += ",";
 			// s += values.get(p);
-			s += getValueToString(p);
+			String v = getValueToString(p);
+			if (v.contains(","))
+				throw new Error("no comma values plz");
+			s += v;
 		}
 		return s;
 	}

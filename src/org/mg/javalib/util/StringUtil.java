@@ -31,6 +31,12 @@ import com.csvreader.CsvReader;
 
 public class StringUtil
 {
+	public static String textToHtml(String text)
+	{
+		return text.replaceAll(">", "&gt;").replaceAll("\\* ", "&bull; ").replaceAll("\\+-", "&#177;")
+				.replaceAll("\n", "<br>");
+	}
+
 	public static String trimQuotes(String value)
 	{
 		if (value == null)
@@ -293,6 +299,8 @@ public class StringUtil
 
 	public static String formatDouble(double d, Locale l)
 	{
+		if (Double.isNaN(d))
+			return "?";
 		Locale.setDefault(l);
 		DecimalFormat df = new DecimalFormat("#.##");
 		return df.format(d);
@@ -305,16 +313,23 @@ public class StringUtil
 
 	public static String formatDouble(double d, int numDecimalPlaces, int completeStringSize)
 	{
-		char[] dec = new char[numDecimalPlaces];
-		Arrays.fill(dec, '#');
-		String decString = new String(dec);
-		if (dec.length > 0)
-			decString = "." + decString;
-		DecimalFormat df = new DecimalFormat("#" + decString);
-		if (completeStringSize != -1)
-			return StringUtil.concatWhitespace(df.format(d), completeStringSize, false);
+		String s;
+		if (Double.isNaN(d))
+			s = "?";
 		else
-			return df.format(d);
+		{
+			char[] dec = new char[numDecimalPlaces];
+			Arrays.fill(dec, '#');
+			String decString = new String(dec);
+			if (dec.length > 0)
+				decString = "." + decString;
+			DecimalFormat df = new DecimalFormat("#" + decString);
+			s = df.format(d);
+		}
+		if (completeStringSize != -1)
+			return StringUtil.concatWhitespace(s, completeStringSize, false);
+		else
+			return s;
 	}
 
 	public static int computeLineCount(FontMetrics f, String s, int width)
@@ -515,10 +530,12 @@ public class StringUtil
 
 	public static void main(String[] args)
 	{
-		for (int i = 0; i < 10000; i++)
-		{
-			System.out.println(i + ": " + getAlphabetLetter(i, false));
-		}
+		System.out.println(textToHtml("* bla\n* blu"));
+
+		//		for (int i = 0; i < 10000; i++)
+		//		{
+		//			System.out.println(i + ": " + getAlphabetLetter(i, false));
+		//		}
 
 		//		
 		//		List<String> l = new ArrayList<String>();

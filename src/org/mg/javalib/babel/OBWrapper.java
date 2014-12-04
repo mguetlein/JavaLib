@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -268,5 +269,32 @@ public class OBWrapper
 			e.printStackTrace();
 		}
 
+	}
+
+	/**
+	 * TODO make non-static
+	 * 
+	 * @param smiles
+	 * @return
+	 */
+	public static String runSmilesThroughOpenBabel(String smiles)
+	{
+		try
+		{
+			Process p = Runtime.getRuntime().exec("obabel -:" + smiles + " -o smi");
+			p.waitFor();
+			if (p.exitValue() != 0)
+				throw new Error();
+			BufferedReader buffy = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String smi = buffy.readLine();
+			buffy.close();
+			//			System.out.println(smi.trim());
+			return smi.trim();
+		}
+		catch (IOException | InterruptedException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

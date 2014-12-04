@@ -17,7 +17,7 @@ public interface ArffWritable
 
 	public int getNumInstances();
 
-	public String getAttributeValue(int instance, int attribute);
+	public String getAttributeValue(int instance, int attribute) throws Exception;
 
 	public boolean isSparse();
 

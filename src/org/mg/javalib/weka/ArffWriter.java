@@ -10,7 +10,7 @@ public class ArffWriter
 {
 	public static boolean DEBUG = false;
 
-	public static void writeToArffFile(File file, ArffWritable data)
+	public static void writeToArffFile(File file, ArffWritable data) throws Exception
 	{
 		//		File tmp = new File(file + ".tmp");
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
@@ -28,6 +29,7 @@ import org.jfree.chart.title.Title;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.mg.javalib.freechart.BarPlotPanel;
 import org.mg.javalib.freechart.FreeChartUtil;
+import org.mg.javalib.freechart.MessageChartPanel;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.CountedSet;
 import org.mg.javalib.util.DoubleKeyHashMap;
@@ -258,6 +260,44 @@ public class ResultSet
 		return s;
 	}
 
+	public static ResultSet fromString(String string)
+	{
+		List<String> properties = new ArrayList<String>();
+		ResultSet set = new ResultSet();
+		String lines[] = string.split("\n");
+		for (int i = 0; i < lines.length; i++)
+		{
+			String s = lines[i];
+			if (i == 0)
+			{
+				StringTokenizer tok = new StringTokenizer(s, ",");
+				while (tok.hasMoreTokens())
+					properties.add(tok.nextToken());
+			}
+			else
+			{
+				StringTokenizer tok = new StringTokenizer(s, ",");
+				int count = 0;
+				int index = set.addResult();
+				while (tok.hasMoreTokens())
+				{
+					String val = tok.nextToken();
+					Double nVal = null;
+					try
+					{
+						nVal = Double.parseDouble(val);
+					}
+					catch (NumberFormatException e)
+					{
+					}
+					set.setResultValue(index, properties.get(count), nVal != null ? nVal : val);
+					count++;
+				}
+			}
+		}
+		return set;
+	}
+
 	public String toMediaWikiString()
 	{
 		return toMediaWikiString(true, false);
@@ -452,6 +492,13 @@ public class ResultSet
 		return join(ArrayUtil.toList(new String[] { equalProperty }), null, null, joinMode);
 	}
 
+	public ResultSet join(String equalProperties[], String ommitProperties[], String varianceProperties[])
+	{
+		return join(ArrayUtil.toList(equalProperties),
+				ommitProperties == null ? null : ArrayUtil.toList(ommitProperties), varianceProperties == null ? null
+						: ArrayUtil.toList(varianceProperties));
+	}
+
 	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties)
 	{
 		return join(equalProperties, ommitProperties, varianceProperties, Result.JOIN_MODE_MEAN);
@@ -571,7 +618,11 @@ public class ResultSet
 	public void setResultValue(int index, String property, Object value)
 	{
 		if (!properties.contains(property))
+		{
+			if (property.contains(","))
+				throw new IllegalArgumentException("no commas plz");
 			properties.add(property);
+		}
 		results.get(index).setValue(property, value);
 	}
 
@@ -738,29 +789,28 @@ public class ResultSet
 			{
 				try
 				{
-					for (int k = 0; k < 2; k++)
+					int k = 0;
+					//					for (int k = 0; k < 2; k++)
+					//					{
+					double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i : j]),
+							valuesMap.get(compareProps[k == 0 ? j : i]));
+
+					int index = result.addResult();
+
+					result.setResultValue(index, compareProperty + "_1", compareProps[k == 0 ? i : j]);
+					result.setResultValue(index, compareProperty + "_2", compareProps[k == 0 ? j : i]);
+
+					int test = 0;
+					if (ttestValue <= confidence)
 					{
-						double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i : j]),
-								valuesMap.get(compareProps[k == 0 ? j : i]));
-
-						int index = result.addResult();
-
-						result.setResultValue(index, compareProperty + "_1", compareProps[k == 0 ? i : j]);
-						result.setResultValue(index, compareProperty + "_2", compareProps[k == 0 ? j : i]);
-
-						int test = 0;
-						if (ttestValue <= confidence)
-						{
-							if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap.get(compareProps[k == 0 ? j : i]))
-								test = 1;
-							else
-								test = -1;
-						}
-
-						result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
-
-						break;
+						if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap.get(compareProps[k == 0 ? j : i]))
+							test = 1;
+						else
+							test = -1;
 					}
+					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
+					//						break;
+					//					}
 				}
 				catch (IllegalArgumentException e)
 				{
@@ -916,8 +966,6 @@ public class ResultSet
 	{
 
 		testBoxPlot();
-		if (true == true)
-			System.exit(0);
 
 		//		ResultSet set1 = new ResultSet();
 		//		String datasetName = "Dataset";
@@ -1096,29 +1144,51 @@ public class ResultSet
 		return p.getChartPanel();
 	}
 
-	public void boxPlotToFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+	public void boxPlotToPNGFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
 			String seriesProperty, List<String> categoryProperties)
 	{
-		boxPlotToFile(pngfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
+		boxPlotToPNGFile(pngfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
 	}
 
-	public void boxPlotToFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+	public void boxPlotToPNGFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
 			String seriesProperty, List<String> categoryProperties, List<String> displayCategories)
 	{
-		FreeChartUtil.toFile(pngfilename,
+		FreeChartUtil.toPNGFile(pngfilename,
 				boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories), dim);
 	}
 
-	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+	public void boxPlotToSVGFile(String svgfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+			String seriesProperty, List<String> categoryProperties)
+	{
+		boxPlotToSVGFile(svgfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null, false);
+	}
+
+	public void boxPlotToSVGFile(String svgfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
+			String seriesProperty, List<String> categoryProperties, List<String> displayCategories, boolean zeroOneRange)
+	{
+		FreeChartUtil.toSVGFile(
+				svgfilename,
+				boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories,
+						zeroOneRange), dim);
+	}
+
+	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties)
 	{
 		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
 	}
 
-	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
 			List<String> categoryProperties, List<String> displayCategories)
 	{
-		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null);
+		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null, false);
+	}
+
+	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+			List<String> categoryProperties, List<String> displayCategories, boolean zeroOneRange)
+	{
+		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null,
+				zeroOneRange);
 	}
 
 	private static class KeyCounter
@@ -1152,8 +1222,8 @@ public class ResultSet
 		}
 	}
 
-	public ChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
-			List<String> categoryProperties, List<String> displayCategories, Double yTickUnit)
+	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
+			List<String> categoryProperties, List<String> displayCategories, Double yTickUnit, boolean zeroOneRange)
 	{
 		if (displayCategories == null)
 			displayCategories = categoryProperties;
@@ -1198,10 +1268,10 @@ public class ResultSet
 		}
 		String sizeStr[] = { "#results per plot: " + maxSize
 				+ (maxSize > minSize ? (" " + keyCounter.toString(maxSize)) : "") };
-		if (subtitle == null)
-			subtitle = sizeStr;
-		else
-			subtitle = ArrayUtil.concat(String.class, subtitle, sizeStr);
+		//		if (subtitle == null)
+		//			subtitle = sizeStr;
+		//		else
+		//			subtitle = ArrayUtil.concat(String.class, subtitle, sizeStr);
 
 		final CategoryAxis xAxis;
 		if (dataset.getRowCount() > 1) // show series property as axis-label only if there is more than one series
@@ -1212,6 +1282,9 @@ public class ResultSet
 
 		if (yTickUnit != null)
 			yAxis.setTickUnit(new NumberTickUnit(yTickUnit));
+
+		if (zeroOneRange)
+			yAxis.setRange(0, 1);
 
 		yAxis.setAutoRangeIncludesZero(false);
 		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
@@ -1225,8 +1298,10 @@ public class ResultSet
 
 		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
 		JFreeChart chart = new JFreeChart(title, plot);
-		ChartPanel chartPanel = new ChartPanel(chart);
+		MessageChartPanel chartPanel = new MessageChartPanel(chart);
 		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
+
+		chartPanel.setWarning(ArrayUtil.toString(sizeStr));
 
 		CategoryAxis domainAxis = plot.getDomainAxis();
 		domainAxis.setCategoryMargin(0.3);
@@ -1278,6 +1353,16 @@ public class ResultSet
 		if (o.getNumValues() != 1)
 			throw new IllegalStateException("'" + prop + "' not unique: " + o);
 		return o.values().get(0);
+	}
+
+	public double getVariance(String prop)
+	{
+		return (Double) getUniqueValue(prop + VARIANCE_SUFFIX);
+	}
+
+	public double getVariance(int resultIdx, String prop)
+	{
+		return (Double) getResultValue(resultIdx, prop + VARIANCE_SUFFIX);
 	}
 
 	public static void testBoxPlot()
