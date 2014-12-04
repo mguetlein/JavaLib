@@ -16,6 +16,7 @@ import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.ChartColor;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.mg.javalib.datamining.ResultSet;
 import org.mg.javalib.util.ArrayUtil;
@@ -59,7 +60,7 @@ public class FreeChartUtil
 		}
 	}
 
-	public static String toPNGFile(String pngFile, MessageChartPanel cp, Dimension dim)
+	public static String toPNGFile(String pngFile, ChartPanel cp, Dimension dim)
 	{
 		try
 		{
