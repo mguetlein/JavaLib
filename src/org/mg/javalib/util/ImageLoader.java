@@ -42,20 +42,40 @@ public class ImageLoader
 		return grayMap.get(img);
 	}
 
-	public static void resize(String src, String dest, double scale) throws IOException
+	public static ImageIcon getShrinkedImage(ImageIcon icon, int maxWidth, int maxHeight)
 	{
-		ImageIcon input = new ImageIcon(src);
-		//scale
-		int scaledWidth = (int) (input.getIconWidth() * scale);
-		int scaledHeight = (int) (input.getIconHeight() * scale);
+		double sx = maxWidth / (double) icon.getIconWidth();
+		double sy = maxHeight / (double) icon.getIconHeight();
+		//		System.err.println(maxWidth + "/" + maxHeight);
+		//		System.err.println(icon.getIconWidth() + "/" + icon.getIconHeight());
+		//		System.err.println(sx + "/" + sy);
+		//		System.err.println((sx * icon.getIconWidth()) + "/" + (sy * icon.getIconHeight()));
+		return getResizedImage(icon, Math.min(Math.min(sx, sy), 1));
+	}
+
+	public static ImageIcon getResizedImage(ImageIcon icon, double scale)
+	{
+		int scaledWidth = (int) (icon.getIconWidth() * scale);
+		int scaledHeight = (int) (icon.getIconHeight() * scale);
+		return getResizedImage(icon, scaledWidth, scaledHeight);
+	}
+
+	public static ImageIcon getResizedImage(ImageIcon icon, int scaledWidth, int scaledHeight)
+	{
 		BufferedImage resizedImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = resizedImage.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.drawImage(input.getImage(), 0, 0, scaledWidth, scaledHeight, null);
+		g.drawImage(icon.getImage(), 0, 0, scaledWidth, scaledHeight, null);
 		g.dispose();
+		return new ImageIcon(resizedImage);
+	}
 
+	public static void resize(String src, String dest, double scale) throws IOException
+	{
+		ImageIcon input = new ImageIcon(src);
+		ImageIcon resizedImage = getResizedImage(input, scale);
 		//ImageIO.write(resizedImage, "jpg", new File(dest));
 
 		ImageOutputStream ios = ImageIO.createImageOutputStream(new File(dest));
@@ -66,7 +86,7 @@ public class ImageLoader
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		iwp.setCompressionQuality(0.95f);
 		writer.setOutput(ios);
-		writer.write(null, new IIOImage(resizedImage, null, null), iwp);
+		writer.write(null, new IIOImage((BufferedImage) resizedImage.getImage(), null, null), iwp);
 		writer.dispose();
 	}
 

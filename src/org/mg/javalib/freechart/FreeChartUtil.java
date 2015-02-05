@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.util.Random;
 
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -18,7 +17,6 @@ import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
-import org.mg.javalib.datamining.ResultSet;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.FileUtil;
 import org.w3c.dom.DOMException;
@@ -129,21 +127,21 @@ public class FreeChartUtil
 
 	public static void main(String args[]) throws Exception
 	{
-		ResultSet rs = new ResultSet();
-		for (int run = 0; run < 10; run++)
-			for (String ser : new String[] { "eins", "zwei", "drei" })
-			{
-				int x = rs.addResult();
-				rs.setResultValue(x, "run", run);
-				rs.setResultValue(x, "ser", ser);
-				rs.setResultValue(x, "val1", new Random().nextDouble());
-				rs.setResultValue(x, "val2", new Random().nextDouble());
-				rs.setResultValue(x, "val3", new Random().nextDouble());
-			}
-		MessageChartPanel cp = rs.boxPlot("test", "yLabel", new String[] { "subtitle1" }, "ser",
-				ArrayUtil.toList(new String[] { "val1", "val2", "val3" }));
-		toSVGFile("/home/martin/workspace/pps/models/acc99c57-ee24-4d82-a760-685571fb7c47.1.svg", cp, new Dimension(
-				300, 300));
+		//		ResultSet rs = new ResultSet();
+		//		for (int run = 0; run < 10; run++)
+		//			for (String ser : new String[] { "eins", "zwei", "drei" })
+		//			{
+		//				int x = rs.addResult();
+		//				rs.setResultValue(x, "run", run);
+		//				rs.setResultValue(x, "ser", ser);
+		//				rs.setResultValue(x, "val1", new Random().nextDouble());
+		//				rs.setResultValue(x, "val2", new Random().nextDouble());
+		//				rs.setResultValue(x, "val3", new Random().nextDouble());
+		//			}
+		//		MessageChartPanel cp = rs.boxPlot("test", "yLabel", new String[] { "subtitle1" }, "ser",
+		//				ArrayUtil.toList(new String[] { "val1", "val2", "val3" }));
+		//		toSVGFile("/home/martin/workspace/pps/models/acc99c57-ee24-4d82-a760-685571fb7c47.1.svg", cp, new Dimension(
+		//				300, 300));
 
 		//		DefaultFormBuilder b = new DefaultFormBuilder(new FormLayout("p"));
 		//		for (Color c : BRIGHT_COLORS)

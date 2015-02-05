@@ -68,7 +68,7 @@ public class OBWrapper
 		return version.get(babelPath);
 	}
 
-	public String[] computeInchiFromSmiles(String[] smiles)
+	public String[] computeInchiFromSmiles(String... smiles)
 	{
 		String inchi[] = new String[smiles.length];
 		for (int i = 0; i < inchi.length; i++)

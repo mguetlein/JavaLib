@@ -29,4 +29,17 @@ public class ResultSetIO
 	{
 		return ResultSet.fromString(FileUtil.readStringFromFile(f.getAbsolutePath()));
 	}
+
+	public static void main(String[] args)
+	{
+		ResultSet set = ResultSet.dummySet();
+
+		System.out.println(set);
+		System.out.println();
+
+		printToFile(new File("/tmp/results"), set, true);
+
+		ResultSet set2 = parseFromFile(new File("/tmp/results"));
+		System.out.println(set2);
+	}
 }

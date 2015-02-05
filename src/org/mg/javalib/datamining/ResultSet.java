@@ -1,43 +1,34 @@
 package org.mg.javalib.datamining;
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
-import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.mg.javalib.freechart.BarPlotPanel;
-import org.mg.javalib.freechart.FreeChartUtil;
-import org.mg.javalib.freechart.MessageChartPanel;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.CountedSet;
-import org.mg.javalib.util.DoubleKeyHashMap;
 import org.mg.javalib.util.DoubleUtil;
 import org.mg.javalib.util.ListUtil;
 import org.mg.javalib.util.StringUtil;
 import org.mg.javalib.util.SwingUtil;
 import org.mg.javalib.util.TimeFormatUtil;
+
+import com.csvreader.CsvReader;
+import com.csvreader.CsvWriter;
 
 public class ResultSet
 {
@@ -59,7 +50,7 @@ public class ResultSet
 		for (String p : properties)
 			rs.properties.add(p);
 		for (Result r : results)
-			rs.results.add(r);
+			rs.results.add(r.copy());
 		return rs;
 	}
 
@@ -252,36 +243,44 @@ public class ResultSet
 
 	public String toString(boolean ommitPropertyString)
 	{
-		String s = "";
-		if (!ommitPropertyString)
-			s += getPropertyString() + "\n";
-		for (Result r : results)
-			s += r.toString(properties) + "\n";
-		return s;
+		try
+		{
+			StringWriter sw = new StringWriter();
+			CsvWriter writer = new CsvWriter(sw, ',');
+			if (!ommitPropertyString)
+				writer.writeRecord(ArrayUtil.toArray(properties));
+			for (Result r : results)
+			{
+				String s[] = new String[properties.size()];
+				for (int i = 0; i < s.length; i++)
+					s[i] = r.getValueToString(properties.get(i));
+				writer.writeRecord(s);
+			}
+			return sw.toString();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
-	public static ResultSet fromString(String string)
+	public static ResultSet fromString(String csv)
 	{
-		List<String> properties = new ArrayList<String>();
-		ResultSet set = new ResultSet();
-		String lines[] = string.split("\n");
-		for (int i = 0; i < lines.length; i++)
+		try
 		{
-			String s = lines[i];
-			if (i == 0)
+			CsvReader content = new CsvReader(new StringReader(csv));
+			ResultSet set = new ResultSet();
+			List<String> properties = new ArrayList<String>();
+			content.readHeaders();
+			for (String p : content.getHeaders())
+				properties.add(p);
+			while (content.readRecord())
 			{
-				StringTokenizer tok = new StringTokenizer(s, ",");
-				while (tok.hasMoreTokens())
-					properties.add(tok.nextToken());
-			}
-			else
-			{
-				StringTokenizer tok = new StringTokenizer(s, ",");
-				int count = 0;
 				int index = set.addResult();
-				while (tok.hasMoreTokens())
+				int count = 0;
+				for (String val : content.getValues())
 				{
-					String val = tok.nextToken();
 					Double nVal = null;
 					try
 					{
@@ -294,8 +293,13 @@ public class ResultSet
 					count++;
 				}
 			}
+			return set;
 		}
-		return set;
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public String toMediaWikiString()
@@ -353,14 +357,20 @@ public class ResultSet
 		return s;
 	}
 
-	private String getPropertyString()
+	public String toHtmlTable()
 	{
-		String s = null;
+		String s = "<table><tr>";
 		for (String p : properties)
-			if (s == null)
-				s = p;
-			else
-				s += "," + p;
+			s += "<th>" + getNiceProperty(p) + "</th>";
+		s += "</tr>";
+		for (Result r : results)
+		{
+			s += "<tr>";
+			for (String p : properties)
+				s += "<td>" + niceValue(r.getValue(p), -1) + "</td>";
+			s += "</tr>";
+		}
+		s += "</table>";
 		return s;
 	}
 
@@ -546,16 +556,6 @@ public class ResultSet
 			results.add(set.results.get(i));
 	}
 
-	// public boolean containsProperty(String property)
-	// {
-	// return properties.contains(property);
-	// }
-	//
-	// public void addProperty(String property)
-	// {
-	// properties.add(property);
-	// }
-
 	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set, String setMergePropValue)
 	{
 		for (String p : properties)
@@ -618,11 +618,7 @@ public class ResultSet
 	public void setResultValue(int index, String property, Object value)
 	{
 		if (!properties.contains(property))
-		{
-			if (property.contains(","))
-				throw new IllegalArgumentException("no commas plz");
 			properties.add(property);
-		}
 		results.get(index).setValue(property, value);
 	}
 
@@ -962,10 +958,66 @@ public class ResultSet
 		numDecimalPlaces = d;
 	}
 
+	public static ResultSet dummySet()
+	{
+		ResultSet set = new ResultSet();
+		set.properties.add("features");
+		set.properties.add("dataset");
+		set.properties.add("algorithm");
+		set.properties.add("fold");
+		set.properties.add("accuracy(with,comma)");
+
+		String features[] = new String[] { "fragments", "distance-pairs" };
+		String datasets[] = new String[] { "mouse", "elephant", "crocodile" };
+		String algorithms[] = new String[] { "C4.5", "SVM", "NB" };
+		Random random = new Random();
+
+		for (String feature : features)
+		{
+			for (String dataset : datasets)
+			{
+				for (String algorithm : algorithms)
+				{
+					for (int fold = 0; fold < 10; fold++)
+					{
+						Result r = new Result();
+						r.setValue("features", feature);
+						r.setValue("dataset", dataset);
+						r.setValue("algorithm", algorithm);
+						r.setValue("fold", fold);
+						r.setValue("accuracy(with,comma)", random.nextDouble());
+						set.results.add(r);
+					}
+				}
+			}
+		}
+		return set;
+	}
+
+	private static void noVarianceTest()
+	{
+		ResultSet rs = new ResultSet();
+		for (int i = 0; i < 2; i++)
+		{
+			int idx = rs.addResult();
+			rs.setResultValue(idx, "odd", i % 2 == 0);
+			rs.setResultValue(idx, "val", new Random().nextDouble());
+			rs.setResultValue(idx, "name", StringUtil.randomString());
+		}
+
+		System.out.println(rs.toNiceString());
+		rs = rs.join(new String[] { "odd" }, new String[0], new String[] { "val" });
+		System.out.println(rs.getResultValue(0, "val" + VARIANCE_SUFFIX));
+		Double d = (Double) null;
+		rs.getVariance(0, "val");
+		System.out.println(rs.toNiceString());
+	}
+
 	public static void main(String args[])
 	{
-
+		//noVarianceTest();
 		testBoxPlot();
+		System.exit(1);
 
 		//		ResultSet set1 = new ResultSet();
 		//		String datasetName = "Dataset";
@@ -992,37 +1044,7 @@ public class ResultSet
 		//
 		//		System.exit(0);
 
-		ResultSet set = new ResultSet();
-		set.properties.add("features");
-		set.properties.add("dataset");
-		set.properties.add("algorithm");
-		set.properties.add("fold");
-		set.properties.add("accuracy");
-
-		String features[] = new String[] { "fragments", "distance-pairs" };
-		String datasets[] = new String[] { "mouse", "elephant", "crocodile" };
-		String algorithms[] = new String[] { "C4.5", "SVM", "NB" };
-		Random random = new Random();
-
-		for (String feature : features)
-		{
-			for (String dataset : datasets)
-			{
-				for (String algorithm : algorithms)
-				{
-					for (int fold = 0; fold < 10; fold++)
-					{
-						Result r = new Result();
-						r.setValue("features", feature);
-						r.setValue("dataset", dataset);
-						r.setValue("algorithm", algorithm);
-						r.setValue("fold", fold);
-						r.setValue("accuracy", random.nextDouble());
-						set.results.add(r);
-					}
-				}
-			}
-		}
+		ResultSet set = dummySet();
 
 		System.out.println(set);
 		System.out.println();
@@ -1144,201 +1166,6 @@ public class ResultSet
 		return p.getChartPanel();
 	}
 
-	public void boxPlotToPNGFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
-			String seriesProperty, List<String> categoryProperties)
-	{
-		boxPlotToPNGFile(pngfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
-	}
-
-	public void boxPlotToPNGFile(String pngfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
-			String seriesProperty, List<String> categoryProperties, List<String> displayCategories)
-	{
-		FreeChartUtil.toPNGFile(pngfilename,
-				boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories), dim);
-	}
-
-	public void boxPlotToSVGFile(String svgfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
-			String seriesProperty, List<String> categoryProperties)
-	{
-		boxPlotToSVGFile(svgfilename, dim, title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null, false);
-	}
-
-	public void boxPlotToSVGFile(String svgfilename, Dimension dim, String title, String yAxisLabel, String[] subtitle,
-			String seriesProperty, List<String> categoryProperties, List<String> displayCategories, boolean zeroOneRange)
-	{
-		FreeChartUtil.toSVGFile(
-				svgfilename,
-				boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories,
-						zeroOneRange), dim);
-	}
-
-	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
-			List<String> categoryProperties)
-	{
-		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, null);
-	}
-
-	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
-			List<String> categoryProperties, List<String> displayCategories)
-	{
-		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null, false);
-	}
-
-	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
-			List<String> categoryProperties, List<String> displayCategories, boolean zeroOneRange)
-	{
-		return boxPlot(title, yAxisLabel, subtitle, seriesProperty, categoryProperties, displayCategories, null,
-				zeroOneRange);
-	}
-
-	private static class KeyCounter
-	{
-		LinkedHashMap<String, Integer[]> map = new LinkedHashMap<String, Integer[]>();
-
-		public void add(String key, int count)
-		{
-			if (map.containsKey(key))
-				map.put(key, ArrayUtil.concat(map.get(key), new Integer[] { count }));
-			else
-				map.put(key, new Integer[] { count });
-		}
-
-		public String toString(int norm)
-		{
-			Set<String> keys = map.keySet();
-			String s = "( ";
-			for (String k : keys)
-			{
-				Integer[] count = map.get(k);
-				Integer u = ArrayUtil.uniqValue(count);
-				if (u == null)
-					s += k + " #" + ArrayUtil.toString(count) + ", ";
-				else if (u != norm)
-					s += k + " #" + u + ", ";
-			}
-			s = s.substring(0, s.length() - 2);
-			s += " )";
-			return s;
-		}
-	}
-
-	public MessageChartPanel boxPlot(String title, String yAxisLabel, String[] subtitle, String seriesProperty,
-			List<String> categoryProperties, List<String> displayCategories, Double yTickUnit, boolean zeroOneRange)
-	{
-		if (displayCategories == null)
-			displayCategories = categoryProperties;
-
-		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
-		DoubleKeyHashMap<String, String, List<Double>> vals = new DoubleKeyHashMap<String, String, List<Double>>();
-
-		for (int i = 0; i < categoryProperties.size(); i++)
-			for (Result r : results)
-			{
-				String key1 = displayCategories.get(i);
-				String seriesVal = r.getValue(seriesProperty) + "";
-				if (!vals.containsKeyPair(key1, seriesVal))
-					vals.put(key1, seriesVal, new ArrayList<Double>());
-				Object v = r.getValue(categoryProperties.get(i));
-				if (v == null)
-					throw new Error("no value for " + key1);
-				Double d = Double.parseDouble(v + "");
-				if (!d.isNaN())
-					vals.get(key1, seriesVal).add(d);
-			}
-		int minSize = Integer.MAX_VALUE;
-		int maxSize = 0;
-
-		KeyCounter keyCounter = new KeyCounter();
-
-		for (String key1 : vals.keySet1())
-		{
-			//			System.out.println("1 " + key1);
-			for (String key2 : vals.keySet2(key1))
-			{
-				//				System.out.println(" 2 " + key2);
-				List<Double> v = vals.get(key1, key2);
-				//				System.out.println(key1 + " " + key2 + " " + DoubleArraySummary.create(v));
-				dataset.add(v, key2, key1);
-				int s = vals.get(key1, key2).size();
-
-				keyCounter.add(key1, s);
-				minSize = Math.min(s, minSize);
-				maxSize = Math.max(s, maxSize);
-			}
-		}
-		String sizeStr[] = { "#results per plot: " + maxSize
-				+ (maxSize > minSize ? (" " + keyCounter.toString(maxSize)) : "") };
-		//		if (subtitle == null)
-		//			subtitle = sizeStr;
-		//		else
-		//			subtitle = ArrayUtil.concat(String.class, subtitle, sizeStr);
-
-		final CategoryAxis xAxis;
-		if (dataset.getRowCount() > 1) // show series property as axis-label only if there is more than one series
-			xAxis = new CategoryAxis(seriesProperty);
-		else
-			xAxis = new CategoryAxis();
-		final NumberAxis yAxis = new NumberAxis(yAxisLabel);
-
-		if (yTickUnit != null)
-			yAxis.setTickUnit(new NumberTickUnit(yTickUnit));
-
-		if (zeroOneRange)
-			yAxis.setRange(0, 1);
-
-		yAxis.setAutoRangeIncludesZero(false);
-		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
-		renderer.setFillBox(true);
-
-		renderer.setItemMargin(0.05);
-
-		//		renderer.setMeanVisible(false);
-
-		CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
-
-		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
-		JFreeChart chart = new JFreeChart(title, plot);
-		MessageChartPanel chartPanel = new MessageChartPanel(chart);
-		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
-
-		chartPanel.setWarning(ArrayUtil.toString(sizeStr));
-
-		CategoryAxis domainAxis = plot.getDomainAxis();
-		domainAxis.setCategoryMargin(0.3);
-
-		if (subtitle != null)
-		{
-			List<Title> subtitles = new ArrayList<Title>();
-			for (String s : subtitle)
-			{
-				if (s != null)
-				{
-					Title t = new TextTitle(s);
-					subtitles.add(t);
-				}
-
-			}
-			if (subtitles.size() > 0)
-			{
-				if (dataset.getRowCount() > 1) // show legend only if there is more than one series
-					subtitles.add(chart.getLegend());
-				chart.setSubtitles(subtitles);
-			}
-
-		}
-
-		chartPanel.getChart().getPlot().setBackgroundPaint(Color.WHITE);
-		if (chartPanel.getChart().getPlot() instanceof XYPlot)
-			((XYPlot) chartPanel.getChart().getPlot()).setRangeGridlinePaint(Color.GRAY);
-		else
-			((CategoryPlot) chartPanel.getChart().getPlot()).setRangeGridlinePaint(Color.GRAY);
-		chartPanel.getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
-
-		//		if (results.getResultValues(compareProp).size() == 1)
-		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
-		return chartPanel;
-	}
-
 	public CountedSet<Object> getResultValues(String prop)
 	{
 		CountedSet<Object> o = new CountedSet<Object>();
@@ -1357,12 +1184,24 @@ public class ResultSet
 
 	public double getVariance(String prop)
 	{
-		return (Double) getUniqueValue(prop + VARIANCE_SUFFIX);
+		if (!hasProperty(prop + VARIANCE_SUFFIX))
+			throw new Error("no variance available for " + prop);
+		Double d = (Double) getUniqueValue(prop + VARIANCE_SUFFIX);
+		if (d == null)
+			return Double.NaN;
+		else
+			return d;
 	}
 
 	public double getVariance(int resultIdx, String prop)
 	{
-		return (Double) getResultValue(resultIdx, prop + VARIANCE_SUFFIX);
+		if (!hasProperty(prop + VARIANCE_SUFFIX))
+			throw new Error("no variance available for " + prop);
+		Double d = (Double) getResultValue(resultIdx, prop + VARIANCE_SUFFIX);
+		if (d == null)
+			return Double.NaN;
+		else
+			return d;
 	}
 
 	public static void testBoxPlot()
@@ -1373,13 +1212,16 @@ public class ResultSet
 			{
 				int x = rs.addResult();
 				rs.setResultValue(x, "run", run);
-				rs.setResultValue(x, "ser", ser);
+				rs.setResultValue(x, "series", ser);
 				rs.setResultValue(x, "val1", new Random().nextDouble());
 				rs.setResultValue(x, "val2", new Random().nextDouble());
 				rs.setResultValue(x, "val3", new Random().nextDouble());
+				//				break;
 			}
-		SwingUtil.showInDialog(rs.boxPlot("test", "yLabel", new String[] { "subtitle1" }, "ser",
-				ArrayUtil.toList(new String[] { "val1", "val2", "val3" })));
+		ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", "series", ArrayUtil.toList(new String[] {
+				"val1", "val2", "val3" }));
+		p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
+		SwingUtil.showInDialog(p.getChart());
 	}
 
 	public static ResultSet build(List<Object[]> values)
@@ -1411,4 +1253,41 @@ public class ResultSet
 			res.clearMergeCount();
 
 	}
+
+	public ResultSet mergeVariance()
+	{
+		ResultSet rs = new ResultSet();
+		for (int i = 0; i < results.size(); i++)
+		{
+			rs.addResult();
+			for (String p : properties)
+			{
+				if (p.endsWith(VARIANCE_SUFFIX))
+					continue;
+				if (properties.contains(p + VARIANCE_SUFFIX))
+					rs.setResultValue(i, p,
+							niceValue(getResultValue(i, p)) + "+-" + niceValue(getResultValue(i, p + VARIANCE_SUFFIX)));
+				else
+					rs.setResultValue(i, p, getResultValue(i, p));
+			}
+		}
+		return rs;
+	}
+
+	public Object[][] toNiceArray()
+	{
+		Object array[][] = new Object[results.size() + 1][properties.size()];
+		int row = 0;
+		for (int i = 0; i < properties.size(); i++)
+			array[row][i] = getNiceProperty(properties.get(i));
+		row++;
+		for (Result result : results)
+		{
+			for (int i = 0; i < properties.size(); i++)
+				array[row][i] = niceValue(result.getValue(properties.get(i)));
+			row++;
+		}
+		return array;
+	}
+
 }

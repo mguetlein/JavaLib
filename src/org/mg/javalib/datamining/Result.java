@@ -1,7 +1,10 @@
 package org.mg.javalib.datamining;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.mg.javalib.util.ArrayUtil;
 
 public class Result
 {
@@ -14,6 +17,20 @@ public class Result
 	public static final int JOIN_MODE_MEAN = 0;
 	public static final int JOIN_MODE_CONCAT = 1;
 	public static final int JOIN_MODE_SUM = 2;
+
+	public Result copy()
+	{
+		Result r = new Result();
+		for (String k : values.keySet())
+			r.values.put(k, values.get(k));
+		if (mergeCount != null)
+		{
+			r.mergeCount = new HashMap<String, Integer>();
+			for (String k : mergeCount.keySet())
+				r.mergeCount.put(k, mergeCount.get(k));
+		}
+		return r;
+	}
 
 	public Result join(Result result, List<String> properties, List<String> propertiesToBeEqual,
 			List<String> varianceProperties, int joinMode)
@@ -142,18 +159,10 @@ public class Result
 
 	public String toString(List<String> propreties)
 	{
-		String s = "";
+		List<String> values = new ArrayList<String>();
 		for (String p : propreties)
-		{
-			if (s.length() > 0)
-				s += ",";
-			// s += values.get(p);
-			String v = getValueToString(p);
-			if (v.contains(","))
-				throw new Error("no comma values plz");
-			s += v;
-		}
-		return s;
+			values.add(getValueToString(p));
+		return ArrayUtil.toCSVString(ArrayUtil.toArray(values));
 	}
 
 	public boolean equals(List<String> propertiesToBeEqual, Result result)

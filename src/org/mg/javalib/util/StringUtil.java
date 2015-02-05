@@ -31,6 +31,40 @@ import com.csvreader.CsvReader;
 
 public class StringUtil
 {
+	public static String withCharCount(String line)
+	{
+		StringBuffer res = new StringBuffer();
+		res.append(line);
+		res.append("\n");
+		for (int i = 0; i < line.length(); i++)
+		{
+			if (i % 10 == 0)
+				res.append("|");
+			else if (i % 5 == 0)
+				res.append("^");
+			else
+				res.append(" ");
+		}
+		res.append("\n");
+		boolean skip = false;
+		for (int i = 0; i < line.length(); i++)
+		{
+			if (i % 10 == 0)
+			{
+				res.append(i);
+				if (i != 0)
+					skip = true;
+			}
+			else if (!skip)
+				res.append(" ");
+			else
+				skip = false;
+		}
+		//		res.append("\n");
+		return res.toString();
+
+	}
+
 	public static String textToHtml(String text)
 	{
 		return text.replaceAll(">", "&gt;").replaceAll("\\* ", "&bull; ").replaceAll("\\+-", "&#177;")
