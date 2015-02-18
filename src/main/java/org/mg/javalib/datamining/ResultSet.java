@@ -248,7 +248,7 @@ public class ResultSet
 			StringWriter sw = new StringWriter();
 			CsvWriter writer = new CsvWriter(sw, ',');
 			if (!ommitPropertyString)
-				writer.writeRecord(ArrayUtil.toArray(properties));
+				writer.writeRecord(ArrayUtil.toArray(String.class, properties));
 			for (Result r : results)
 			{
 				String s[] = new String[properties.size()];
