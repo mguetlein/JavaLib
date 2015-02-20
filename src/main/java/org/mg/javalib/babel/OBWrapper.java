@@ -32,6 +32,14 @@ public class OBWrapper
 	private Logger logger;
 	private String oBabelPath;
 
+	public OBWrapper()
+	{
+		this.babelPath = "/usr/bin/babel";
+		this.oBabelPath = "/usr/bin/obabel";
+		this.logger = new Logger(null, true);
+		ext = new ExternalTool(logger);
+	}
+
 	public OBWrapper(String babelPath, String oBabelPath, Logger logger)
 	{
 		this.babelPath = babelPath;
