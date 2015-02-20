@@ -1,11 +1,9 @@
 package org.mg.javalib.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import org.mg.javalib.datamining.ResultSet;
@@ -175,16 +173,6 @@ public class DoubleArraySummary implements ArraySummary
 		return create(numbers, 0);
 	}
 
-	public static <T> DoubleArraySummary create(Iterable<T> numbers, int additionalZeros)
-	{
-		return create(numbers.iterator(), additionalZeros);
-	}
-
-	public static <T> DoubleArraySummary create(Iterator<T> numbers)
-	{
-		return create(numbers, 0);
-	}
-
 	public static DoubleArraySummary create(double[] numbers)
 	{
 		return create(ArrayUtil.toDoubleArray(numbers));
@@ -192,10 +180,10 @@ public class DoubleArraySummary implements ArraySummary
 
 	public static DoubleArraySummary create(Double[] numbers)
 	{
-		return create(Arrays.asList(numbers));
+		return create(numbers);
 	}
 
-	public static <T> DoubleArraySummary create(Iterator<T> numbers, int additionalZeros)
+	public static <T> DoubleArraySummary create(Iterable<T> numbers, int additionalZeros)
 	{
 		assert (additionalZeros >= 0);
 
@@ -211,9 +199,9 @@ public class DoubleArraySummary implements ArraySummary
 		List<Double> l = new ArrayList<Double>();
 		HashSet<Double> uniq = new HashSet<Double>();
 
-		while (numbers.hasNext())
+		for (T t : numbers)
 		{
-			Number n = (Number) numbers.next();
+			Number n = (Number) t;
 
 			if (n == null)
 			{
