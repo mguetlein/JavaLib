@@ -15,6 +15,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 public class ImageLoader
 {
@@ -72,14 +73,16 @@ public class ImageLoader
 
 	public static void main(String args[])
 	{
-		try
-		{
-			resize("/home/martin/Schreibtisch/new_zealand.jpg", "/home/martin/Schreibtisch/new_zealand_X.jpg", 0.5);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		SwingUtil.showInDialog(new JLabel(getImage(Image.ches_mapper)));
+
+		//		try
+		//		{
+		//			resize("/home/martin/Schreibtisch/new_zealand.jpg", "/home/martin/Schreibtisch/new_zealand_X.jpg", 0.5);
+		//		}
+		//		catch (IOException e)
+		//		{
+		//			e.printStackTrace();
+		//		}
 	}
 
 	public static ImageIcon loadImageIcon(String imagePath, Class<?> relativeTo)
@@ -98,8 +101,8 @@ public class ImageLoader
 				try
 				{
 					// hack: file lies in lib folder
-					imagePath = new File(".").getCanonicalPath() + File.separator + ".." + File.separator + "JavaLib"
-							+ File.separator + imagePath;
+					imagePath = new File(".").getCanonicalPath() + File.separator + ".." + File.separator
+							+ "Old_JavaLib" + File.separator + imagePath;
 					icon = new ImageIcon(imagePath);
 				}
 				catch (IOException e1)
