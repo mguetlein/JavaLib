@@ -1,6 +1,7 @@
 package org.mg.javalib.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -168,11 +169,6 @@ public class DoubleArraySummary implements ArraySummary
 		return create(counts, additionalZeros);
 	}
 
-	public static <T> DoubleArraySummary create(Iterable<T> numbers)
-	{
-		return create(numbers, 0);
-	}
-
 	public static DoubleArraySummary create(double[] numbers)
 	{
 		return create(ArrayUtil.toDoubleArray(numbers));
@@ -180,7 +176,12 @@ public class DoubleArraySummary implements ArraySummary
 
 	public static DoubleArraySummary create(Double[] numbers)
 	{
-		return create(numbers);
+		return create(Arrays.asList(numbers));
+	}
+
+	public static <T> DoubleArraySummary create(Iterable<T> numbers)
+	{
+		return create(numbers, 0);
 	}
 
 	public static <T> DoubleArraySummary create(Iterable<T> numbers, int additionalZeros)

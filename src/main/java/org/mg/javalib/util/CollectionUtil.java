@@ -16,18 +16,20 @@ public class CollectionUtil
 		return s;
 	}
 
-	public static <T> T[] toArray(Collection<T> l)
-	{
-		if (l.size() == 0)
-			throw new IllegalArgumentException("collection size is 0");
-		return toArray(l.iterator().next().getClass(), l);
-	}
-
-	public static <T> T[] toArray(Class<?> type, Collection<T> l)
+	public static <T> T[] toArray(Collection<T> list)
 	{
 		@SuppressWarnings("unchecked")
-		T a[] = (T[]) Array.newInstance(type, l.size());
-		return l.toArray(a);
+		T a[] = (T[]) Array.newInstance(list.iterator().next().getClass(), list.size());
+		return list.toArray(a);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T[] toArray(Class<T> type, Collection<T> list)
+	{
+		if (list.size() == 0)
+			return (T[]) Array.newInstance(type, 0);
+		T a[] = (T[]) Array.newInstance(type, list.size());
+		return list.toArray(a);
 	}
 
 }

@@ -13,10 +13,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.apache.commons.math3.util.FastMath;
 import org.mg.javalib.util.ListUtil.Filter;
@@ -117,26 +116,17 @@ public class ArrayUtil
 
 	public static int indexOf(int[] array, int elem)
 	{
-		for (int i = 0; i < array.length; i++)
-			if (array[i] == elem)
-				return i;
-		return -1;
+		return ArrayUtils.indexOf(array, elem);
 	}
 
 	public static int indexOf(double[] array, double elem)
 	{
-		for (int i = 0; i < array.length; i++)
-			if (array[i] == elem)
-				return i;
-		return -1;
+		return ArrayUtils.indexOf(array, elem);
 	}
 
 	public static <T> int indexOf(T[] array, T elem)
 	{
-		for (int i = 0; i < array.length; i++)
-			if (ObjectUtil.equals(array[i], elem))
-				return i;
-		return -1;
+		return ArrayUtils.indexOf(array, elem);
 	}
 
 	public static <T> int occurences(T[] array, T elem)
@@ -168,62 +158,24 @@ public class ArrayUtil
 		return a;
 	}
 
-	public static Double[] toDoubleArray(Vector<Double> vector)
-	{
-		Double[] a = new Double[vector.size()];
-		return vector.toArray(a);
-	}
-
 	public static Double[] toDoubleArray(double array[])
 	{
-		Double[] a = new Double[array.length];
-		for (int i = 0; i < a.length; i++)
-			a[i] = new Double(array[i]);
-		return a;
+		return ArrayUtils.toObject(array);
 	}
 
 	public static Integer[] toIntegerArray(int array[])
 	{
-		Integer[] a = new Integer[array.length];
-		for (int i = 0; i < a.length; i++)
-			a[i] = new Integer(array[i]);
-		return a;
+		return ArrayUtils.toObject(array);
 	}
 
-	public static <T> T[] toArray(List<T> list)
+	public static <T> T[] toArray(Collection<T> list)
 	{
-		return ListUtil.toArray(list);
+		return CollectionUtil.toArray(list);
 	}
 
-	public static <T> T[] toArray(Class<T> type, List<T> list)
+	public static <T> T[] toArray(Class<T> type, Collection<T> list)
 	{
-		return ListUtil.toArray(type, list);
-	}
-
-	/**
-	 * safe for empty sets
-	 * 
-	 * @param type
-	 * @param set
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T[] toArray(Class<T> type, Set<T> set)
-	{
-		if (set.size() == 0)
-			return (T[]) Array.newInstance(type, 0);
-		return CollectionUtil.toArray(set);
-	}
-
-	/**
-	 * not safe for emtpy sets
-	 * 
-	 * @param set
-	 * @return
-	 */
-	public static <T> T[] toArray(Set<T> set)
-	{
-		return CollectionUtil.toArray(set);
+		return CollectionUtil.toArray(type, list);
 	}
 
 	public static Integer[] toIntegerArray(List<Integer> values)
@@ -289,10 +241,7 @@ public class ArrayUtil
 
 	public static double[] toPrimitiveDoubleArray(Double[] doubles)
 	{
-		double[] d = new double[doubles.length];
-		for (int j = 0; j < d.length; j++)
-			d[j] = doubles[j];
-		return d;
+		return ArrayUtils.toPrimitive(doubles);
 	}
 
 	public static double[] toPrimitiveDoubleArray(int[] ints)
@@ -376,26 +325,17 @@ public class ArrayUtil
 
 	public static <T> List<T> toList(T[] o)
 	{
-		List<T> d = new ArrayList<T>();
-		for (T e : o)
-			d.add(e);
-		return d;
+		return Arrays.asList(o);
 	}
 
 	public static List<Double> toList(double[] doubles)
 	{
-		List<Double> d = new ArrayList<Double>();
-		for (double e : doubles)
-			d.add(e);
-		return d;
+		return toList(ArrayUtils.toObject(doubles));
 	}
 
 	public static List<Integer> toList(int[] doubles)
 	{
-		List<Integer> d = new ArrayList<Integer>();
-		for (int e : doubles)
-			d.add(e);
-		return d;
+		return toList(ArrayUtils.toObject(doubles));
 	}
 
 	public static <T> HashSet<T> getDistinctValues(T array[])

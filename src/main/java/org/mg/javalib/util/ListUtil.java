@@ -1,7 +1,7 @@
 package org.mg.javalib.util;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -146,18 +146,14 @@ public class ListUtil
 		return l;
 	}
 
-	public static <T> T[] toArray(List<T> list)
+	public static <T> T[] toArray(Collection<T> list)
 	{
-		@SuppressWarnings("unchecked")
-		T a[] = (T[]) Array.newInstance(list.get(0).getClass(), list.size());
-		return list.toArray(a);
+		return CollectionUtil.toArray(list);
 	}
 
-	public static <T> T[] toArray(Class<T> type, List<T> list)
+	public static <T> T[] toArray(Class<T> type, Collection<T> list)
 	{
-		@SuppressWarnings("unchecked")
-		T a[] = (T[]) Array.newInstance(type, list.size());
-		return list.toArray(a);
+		return CollectionUtil.toArray(type, list);
 	}
 
 	public static <T> List<T> compact(List<T> list)
