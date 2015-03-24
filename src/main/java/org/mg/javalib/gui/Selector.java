@@ -554,7 +554,7 @@ public abstract class Selector<C, T> extends JPanel
 		sel.addElements(new WrappedString("Saeugetiere"), "Hund", "Katze", "Maus", "Nicht-hinzufuegbar");
 		sel.addElements(new WrappedString("Fische"), "Hai", "Kabeljau");
 		sel.addElements(new WrappedString("Voegel"), "Spatz", "Adler", "Strauss", "Amsel");
-		sel.addElements(new WrappedString("Unmögliche Tiere"));
+		sel.addElements(new WrappedString("Unmoegliche Tiere"));
 		sel.addElements(new WrappedString[] { new WrappedString("Uebergruppe"), new WrappedString("Untergruppe") },
 				"Herdentier 1", "Herdentier 2");
 		sel.addElements(new WrappedString[] { new WrappedString("Uebergruppe"), new WrappedString("Untergruppe2") },

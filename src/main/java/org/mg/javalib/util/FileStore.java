@@ -58,7 +58,7 @@ public class FileStore
 	{
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("bla", 1);
-		map.put("Osterhase", "asjklö");
+		map.put("Osterhase", "asdf asdf");
 		map.put("123", 1 / 3.0);
 		HashMap<String, Object> map2 = new HashMap<String, Object>();
 		map2.put("some", "info");

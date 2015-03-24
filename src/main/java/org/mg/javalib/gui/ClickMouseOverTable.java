@@ -156,7 +156,7 @@ public class ClickMouseOverTable extends MouseOverTable
 		model.addColumn("Column A");
 		model.addColumn("Second Column");
 		model.addRow(new String[] { "1", "2" });
-		model.addRow(new String[] { "frg", "aöeio" });
+		model.addRow(new String[] { "frg", "aasdf asdfo" });
 		for (int i = 0; i < 10; i++)
 			model.addRow(new String[] { StringUtil.randomString(), StringUtil.randomString() });
 
