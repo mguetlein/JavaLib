@@ -164,11 +164,10 @@ public class MessagePanel extends JPanel
 	{
 		MessagePanel p = new MessagePanel();
 		p.addWarning("warning because of asdfasdf", null);
-		p.addWarning("warning because of bla", "more test alöskfj aösldkfj alök jsdfklsj lfjk sd");
-		p.addError("some error", "more test alöskfj aösldkfj alök jsdfklsj lfjk sd");
-		p.addInfo(
-				"info message",
-				"more test alöskfj\n \n \n \n \n \n \n \n aösldkfj alök jsdfklsj lfjk sd more test alöskfj aösldkfj alök jsdfklsj lfjk sdmore test alöskfj aösldkfj alök jsdfklsj lfjk sd");
+		p.addWarning("warning because of bla", "asdf asdfasdf asdfasdf asdf asdf ");
+		p.addError("some error", "asdf asdfasdfasdf asdfasdfasdf");
+		p.addInfo("info message",
+				"more test asdf\n \n \n \n \n \n \n \n alksjdfh alksjfh alksjfh alksjfh laksjfh lakjsfh aklsfg jsgah fklasdh flaksjf ");
 		//		p.expandToLast();
 		//p.tree.expandPath(new TreePath(p.root));
 		SwingUtil.showInDialog(p);//, new Dimension(400, 600));

@@ -87,7 +87,8 @@ public class StringImageIcon extends ImageIcon
 
 	public static void main(String[] args)
 	{
-		StringImageIcon ic = new StringImageIcon("Test blub mit g und Ä", new JLabel().getFont(), Color.BLACK);
+		StringImageIcon ic = new StringImageIcon("Test blub mit g und " + Character.toString((char) 196),
+				new JLabel().getFont(), Color.BLACK);
 		ic.setDrawBorder(true);
 		ic.setInsets(new Insets(2, 2, 2, 2));
 		SwingUtil.showInDialog(new JLabel(ic));

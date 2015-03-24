@@ -193,7 +193,7 @@ public class ListUtil
 		//		List<String> l = new ArrayList<String>();
 		//		l.add("vier");
 		//		l.add("eins");
-		//		l.add("fünf");
+		//		l.add("fuenf");
 		//		l.add("sieben");
 		//		l.add("neun");
 		//		l.add("drei");

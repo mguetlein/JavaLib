@@ -15,8 +15,8 @@ import java.util.Random;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.DoubleKeyHashMap;
 import org.mg.javalib.util.FileUtil;
-import org.mg.javalib.util.ListUtil;
 import org.mg.javalib.util.FileUtil.CSVFile;
+import org.mg.javalib.util.ListUtil;
 
 public class SDFUtil
 {
@@ -648,7 +648,7 @@ public class SDFUtil
 		//		CSVFile smiles = FileUtil.readCSV("/home/martin/data/david/RDT_oral_studies.smi", "	");
 		//		System.out.println(smiles.content.size());
 
-		//		String test = "asdf\nM  END\nasölkfj\nasdfkljasfd\n$$$$\n";
+		//		String test = "asdf\nM  END\naskfj\nasdfkljasfd\n$$$$\n";
 		//		System.out.println(test);
 		//		//test.replaceAll("(?s).*\nM  END\n.*\n$$$$\n$", "\nM  END\n$$$$\n");
 		//		test = test.replaceAll("(?s)(.*)\nM  END.*$$$$\n$", "$1\nM  END\n\\$\\$\\$\\$\n");

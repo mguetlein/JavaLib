@@ -489,7 +489,7 @@ public class WizardDialog extends BlockableFrame
 			@Override
 			public Messages canProceed()
 			{
-				return Messages.warningMessage("bla asldkfj alskd fölaks fölaks jfdölaks jfdölaks jfdölakjs fd");
+				return Messages.warningMessage("bla asldkfj asdf");
 			}
 
 		};
@@ -524,7 +524,7 @@ public class WizardDialog extends BlockableFrame
 		WizardDialog w = new WizardDialog(null, "Test wizard", null);
 		w.addPanel(p1);
 		w.addPanel(p2);
-		//		w.setMessage(Message.warningMessage("bla asldkfj alskd fölaks fölaks jfdölaks jfdölaks jfdölakjs fd"));
+		//		w.setMessage(Message.warningMessage("asfd lkjhasdf alskjdfh alskdjfh "));
 		w.setSize(600, 400);
 		w.setLocationRelativeTo(null);
 		w.setVisible(true);

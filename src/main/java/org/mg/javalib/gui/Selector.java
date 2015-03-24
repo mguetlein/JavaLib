@@ -527,7 +527,7 @@ public abstract class Selector<C, T> extends JPanel
 			@Override
 			public boolean isValid(String elem)
 			{
-				return !elem.equals("Nicht-hinzufügbar");
+				return !elem.equals("Nicht-hinzufuegbar");
 			}
 
 			@Override
@@ -551,13 +551,13 @@ public abstract class Selector<C, T> extends JPanel
 						+ sel.getHighlightedCategory());
 			}
 		});
-		sel.addElements(new WrappedString("Säugetiere"), "Hund", "Katze", "Maus", "Nicht-hinzufügbar");
+		sel.addElements(new WrappedString("Saeugetiere"), "Hund", "Katze", "Maus", "Nicht-hinzufuegbar");
 		sel.addElements(new WrappedString("Fische"), "Hai", "Kabeljau");
-		sel.addElements(new WrappedString("Vögel"), "Spatz", "Adler", "Strauß", "Amsel");
+		sel.addElements(new WrappedString("Voegel"), "Spatz", "Adler", "Strauss", "Amsel");
 		sel.addElements(new WrappedString("Unmögliche Tiere"));
-		sel.addElements(new WrappedString[] { new WrappedString("Übergruppe"), new WrappedString("Untergruppe") },
+		sel.addElements(new WrappedString[] { new WrappedString("Uebergruppe"), new WrappedString("Untergruppe") },
 				"Herdentier 1", "Herdentier 2");
-		sel.addElements(new WrappedString[] { new WrappedString("Übergruppe"), new WrappedString("Untergruppe2") },
+		sel.addElements(new WrappedString[] { new WrappedString("Uebergruppe"), new WrappedString("Untergruppe2") },
 				"Herdentier 3");
 		sel.addElements(new WrappedString("Insekten"), "Ameise1", "Ameise2", "Ameise3", "Ameise4", "Ameise5",
 				"Ameise6", "Ameise7");
@@ -569,9 +569,9 @@ public abstract class Selector<C, T> extends JPanel
 			}
 
 		});
-		sel.setCategorySelected(new WrappedString("Säugetiere"), false);
-		sel.expand(new WrappedString("Übergruppe"));
-		sel.highlight(new WrappedString("Übergruppe"));
+		sel.setCategorySelected(new WrappedString("Saeugetiere"), false);
+		sel.expand(new WrappedString("Uebergruppe"));
+		sel.highlight(new WrappedString("Uebergruppe"));
 		Thread th = new Thread(new Runnable()
 		{
 

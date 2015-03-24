@@ -101,7 +101,7 @@ public class MouseOverTable extends JTable
 		model.addColumn("Column A");
 		model.addColumn("Second Column");
 		model.addRow(new String[] { "1", "2" });
-		model.addRow(new String[] { "frg", "aöeio" });
+		model.addRow(new String[] { "frg", "asdfasdf" });
 		model.addRow(new String[] { "wer", "xc" });
 
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener()

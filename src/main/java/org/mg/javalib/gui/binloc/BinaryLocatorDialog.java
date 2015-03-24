@@ -174,8 +174,7 @@ public class BinaryLocatorDialog extends JDialog
 
 	public static void main(String args[])
 	{
-		Binary b = new Binary("babel", null,
-				"alösdfj aslökf jalöksdjf alöskd jflöaskjdflöaksd jflöaksjd flöaksj flöaks jdflöakjs dflöaks jdf");
+		Binary b = new Binary("babel", null, "alskdjfh alksjfdh alksjfdh alksjfh aklsjfdh alksjdf ");
 
 		List<Binary> l = new ArrayList<Binary>();
 		l.add(b);
