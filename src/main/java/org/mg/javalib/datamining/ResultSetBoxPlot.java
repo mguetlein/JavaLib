@@ -5,10 +5,13 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryPlot;
@@ -20,8 +23,10 @@ import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.mg.javalib.freechart.FreeChartUtil;
 import org.mg.javalib.freechart.MessageChartPanel;
 import org.mg.javalib.util.ArrayUtil;
+import org.mg.javalib.util.CountedSet;
 import org.mg.javalib.util.DoubleArraySummary;
 import org.mg.javalib.util.DoubleKeyHashMap;
+import org.mg.javalib.util.SwingUtil;
 
 public class ResultSetBoxPlot
 {
@@ -65,13 +70,23 @@ public class ResultSetBoxPlot
 	String yAxisLabel;
 
 	List<String> categoryProperties;
-	List<String> displayCategories;
 	Double yTickUnit = null;
 	boolean zeroOneRange = false;
+	boolean rotateXLabels = false;
+	boolean hideMean = false;
+	boolean printResultsPerPlot = true;
+
+	String seriesProperty2;
+	String categoryProperty;
 
 	DoubleKeyHashMap<String, String, List<Double>> values;
 	DefaultBoxAndWhiskerCategoryDataset dataset;
 
+	/**
+	 * e.g.
+	 * series = algorithm
+	 * categories = accuracy,auc,recall
+	 */
 	public ResultSetBoxPlot(ResultSet set, String title, String yAxisLabel, String seriesProperty,
 			List<String> categoryProperties)
 	{
@@ -80,7 +95,23 @@ public class ResultSetBoxPlot
 		this.seriesProperty = seriesProperty;
 		this.yAxisLabel = yAxisLabel;
 		this.categoryProperties = categoryProperties;
-		this.displayCategories = categoryProperties;
+	}
+
+	/**
+	 * e.g.
+	 * series = algorithm
+	 * series2 = dataset
+	 * category = auc
+	 */
+	public ResultSetBoxPlot(ResultSet set, String title, String yAxisLabel, String seriesProperty,
+			String seriesProperty2, String categoryProperty)
+	{
+		this.set = set;
+		this.title = title;
+		this.seriesProperty = seriesProperty;
+		this.yAxisLabel = yAxisLabel;
+		this.seriesProperty2 = seriesProperty2;
+		this.categoryProperty = categoryProperty;
 	}
 
 	public void setSubtitles(String[] subtitles)
@@ -98,9 +129,10 @@ public class ResultSetBoxPlot
 		this.yTickUnit = yTickUnit;
 	}
 
-	public void setDisplayCategories(List<String> displayCategories)
+	public void setDisplayCategories(List<String> dispProps)
 	{
-		this.displayCategories = displayCategories;
+		for (int i = 0; i < categoryProperties.size(); i++)
+			set.setNicePropery(categoryProperties.get(i), dispProps.get(i));
 	}
 
 	private void initValues()
@@ -108,20 +140,53 @@ public class ResultSetBoxPlot
 		values = new DoubleKeyHashMap<String, String, List<Double>>();
 		dataset = new DefaultBoxAndWhiskerCategoryDataset();
 
-		for (int i = 0; i < categoryProperties.size(); i++)
-			for (int r = 0; r < set.getNumResults(); r++)
+		if (seriesProperty2 == null)
+		{
+			for (int i = 0; i < categoryProperties.size(); i++)
+				for (int r = 0; r < set.getNumResults(); r++)
+				{
+					String key1 = set.getNiceProperty(categoryProperties.get(i));
+					String seriesVal = set.getResultValue(r, seriesProperty) + "";
+					if (!values.containsKeyPair(key1, seriesVal))
+						values.put(key1, seriesVal, new ArrayList<Double>());
+					Object v = set.getResultValue(r, categoryProperties.get(i));
+					if (v == null)
+						throw new Error("no value for " + key1);
+					Double d = Double.parseDouble(v + "");
+					if (!d.isNaN())
+						values.get(key1, seriesVal).add(d);
+				}
+		}
+		else
+		{
+			CountedSet<Object> series2 = set.getResultValues(seriesProperty2);
+
+			for (final Object series2Value : series2.values())
 			{
-				String key1 = displayCategories.get(i);
-				String seriesVal = set.getResultValue(r, seriesProperty) + "";
-				if (!values.containsKeyPair(key1, seriesVal))
-					values.put(key1, seriesVal, new ArrayList<Double>());
-				Object v = set.getResultValue(r, categoryProperties.get(i));
-				if (v == null)
-					throw new Error("no value for " + key1);
-				Double d = Double.parseDouble(v + "");
-				if (!d.isNaN())
-					values.get(key1, seriesVal).add(d);
+				ResultSet filtered = set.filter(new ResultSetFilter()
+				{
+					@Override
+					public boolean accept(Result result)
+					{
+						return result.getValue(seriesProperty2).equals(series2Value.toString());
+					}
+				});
+				for (int r = 0; r < filtered.getNumResults(); r++)
+				{
+					String key1 = series2Value.toString();
+					String seriesVal = filtered.getResultValue(r, seriesProperty) + "";
+					if (!values.containsKeyPair(key1, seriesVal))
+						values.put(key1, seriesVal, new ArrayList<Double>());
+					Object v = filtered.getResultValue(r, categoryProperty);
+					if (v == null)
+						throw new Error("no value for " + key1);
+					Double d = Double.parseDouble(v + "");
+					if (!d.isNaN())
+						values.get(key1, seriesVal).add(d);
+				}
 			}
+		}
+
 		int minSize = Integer.MAX_VALUE;
 		int maxSize = 0;
 		KeyCounter keyCounter = new KeyCounter();
@@ -142,10 +207,13 @@ public class ResultSetBoxPlot
 		}
 		sizeStr = new String[] { "#results per plot: " + maxSize
 				+ (maxSize > minSize ? (" " + keyCounter.toString(maxSize)) : "") };
-		if (this.subtitles == null)
-			this.subtitles = sizeStr;
-		else
-			this.subtitles = ArrayUtil.concat(String.class, subtitles, sizeStr);
+		if (printResultsPerPlot)
+		{
+			if (this.subtitles == null)
+				this.subtitles = sizeStr;
+			else
+				this.subtitles = ArrayUtil.concat(String.class, subtitles, sizeStr);
+		}
 	}
 
 	public String getTitle()
@@ -156,6 +224,21 @@ public class ResultSetBoxPlot
 	public String getYAxisLabel()
 	{
 		return yAxisLabel;
+	}
+
+	public void setRotateXLabels(boolean rotateXLabels)
+	{
+		this.rotateXLabels = rotateXLabels;
+	}
+
+	public void setHideMean(boolean hideMean)
+	{
+		this.hideMean = hideMean;
+	}
+
+	public void printResultsPerPlot(boolean b)
+	{
+		this.printResultsPerPlot = b;
 	}
 
 	public DoubleKeyHashMap<String, String, List<Double>> getValues()
@@ -199,14 +282,18 @@ public class ResultSetBoxPlot
 
 		renderer.setItemMargin(0.05);
 
-		//		renderer.setMeanVisible(false);
+		if (hideMean)
+			renderer.setMeanVisible(false);
 
 		CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
 
 		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
 		JFreeChart chart = new JFreeChart(title, plot);
 		MessageChartPanel chartPanel = new MessageChartPanel(chart);
-		//chartPanel.setPreferredSize(new java.awt.Dimension(450, 270));
+
+		//chartPanel.setBounds(new Rectangle(3000, 500));
+
+		//chartPanel.setPreferredSize(new Dimension(3000, 500));
 
 		chartPanel.setWarning(ArrayUtil.toString(sizeStr));
 
@@ -241,9 +328,61 @@ public class ResultSetBoxPlot
 			((CategoryPlot) chartPanel.getChart().getPlot()).setRangeGridlinePaint(Color.GRAY);
 		chartPanel.getChart().setBackgroundPaint(new Color(0, 0, 0, 0));
 
+		if (rotateXLabels)
+			xAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+
 		//		if (results.getResultValues(compareProp).size() == 1)
 		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
 		return chartPanel;
 
 	}
+
+	public static void testBoxPlot()
+	{
+		Random r = new Random();
+		ResultSet rs = new ResultSet();
+		for (int datasets = 0; datasets < 20; datasets++)
+			for (int folds = 0; folds < 10; folds++)
+				for (String ser : new String[] { "eins", "zwei", "drei" })
+				{
+					int x = rs.addResult();
+					rs.setResultValue(x, "dataset", "dataset" + datasets);
+					rs.setResultValue(x, "fold", folds);
+					rs.setResultValue(x, "algorithm", ser);
+					rs.setResultValue(x, "auc", r.nextDouble() + 0.1);
+					rs.setResultValue(x, "accuracy", r.nextDouble());
+					rs.setResultValue(x, "recall", r.nextDouble());
+					//					break;
+				}
+
+		{
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", null, ArrayUtil.toList(new String[] {
+					"auc", "accuracy", "recall" }));
+			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
+			SwingUtil.showInDialog(p.getChart());
+		}
+		{
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "auc", "algorithm", "dataset", "auc");
+			ChartPanel pp = p.getChart();
+
+			pp.setMaximumDrawWidth(100000);
+			pp.setPreferredSize(new Dimension(2000, 1000));
+
+			SwingUtil.showInDialog(pp);
+		}
+		{
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", "algorithm",
+					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
+			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
+			SwingUtil.showInDialog(p.getChart());
+		}
+
+		System.exit(1);
+	}
+
+	public static void main(String[] args)
+	{
+		testBoxPlot();
+	}
+
 }

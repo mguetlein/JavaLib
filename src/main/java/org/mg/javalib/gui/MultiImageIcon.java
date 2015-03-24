@@ -132,8 +132,10 @@ public class MultiImageIcon extends ImageIcon
 		icons.add(ImageLoader.getImage(ImageLoader.Image.ches_mapper));
 		icons.add(ImageLoader.getImage(ImageLoader.Image.error));
 		icons.add(ImageLoader.getImage(ImageLoader.Image.opentox));
-		JLabel l = new JLabel(new MultiImageIcon(icons, MultiImageIcon.Layout.horizontal,
-				MultiImageIcon.Orientation.bottom, 10));
+		Image img = new MultiImageIcon(icons, MultiImageIcon.Layout.horizontal, MultiImageIcon.Orientation.bottom, 10)
+				.getImage();
+		img = ImageLoader.getShrinkedImage(new ImageIcon(img), 100, 100).getImage();
+		JLabel l = new JLabel(new ImageIcon(img));
 		SwingUtil.showInDialog(l);
 		System.exit(0);
 	}

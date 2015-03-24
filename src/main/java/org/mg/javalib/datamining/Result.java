@@ -3,6 +3,7 @@ package org.mg.javalib.datamining;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.mg.javalib.util.ArrayUtil;
 
@@ -20,9 +21,15 @@ public class Result
 
 	public Result copy()
 	{
+		return copy(null);
+	}
+
+	public Result copy(Set<String> acceptAttributes)
+	{
 		Result r = new Result();
 		for (String k : values.keySet())
-			r.values.put(k, values.get(k));
+			if (acceptAttributes == null || acceptAttributes.contains(k))
+				r.values.put(k, values.get(k));
 		if (mergeCount != null)
 		{
 			r.mergeCount = new HashMap<String, Integer>();

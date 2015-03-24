@@ -173,21 +173,39 @@ public class ListUtil
 	public static void main(String[] args)
 	{
 		List<String> l = new ArrayList<String>();
-		l.add("vier");
-		l.add("eins");
-		l.add("fünf");
-		l.add("sieben");
-		l.add("neun");
-		l.add("drei");
+		l.add("a");
+		l.add("b");
+		l.add("c");
+		l.add("d");
+		l.add("e");
 
 		List<String> o = new ArrayList<String>();
-		o.add("eins");
-		o.add("zwei");
-		o.add("drei");
+		o.add("1");
+		o.add("2");
+		o.add("3");
+		o.add("4");
+		o.add("5");
 
+		scramble(new Random(), l, o);
 		System.out.println(l);
-		ListUtil.sort(l, o);
-		System.out.println(l);
+		System.out.println(o);
+
+		//		List<String> l = new ArrayList<String>();
+		//		l.add("vier");
+		//		l.add("eins");
+		//		l.add("fünf");
+		//		l.add("sieben");
+		//		l.add("neun");
+		//		l.add("drei");
+		//
+		//		List<String> o = new ArrayList<String>();
+		//		o.add("eins");
+		//		o.add("zwei");
+		//		o.add("drei");
+		//
+		//		System.out.println(l);
+		//		ListUtil.sort(l, o);
+		//		System.out.println(l);
 	}
 
 	/**
@@ -228,6 +246,25 @@ public class ListUtil
 			T tmp = list.get(j);
 			list.set(j, list.get(i));
 			list.set(i, tmp);
+		}
+	}
+
+	@SafeVarargs
+	public static <T> void scramble(Random r, List<T>... list)
+	{
+		for (int k = 1; k < list.length; k++)
+			if (list[k].size() != list[0].size())
+				throw new IllegalArgumentException();
+
+		for (int i = 0; i < list[0].size(); i++)
+		{
+			int j = r.nextInt(list[0].size());
+			for (int k = 0; k < list.length; k++)
+			{
+				T tmp = list[k].get(j);
+				list[k].set(j, list[k].get(i));
+				list[k].set(i, tmp);
+			}
 		}
 	}
 

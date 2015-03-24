@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
@@ -22,10 +23,14 @@ import org.mg.javalib.freechart.BarPlotPanel;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.CountedSet;
 import org.mg.javalib.util.DoubleUtil;
+import org.mg.javalib.util.FileUtil;
 import org.mg.javalib.util.ListUtil;
 import org.mg.javalib.util.StringUtil;
-import org.mg.javalib.util.SwingUtil;
 import org.mg.javalib.util.TimeFormatUtil;
+
+import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
@@ -46,11 +51,17 @@ public class ResultSet
 
 	public ResultSet copy()
 	{
+		return copy(null);
+	}
+
+	public ResultSet copy(Set<String> acceptAttributes)
+	{
 		ResultSet rs = new ResultSet();
 		for (String p : properties)
-			rs.properties.add(p);
+			if (acceptAttributes == null || acceptAttributes.contains(p))
+				rs.properties.add(p);
 		for (Result r : results)
-			rs.results.add(r.copy());
+			rs.results.add(r.copy(acceptAttributes));
 		return rs;
 	}
 
@@ -265,8 +276,14 @@ public class ResultSet
 		}
 	}
 
+	public static ResultSet fromCSV(String absolutePath)
+	{
+		return fromString(FileUtil.readStringFromFile(absolutePath));
+	}
+
 	public static ResultSet fromString(String csv)
 	{
+		System.err.println("reading " + csv);
 		try
 		{
 			CsvReader content = new CsvReader(new StringReader(csv));
@@ -554,6 +571,15 @@ public class ResultSet
 
 		for (int i = 0; i < set.getNumResults(); i++)
 			results.add(set.results.get(i));
+	}
+
+	public void concatCols(ResultSet set)
+	{
+		if (getNumResults() != set.getNumResults())
+			throw new IllegalArgumentException("num results not equal");
+		for (String p : set.getProperties())
+			for (int i = 0; i < set.getNumResults(); i++)
+				setResultValue(i, p, set.getResultValue(i, p));
 	}
 
 	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set, String setMergePropValue)
@@ -1016,8 +1042,6 @@ public class ResultSet
 	public static void main(String args[])
 	{
 		//noVarianceTest();
-		testBoxPlot();
-		System.exit(1);
 
 		//		ResultSet set1 = new ResultSet();
 		//		String datasetName = "Dataset";
@@ -1204,26 +1228,6 @@ public class ResultSet
 			return d;
 	}
 
-	public static void testBoxPlot()
-	{
-		ResultSet rs = new ResultSet();
-		for (int run = 0; run < 10; run++)
-			for (String ser : new String[] { "eins", "zwei", "drei" })
-			{
-				int x = rs.addResult();
-				rs.setResultValue(x, "run", run);
-				rs.setResultValue(x, "series", ser);
-				rs.setResultValue(x, "val1", new Random().nextDouble());
-				rs.setResultValue(x, "val2", new Random().nextDouble());
-				rs.setResultValue(x, "val3", new Random().nextDouble());
-				//				break;
-			}
-		ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", "series", ArrayUtil.toList(new String[] {
-				"val1", "val2", "val3" }));
-		p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
-		SwingUtil.showInDialog(p.getChart());
-	}
-
 	public static ResultSet build(List<Object[]> values)
 	{
 		ResultSet set = new ResultSet();
@@ -1288,6 +1292,37 @@ public class ResultSet
 			row++;
 		}
 		return array;
+	}
+
+	public ResultSet translate()
+	{
+		ResultSet t = new ResultSet();
+		for (String p : properties)
+		{
+			int idx = t.addResult();
+			t.setResultValue(idx, "property", p);
+			for (int i = 0; i < getNumResults(); i++)
+				t.setResultValue(idx, "value" + (getNumResults() > 1 ? (i + 1) : ""), getResultValue(i, p));
+		}
+		return t;
+	}
+
+	public static ResultSet fromWekaDataset(Instances data)
+	{
+		ResultSet set = new ResultSet();
+		for (Instance instance : data)
+		{
+			int rIdx = set.addResult();
+			for (int a = 0; a < data.numAttributes(); a++)
+			{
+				Attribute att = data.attribute(a);
+				if (att.isNumeric())
+					set.setResultValue(rIdx, att.name(), instance.value(att));
+				else
+					set.setResultValue(rIdx, att.name(), instance.stringValue(att));
+			}
+		}
+		return set;
 	}
 
 }

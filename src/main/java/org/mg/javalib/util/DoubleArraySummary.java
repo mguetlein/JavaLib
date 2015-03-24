@@ -37,6 +37,22 @@ public class DoubleArraySummary implements ArraySummary
 		this.numDistinct = numDistinct;
 	}
 
+	public String toStringSummary()
+	{
+		StringBuffer b = new StringBuffer();
+		b.append("num " + num + "\n");
+		b.append("min " + min + "\n");
+		b.append("max " + max + "\n");
+		b.append("sum " + sum + "\n");
+		b.append("mean " + mean + "\n");
+		b.append("median " + median + "\n");
+		b.append("var " + var + "\n");
+		b.append("numZero " + numZero + "\n");
+		b.append("numNull " + numNull + "\n");
+		b.append("numDistinct " + numDistinct + "\n");
+		return b.toString();
+	}
+
 	public String toString()
 	{
 		// return "num: " + num + ", min: " + min + ", max: " + max + ", sum: " + sum + ", mean: " + mean + ", numZero: "
@@ -262,7 +278,14 @@ public class DoubleArraySummary implements ArraySummary
 
 	public static void main(String[] args)
 	{
-		System.out.println(DoubleArraySummary.create(new double[] { 1, 2, 3, 4, 5, 13 }));
+		for (Double d[] : new Double[][] { { 1.0, 2.0, 3.0, 4.0, 5.0, 13.0 }, { 1.0, 2.0, 3.0, 4.0, 5.0, null },
+				{ null, null, null } })
+		{
+			DoubleArraySummary sum = DoubleArraySummary.create(d);
+			System.out.println(sum.getMedian());
+			System.out.println(sum.getMean());
+			System.out.println(sum);
+		}
 	}
 
 }

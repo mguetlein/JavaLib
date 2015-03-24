@@ -325,7 +325,10 @@ public class ArrayUtil
 
 	public static <T> List<T> toList(T[] o)
 	{
-		return Arrays.asList(o);
+		ArrayList<T> list = new ArrayList<T>(o.length);
+		for (T t : o)
+			list.add(t);
+		return list;
 	}
 
 	public static List<Double> toList(double[] doubles)
@@ -1417,10 +1420,30 @@ public class ArrayUtil
 		return idx;
 	}
 
+	public static int getMaxIndex(double[] array)
+	{
+		double max = -Double.MAX_VALUE;
+		int idx = -1;
+		for (int i = 0; i < array.length; i++)
+		{
+			if (array[i] > max)
+			{
+				max = array[i];
+				idx = i;
+			}
+		}
+		return idx;
+	}
+
 	public static void main(String args[])
 	{
-		Double[] a = new Double[] { 0.0, 1.0, 2.0, 3.0, 1.0, 0.0, 4.0, 5.0 };
-		System.out.println(ArrayUtil.toString(removeDuplicates(a)));
+		int[] a = new int[] { 1 };
+		System.out.println(ListUtil.toString(ArrayUtil.toList(a)));
+		System.out.println(ArrayUtil.toList(a).getClass());
+		ArrayUtil.toList(a).add((Integer) 2);
+
+		//		Double[] a = new Double[] { 0.0, 1.0, 2.0, 3.0, 1.0, 0.0, 4.0, 5.0 };
+		//		System.out.println(ArrayUtil.toString(removeDuplicates(a)));
 
 		//		double[][] a = new double[][] { //
 		//		/*    */{ 0.0, 1.0, 2.0, 3.0 }, //
