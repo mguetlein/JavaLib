@@ -4,10 +4,9 @@ import java.util.List;
 
 public interface ArffWritable
 {
-
 	public List<String> getAdditionalInfo();
 
-	// public String getRelationName();
+	public String getRelationName();
 
 	public int getNumAttributes();
 

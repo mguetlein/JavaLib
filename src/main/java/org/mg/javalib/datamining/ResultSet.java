@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -715,7 +716,65 @@ public class ResultSet
 	// }
 	// }
 
+	public ResultSet pairedTTestWinLoss(String compareProperty, List<String> equalProperties, String testProperty,
+			double confidence, final String seriesProperty)
+	{
+		ResultSet ttest = pairedTTest(compareProperty, equalProperties, testProperty, confidence, seriesProperty);
+		for (int i = 0; i < ttest.getNumResults(); i++)
+			ttest.setResultValue(i, testProperty + SIGNIFICANCE_SUFFIX,
+					ttest.getResultValue(i, testProperty + SIGNIFICANCE_SUFFIX) + "");
+		ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" }, null, null);
+		ResultSet r = new ResultSet();
+		for (int i = 0; i < ttest.getNumResults(); i++)
+		{
+			int idx = r.addResult();
+			r.setResultValue(idx, compareProperty + "_1", ttest.getResultValue(idx, compareProperty + "_1"));
+			r.setResultValue(idx, compareProperty + "_2", ttest.getResultValue(idx, compareProperty + "_2"));
+			int win = 0, loss = 0, draw = 0;
+			for (String s : ttest.getResultValue(idx, testProperty + SIGNIFICANCE_SUFFIX).toString().split("/"))
+			{
+				if (s.equals("-1"))
+					loss++;
+				else if (s.equals("1"))
+					win++;
+				else if (s.equals("0"))
+					draw++;
+				else
+					throw new IllegalStateException();
+			}
+			r.setResultValue(idx, testProperty + "_win", win);
+			r.setResultValue(idx, testProperty + "_draw", draw);
+			r.setResultValue(idx, testProperty + "_loss", loss);
+		}
+		return r;
+	}
+
 	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties, String testProperty,
+			double confidence, final String seriesProperty)
+	{
+		ResultSet res = null;
+		for (final Object series : getResultValues(seriesProperty).values())
+		{
+			ResultSet r = filter(new ResultSetFilter()
+			{
+				@Override
+				public boolean accept(Result result)
+				{
+					return result.getValue(seriesProperty).equals(series);
+				}
+			});
+			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty, confidence);
+			for (int i = 0; i < test.getNumResults(); i++)
+				test.setResultValue(i, seriesProperty, series);
+			if (res == null)
+				res = test;
+			else
+				res.concat(test);
+		}
+		return res;
+	}
+
+	public ResultSet pairedTTest_All(String compareProperty, List<String> equalProperties, String testProperty,
 			double confidence)
 	{
 		// HashMap<String, List<Object>> differentPropValues = new HashMap<String, List<Object>>();
@@ -741,7 +800,7 @@ public class ResultSet
 		ResultSet result = new ResultSet();
 
 		// get indices for each compare prop
-		HashMap<Object, List<Integer>> indexMap = new HashMap<Object, List<Integer>>();
+		LinkedHashMap<Object, List<Integer>> indexMap = new LinkedHashMap<Object, List<Integer>>();
 		for (int i = 0; i < results.size(); i++)
 		{
 			Object cmp = results.get(i).getValue(compareProperty);
@@ -783,8 +842,8 @@ public class ResultSet
 
 		// get values for inidices
 		Object[] compareProps = new Object[indexMap.size()];
-		HashMap<Object, double[]> valuesMap = new HashMap<Object, double[]>();
-		HashMap<Object, Double> meansMap = new HashMap<Object, Double>();
+		LinkedHashMap<Object, double[]> valuesMap = new LinkedHashMap<Object, double[]>();
+		LinkedHashMap<Object, Double> meansMap = new LinkedHashMap<Object, Double>();
 
 		int count = 0;
 		for (Object p : indexMap.keySet())
@@ -831,6 +890,8 @@ public class ResultSet
 							test = -1;
 					}
 					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
+
+					result.setResultValue(index, "num pairs", valuesMap.get(compareProps[k == 0 ? i : j]).length);
 					//						break;
 					//					}
 				}
@@ -987,14 +1048,9 @@ public class ResultSet
 	public static ResultSet dummySet()
 	{
 		ResultSet set = new ResultSet();
-		set.properties.add("features");
-		set.properties.add("dataset");
-		set.properties.add("algorithm");
-		set.properties.add("fold");
-		set.properties.add("accuracy(with,comma)");
 
-		String features[] = new String[] { "fragments", "distance-pairs" };
-		String datasets[] = new String[] { "mouse", "elephant", "crocodile" };
+		String features[] = new String[] { "fragments", "descriptor,s" };
+		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "dog", "cat" };
 		String algorithms[] = new String[] { "C4.5", "SVM", "NB" };
 		Random random = new Random();
 
@@ -1006,13 +1062,22 @@ public class ResultSet
 				{
 					for (int fold = 0; fold < 10; fold++)
 					{
-						Result r = new Result();
-						r.setValue("features", feature);
-						r.setValue("dataset", dataset);
-						r.setValue("algorithm", algorithm);
-						r.setValue("fold", fold);
-						r.setValue("accuracy(with,comma)", random.nextDouble());
-						set.results.add(r);
+						int idx = set.addResult();
+						set.setResultValue(idx, "features", feature);
+						set.setResultValue(idx, "dataset", dataset);
+						set.setResultValue(idx, "algorithm", algorithm);
+						set.setResultValue(idx, "fold", fold);
+
+						double acc = 0.4 + 0.2 * random.nextDouble();
+						// mouse works better, elephant works worse
+						if (dataset.equals("mouse"))
+							acc += 0.1 + 0.1 * random.nextDouble();
+						else if (dataset.equals("elephant"))
+							acc -= 0.1 + 0.2 * random.nextDouble();
+						// SVM is slightly better
+						if (algorithm.equals("SVM"))
+							acc += 0.02 + 0.02 * random.nextDouble();
+						set.setResultValue(idx, "accuracy", acc);
 					}
 				}
 			}
@@ -1039,8 +1104,102 @@ public class ResultSet
 		System.out.println(rs.toNiceString());
 	}
 
+	public static void demo()
+	{
+		ResultSet set = dummySet();
+
+		System.out.println("\ncomplete dataset\n");
+		System.out.println(set.toNiceString());
+
+		{
+			// JOIN
+
+			List<String> equalProperties = new ArrayList<String>();
+			equalProperties.add("features");
+			equalProperties.add("dataset");
+			equalProperties.add("algorithm");
+
+			List<String> ommitProperties = new ArrayList<String>();
+			ommitProperties.add("fold");
+
+			List<String> varProperties = new ArrayList<String>();
+			varProperties.add("accuracy");
+
+			ResultSet joined = set.join(equalProperties, ommitProperties, varProperties);
+			System.out.println("\njoined folds\n");
+			System.out.println(joined.toNiceString());
+
+			// SORT
+
+			joined.sortProperties(new String[] { "dataset" });
+			joined.sortResults("dataset");
+			System.out.println("\nsorted\n");
+			System.out.println(joined.toNiceString());
+		}
+
+		{
+			// T-TEST
+
+			List<String> equalProperties = new ArrayList<String>();
+			equalProperties.add("features");
+			equalProperties.add("fold");
+
+			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, "dataset");
+			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, "dataset");
+			System.out.println("\npaired t-test with 0.02\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, "dataset");
+			System.out.println("\npaired t-test with 0.05\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, "dataset");
+			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, "dataset");
+			System.out.println("\npaired t-test with 1 (compares mean)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 1, "dataset");
+			System.out.println("\npaired t-test win loss\n");
+			System.out.println(tested.toNiceString());
+			System.exit(1);
+		}
+
+		{
+			// DIFF
+
+			List<String> equalProperties = new ArrayList<String>();
+			equalProperties.add("dataset");
+			equalProperties.add("algorithm");
+
+			List<String> ommitProperties = new ArrayList<String>();
+			ommitProperties.add("fold");
+
+			ResultSet diff = set.diff("features", equalProperties, ommitProperties);
+			System.out.println("\ndiff\n");
+			System.out.println(diff.toNiceString());
+
+			// WIN-LOSS
+
+			List<String> equalPropertiesDiff = new ArrayList<String>();
+			equalPropertiesDiff.add("features");
+			equalPropertiesDiff.add("algorithm");
+
+			ResultSet winLoss = diff.winLoss(equalPropertiesDiff, null);
+			System.out.println("\nwin loss (uses diff as input)\n");
+			System.out.println(winLoss.toNiceString());
+		}
+
+	}
+
 	public static void main(String args[])
 	{
+		demo();
 		//noVarianceTest();
 
 		//		ResultSet set1 = new ResultSet();
@@ -1068,67 +1227,6 @@ public class ResultSet
 		//
 		//		System.exit(0);
 
-		ResultSet set = dummySet();
-
-		System.out.println(set);
-		System.out.println();
-
-		List<String> equalProperties = new ArrayList<String>();
-		equalProperties.add("features");
-		equalProperties.add("dataset");
-		equalProperties.add("algorithm");
-
-		List<String> ommitProperties = new ArrayList<String>();
-		ommitProperties.add("fold");
-
-		ResultSet joined = set.join(equalProperties, ommitProperties, null);
-		joined.sortResults("algorithm");
-		joined.sortResults("dataset");
-		System.out.println(joined.toNiceString());
-		System.out.println();
-
-		// --------------------
-
-		List<String> equalProperties2 = new ArrayList<String>();
-		equalProperties2.add("dataset");
-		equalProperties2.add("algorithm");
-
-		List<String> ommitProperties2 = new ArrayList<String>();
-		ommitProperties2.add("fold");
-
-		ResultSet diff = set.diff("features", equalProperties2, ommitProperties2);
-		System.out.println(diff.toNiceString());
-		System.out.println();
-
-		// File temp = null;
-		// try
-		// {
-		// temp = File.createTempFile("test", ".tmp");
-		// }
-		// catch (IOException e)
-		// {
-		// e.printStackTrace();
-		// }
-		// temp.deleteOnExit();
-		// ResultSetIO.printToFile(temp, set);
-		// ResultSet set2 = ResultSetIO.parseFromFile(temp);
-
-		// System.out.println(set2);
-		// System.out.println();
-		//
-		// ResultSet joined2 = set2.join(equalProperties, ommitProperties, null);
-		// System.out.println(joined2.toNiceString());
-		// System.out.println();
-
-		// --------------------
-
-		List<String> equalProperties3 = new ArrayList<String>();
-		equalProperties3.add("features");
-		equalProperties3.add("algorithm");
-
-		ResultSet winLoss = diff.winLoss(equalProperties3, null);
-		System.out.println(winLoss.toNiceString());
-		System.out.println();
 	}
 
 	public void remove(String prop, Object val)

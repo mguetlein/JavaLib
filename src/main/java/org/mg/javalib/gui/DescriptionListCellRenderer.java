@@ -3,6 +3,7 @@ package org.mg.javalib.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.util.HashMap;
 
 import javax.swing.DefaultListCellRenderer;
@@ -15,8 +16,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
 import org.mg.javalib.util.SwingUtil;
-
-import com.lowagie.text.Font;
 
 public class DescriptionListCellRenderer extends DefaultListCellRenderer
 {

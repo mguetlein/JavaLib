@@ -2,6 +2,7 @@ package org.mg.javalib.task;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +28,6 @@ import org.mg.javalib.util.ThreadUtil;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
-import com.lowagie.text.Font;
 
 public class TaskDialog
 {

@@ -1,10 +1,19 @@
 package org.mg.javalib.weka;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.io.IOUtils;
+
+import weka.core.Instances;
 
 public class ArffWriter
 {
@@ -12,25 +21,54 @@ public class ArffWriter
 
 	public static void writeToArffFile(File file, ArffWritable data) throws Exception
 	{
-		//		File tmp = new File(file + ".tmp");
-
 		// if (file.exists())
 		// throw new IllegalStateException("arff file exists: '" + file + "'");
-
-		PrintStream out = null;
-		try
-		{
-			out = new PrintStream(file);//tmp);
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-
 		if (DEBUG)
 			System.out.println("Writing arff file: '" + file.getAbsolutePath() + "'"); //(.tmp)");
+		writeToArff(new FileWriter(file), data);
+	}
 
-		out.println("% file: " + file);
+	public static Instances toInstances(ArffWritable data) throws Exception
+	{
+		ByteArrayOutputStream out = null;
+		InputStreamReader in = null;
+		try
+		{
+			out = new ByteArrayOutputStream();
+			writeToArff(new OutputStreamWriter(out), data);
+			in = new InputStreamReader(new ByteArrayInputStream(out.toByteArray()));
+			return new Instances(in);
+		}
+		finally
+		{
+			IOUtils.closeQuietly(out);
+			IOUtils.closeQuietly(in);
+		}
+	}
+
+	public static void writeToArff(final Writer w, ArffWritable data) throws Exception
+	{
+		class LineWriter
+		{
+			public void println(String s) throws IOException
+			{
+				w.write(s);
+				w.write("\n");
+			}
+
+			public void println() throws IOException
+			{
+				w.write("\n");
+			}
+
+			public void println(StringBuffer s) throws IOException
+			{
+				w.write(s.toString());
+				w.write("\n");
+			}
+		}
+		LineWriter out = new LineWriter();
+
 		out.println("% generated: " + new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date()));
 
 		if (data.getAdditionalInfo() != null)
@@ -38,7 +76,7 @@ public class ArffWriter
 				out.println("% " + info);
 
 		out.println();
-		out.println("@relation \"" + file.getName() + "\"");
+		out.println("@relation \"" + data.getRelationName() + "\"");
 		out.println();
 
 		boolean numeric = false;
@@ -92,13 +130,8 @@ public class ArffWriter
 		}
 		else
 		{
-			//			ProgressDialog progress = ProgressDialog.showProgress(Status.INFO, "writing arff file instances",
-			//					Status.INDENT + "> ", data.getNumInstances());
 			for (int i = 0; i < data.getNumInstances(); i++)
 			{
-				// if (data.isInstanceWithoutAttributeValues(i))
-				// continue;
-
 				StringBuffer s = new StringBuffer();
 
 				for (int j = 0; j < data.getNumAttributes(); j++)
@@ -111,20 +144,9 @@ public class ArffWriter
 					else
 						s.append(data.getMissingValue(j));
 				}
-
 				out.println(s);
-
-				//				if (i % 10 == 0)
-				//					progress.update(i);
 			}
-			//			progress.close(data.getNumInstances());
 		}
-
-		//		boolean res = tmp.renameTo(file);
-		//		res |= tmp.delete();
-		//		if (!res)
-		//			throw new Error("renaming or delete file error");
-
-		// Status.INFO.println("done");
+		w.close();
 	}
 }

@@ -16,6 +16,8 @@ public class SetUtil
 
 	public static <T> boolean isSubSet(Set<T> superSet, Set<T> subSet)
 	{
+		if (subSet.size() > superSet.size())
+			return false;
 		for (T t : subSet)
 			if (!superSet.contains(t))
 				return false;
