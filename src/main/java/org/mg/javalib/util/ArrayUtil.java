@@ -124,6 +124,14 @@ public class ArrayUtil
 		return ArrayUtils.indexOf(array, elem);
 	}
 
+	public static int containsAt(String query, String[] search)
+	{
+		for (int i = 0; i < search.length; i++)
+			if (query.contains(search[i]))
+				return i;
+		return -1;
+	}
+
 	public static <T> int indexOf(T[] array, T elem)
 	{
 		return ArrayUtils.indexOf(array, elem);
@@ -495,6 +503,27 @@ public class ArrayUtil
 				}
 			}
 		return order;
+	}
+
+	public static int[] getRanking(double[] elems, boolean ascending)
+	{
+		int ordering[] = getOrdering(elems, ascending);
+		int ranking[] = new int[ordering.length];
+		for (int i = 0; i < ranking.length; i++)
+		{
+			int idx = ordering[i];
+			if (i == 0)
+				ranking[idx] = i;
+			else
+			{
+				int prevIdx = ordering[i - 1];
+				if (elems[idx] == elems[prevIdx])
+					ranking[idx] = ranking[prevIdx];
+				else
+					ranking[idx] = i;
+			}
+		}
+		return ranking;
 	}
 
 	public static int[] getRanking(int[] ordering)

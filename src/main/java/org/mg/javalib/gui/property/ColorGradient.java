@@ -29,7 +29,7 @@ public class ColorGradient
 		this.low = low;
 	}
 
-	private static Color getColorGradient(double ratio, Color from, Color to)
+	public static Color get2ColorGradient(double ratio, Color from, Color to)
 	{
 		if (ratio < 0 || ratio > 1)
 			throw new IllegalArgumentException(ratio + "");
@@ -42,9 +42,9 @@ public class ColorGradient
 	public Color getColor(double ratio)
 	{
 		if (ratio >= 0.5)
-			return getColorGradient((ratio - 0.5) * 2, high, med);
+			return get2ColorGradient((ratio - 0.5) * 2, high, med);
 		else
-			return getColorGradient(((1 - ratio) - 0.5) * 2, low, med);
+			return get2ColorGradient(((1 - ratio) - 0.5) * 2, low, med);
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public class FreeChartUtil
 		}
 	}
 
-	public static void toSVGFile(String svgFile, MessageChartPanel cp, Dimension dim)
+	public static void toSVGFile(String svgFile, ChartPanel cp, Dimension dim)
 	{
 		try
 		{
@@ -98,7 +98,8 @@ public class FreeChartUtil
 					"xmlns=\"http://www.w3.org/2000/svg\"",
 					"xmlns=\"http://www.w3.org/2000/svg\"  width= \"100%\" height=\"100%\" viewBox=\"0 0 "
 							+ dim.getWidth() + " " + dim.getHeight() + "\"");
-			s = s.concat("<!--Warning:" + cp.getWarning() + "-->");
+			if (cp instanceof MessageChartPanel)
+				s = s.concat("<!--Warning:" + ((MessageChartPanel) cp).getWarning() + "-->");
 			outputStream.close();
 
 			FileUtil.writeStringToFile(svgFile, s);

@@ -233,6 +233,17 @@ public class ListUtil
 		return l;
 	}
 
+	/**
+	 * uses String.valueOf()
+	 */
+	public static <T> List<String> toStringList(List<T> values)
+	{
+		List<String> l = new ArrayList<>();
+		for (T t : values)
+			l.add(String.valueOf(t));
+		return l;
+	}
+
 	public static <T> void scramble(List<T> list)
 	{
 		scramble(list, new Random());

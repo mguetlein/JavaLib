@@ -785,4 +785,9 @@ public class StringUtil
 		return true;
 	}
 
+	public static char lastChar(String type)
+	{
+		return type.charAt(type.length() - 1);
+	}
+
 }

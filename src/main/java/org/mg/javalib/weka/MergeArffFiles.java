@@ -49,24 +49,32 @@ public class MergeArffFiles
 	{
 		String completeCsv[] = null;
 
-		//		int idx = 0;
+		int idx = 0;
 		//		System.out.print("reading ");
 		for (String s : infiles)
 		{
-			//System.out.println("reading " + (idx++) + " " + s);
-			//			System.out.print(".");
-			CSVSaver.runFileSaver(new CSVSaver(), ("-i " + s + " -o " + s + ".csv").split(" "));
-
-			if (completeCsv == null)
-				completeCsv = FileUtil.readStringFromFile(s + ".csv").split("\n");
-			else
+			try
 			{
-				String c[] = FileUtil.readStringFromFile(s + ".csv").split("\n");
-				c = ArrayUtil.removeAt(String.class, c, 0);
-				completeCsv = ArrayUtil.concat(completeCsv, c);
-			}
+				System.out.println("reading " + (idx++) + " " + s);
+				//			System.out.print(".");
+				CSVSaver.runFileSaver(new CSVSaver(), ("-i " + s + " -o " + s + ".csv").split(" "));
 
-			new File(s + ".csv").delete();
+				if (completeCsv == null)
+					completeCsv = FileUtil.readStringFromFile(s + ".csv").split("\n");
+				else
+				{
+					String c[] = FileUtil.readStringFromFile(s + ".csv").split("\n");
+					c = ArrayUtil.removeAt(String.class, c, 0);
+					completeCsv = ArrayUtil.concat(completeCsv, c);
+				}
+
+				new File(s + ".csv").delete();
+			}
+			catch (Exception e)
+			{
+				System.err.println("error reading " + s);
+				throw new RuntimeException(e);
+			}
 		}
 		StringBuffer b = new StringBuffer();
 		for (String s : completeCsv)
@@ -99,15 +107,35 @@ public class MergeArffFiles
 
 	public static void main(String[] args) throws FileNotFoundException, IOException
 	{
-		//csvToArff("/home/martin/data/arffs/nctrer.csv", "/home/martin/data/arffs/nctrer.arff");
-		merge("/home/martin/workspace/CFPMiner/results", new FilenameFilter()
+		for (final String alg : new String[] { "RaF", "SMO" })
 		{
-
-			@Override
-			public boolean accept(File dir, String name)
+			for (final String type : new String[] { "ecfp", "fcfp" })
 			{
-				return name.contains("RaF") && name.contains("fold");
+				for (final String typeSize : new String[] { "6", "4", "2", "0" })
+				{
+					final String p = type + typeSize;
+					final boolean orP2 = false;
+					final String p2 = null;
+
+					//csvToArff("/home/martin/data/arffs/nctrer.csv", "/home/martin/data/arffs/nctrer.arff");
+					String dir = "/home/martin/workspace/CFPMiner/results_r4_no_smo_ames";
+					String dest = "/home/martin/workspace/CFPMiner/results";
+					merge(dir, new FilenameFilter()
+					{
+
+						@Override
+						public boolean accept(File dir, String name)
+						{
+							if (!name.contains(alg))
+								return false;
+							if (orP2)
+								return ((p == null || name.contains(p)) || (p2 == null || name.contains(p2)));
+							else
+								return ((p == null || name.contains(p)) && (p2 == null || name.contains(p2)));
+						}
+					}, dest + "/" + alg + (p == null ? "" : ("_" + p)) + (p2 == null ? "" : ("_" + p2)) + ".arff");
+				}
 			}
-		}, "/home/martin/workspace/CFPMiner/results/merged.arff");
+		}
 	}
 }

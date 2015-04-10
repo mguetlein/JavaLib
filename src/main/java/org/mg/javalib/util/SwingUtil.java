@@ -56,7 +56,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.JTextComponent;
 
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
@@ -339,12 +338,27 @@ public class SwingUtil
 		return file;
 	}
 
+	public static JFrame showInFrame(final JComponent c)
+	{
+		return showInFrame(c, "title");
+	}
+
+	public static JFrame showInFrame(final JComponent c, Dimension dim)
+	{
+		return showInFrame(c, "title", true, dim);
+	}
+
 	public static JFrame showInFrame(final JComponent c, String title)
 	{
-		return showInFrame(c, title, false);
+		return showInFrame(c, title, true);
 	}
 
 	public static JFrame showInFrame(final JComponent c, String title, boolean wait)
+	{
+		return showInFrame(c, title, wait, null);
+	}
+
+	public static JFrame showInFrame(final JComponent c, String title, boolean wait, Dimension dim)
 	{
 		final JFrame f = new JFrame(title);
 		JPanel p = new JPanel(new BorderLayout(10, 10));
@@ -362,8 +376,13 @@ public class SwingUtil
 			}
 		});
 		p.add(ButtonBarFactory.buildCloseBar(close), BorderLayout.SOUTH);
-		f.pack();
-		f.pack();
+		if (dim != null)
+			f.setSize(dim.width, dim.height);
+		else
+		{
+			f.pack();
+			f.pack();
+		}
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 		if (wait)

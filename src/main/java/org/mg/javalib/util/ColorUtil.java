@@ -1,7 +1,12 @@
 package org.mg.javalib.util;
 
 import java.awt.Color;
+import java.awt.GridLayout;
+import java.util.List;
 import java.util.Random;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 public class ColorUtil
 {
@@ -105,5 +110,48 @@ public class ColorUtil
 	public static Color transparent(Color c, int alpha)
 	{
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
+	}
+
+	public static Color bright(Color c)
+	{
+		float hsbVals[] = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+		return Color.getHSBColor(hsbVals[0], hsbVals[1], 1.0f);
+	}
+
+	public static Color mediumBrightness(Color c)
+	{
+		float hsbVals[] = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+		return Color.getHSBColor(hsbVals[0], hsbVals[1], 0.75f);
+	}
+
+	public static Color dark(Color c)
+	{
+		float hsbVals[] = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+		return Color.getHSBColor(hsbVals[0], hsbVals[1], 0.5f);
+	}
+
+	public static void main(String[] args)
+	{
+		Color red = Color.RED;
+		float hsbVals[] = Color.RGBtoHSB(red.getRed(), red.getGreen(), red.getBlue(), null);
+		Color dark = Color.getHSBColor(hsbVals[0], hsbVals[1], 0.5f);
+		Color med = Color.getHSBColor(hsbVals[0], hsbVals[1], 0.75f);
+		Color light = Color.getHSBColor(hsbVals[0], hsbVals[1], 1f);
+
+		Color c[] = new Color[] { light, med, dark };
+		List<Color> cs = ArrayUtil.toList(c);
+		for (Color color : c)
+			cs.add(ColorUtil.grayscale(color));
+
+		JPanel p = new JPanel(new GridLayout(2, c.length, 0, 0));
+		for (Color col : cs)
+		{
+			JLabel l = new JLabel("             ");
+			l.setOpaque(true);
+			l.setBackground(col);
+			p.add(l);
+		}
+		SwingUtil.showInDialog(p);
+		System.exit(0);
 	}
 }

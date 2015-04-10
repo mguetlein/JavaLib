@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
@@ -32,6 +31,8 @@ import org.mg.javalib.util.TimeFormatUtil;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.experiment.PairedStats;
+import weka.experiment.PairedStatsCorrected;
 
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
@@ -47,6 +48,10 @@ public class ResultSet
 	public static final String VARIANCE_SUFFIX = "_variance";
 
 	public static final String SIGNIFICANCE_SUFFIX = "_significance";
+
+	public static final String RANK_SUFFIX = "_rank";
+
+	public static final String RANK_BEST_SUFFIX = "_best";
 
 	private static HashMap<String, String> niceProperties = new HashMap<String, String>();
 
@@ -284,7 +289,7 @@ public class ResultSet
 
 	public static ResultSet fromString(String csv)
 	{
-		System.err.println("reading " + csv);
+		//		System.err.println("reading " + csv);
 		try
 		{
 			CsvReader content = new CsvReader(new StringReader(csv));
@@ -392,6 +397,65 @@ public class ResultSet
 		return s;
 	}
 
+	public String toLatexTable()
+	{
+		return toLatexTable(null, null, null);
+	}
+
+	public String toLatexTable(List<Boolean> centerColumn, List<Boolean> hlineLeadingColumn, String preProperties)
+	{
+		StringBuffer s = new StringBuffer();
+		s.append("\\bgroup\n");
+		s.append("\\centering");
+		s.append("\\catcode`\\_=13%\n");
+		s.append("\\def_{\\textunderscore}%\n");
+		s.append("\\begin{tabular}{ ");
+		for (int i = 0; i < properties.size(); i++)
+		{
+			if (hlineLeadingColumn != null && hlineLeadingColumn.get(i))
+				s.append("| ");
+			if (centerColumn != null && centerColumn.get(i))
+				s.append("c ");
+			else
+				s.append("l ");
+		}
+		s.append("}\n");
+		if (preProperties != null)
+			s.append(preProperties + "\n");
+		for (int i = 0; i < properties.size(); i++)
+		{
+			s.append(" " + getNiceProperty(properties.get(i)));
+			if (i < properties.size() - 1)
+				s.append(" &");
+		}
+		s.append(" \\\\\n");
+		s.append(" \\hline\n");
+		for (Result r : results)
+		{
+			for (int i = 0; i < properties.size(); i++)
+			{
+				String v = niceValue(r.getValue(properties.get(i)), -1);
+				if (v.equals("<"))
+					v = "$<$";
+				else if (v.equals(">"))
+					v = "$>$";
+				if (v.contains("+-"))
+					v = "$" + v.replace("+-", "\\pm") + "$";
+				if (v.contains(Character.toString((char) 0x2022)))
+					v = v.replace(Character.toString((char) 0x2022), "\\bullet");
+				if (v.contains(Character.toString((char) 0x25E6)))
+					v = v.replace(Character.toString((char) 0x25E6), "\\circ");
+				s.append(" " + v);
+				if (i < properties.size() - 1)
+					s.append(" &");
+			}
+			s.append(" \\\\\n");
+		}
+		s.append("\\end{tabular}\n");
+		s.append("\\egroup\n");
+		return s.toString();
+	}
+
 	public void sortResults(final String property, final Comparator<Object> comp)
 	{
 		Collections.sort(results, new Comparator<Result>()
@@ -404,9 +468,14 @@ public class ResultSet
 		});
 	}
 
-	public void sortResults(final String property)
+	public void sortResults(String property)
 	{
 		sortResults(property, true, false, -1);
+	}
+
+	public void sortResults(String property, boolean ascending)
+	{
+		sortResults(property, ascending, false, -1);
 	}
 
 	public void sortResults(final String property, final boolean ascending, final boolean numerical,
@@ -716,41 +785,90 @@ public class ResultSet
 	// }
 	// }
 
+	/**
+	 * if (correctTerm == null) -> normal un-corrected paired t-test
+	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
+	 */
 	public ResultSet pairedTTestWinLoss(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, final String seriesProperty)
+			double confidence, Double correctTerm, final String seriesProperty, boolean addNonSignificant)
 	{
-		ResultSet ttest = pairedTTest(compareProperty, equalProperties, testProperty, confidence, seriesProperty);
-		for (int i = 0; i < ttest.getNumResults(); i++)
-			ttest.setResultValue(i, testProperty + SIGNIFICANCE_SUFFIX,
-					ttest.getResultValue(i, testProperty + SIGNIFICANCE_SUFFIX) + "");
-		ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" }, null, null);
+		double confidences[] = new double[] { confidence };
+		if (addNonSignificant)
+			confidences = new double[] { 1.0, confidence };
+
+		List<ResultSet> tests = new ArrayList<>();
+		for (int c = 0; c < confidences.length; c++)
+		{
+			ResultSet ttest = pairedTTest(compareProperty, equalProperties, testProperty, confidences[c], correctTerm,
+					seriesProperty);
+			// 	convert to string to concat via / instead of compute mean when joining
+			for (int i = 0; i < ttest.getNumResults(); i++)
+				ttest.setResultValue(i, testProperty + SIGNIFICANCE_SUFFIX,
+						ttest.getResultValue(i, testProperty + SIGNIFICANCE_SUFFIX) + "");
+			ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" }, null, null);
+			tests.add(ttest);
+		}
+
 		ResultSet r = new ResultSet();
-		for (int i = 0; i < ttest.getNumResults(); i++)
+		for (int i = 0; i < tests.get(0).getNumResults(); i++)
 		{
 			int idx = r.addResult();
-			r.setResultValue(idx, compareProperty + "_1", ttest.getResultValue(idx, compareProperty + "_1"));
-			r.setResultValue(idx, compareProperty + "_2", ttest.getResultValue(idx, compareProperty + "_2"));
-			int win = 0, loss = 0, draw = 0;
-			for (String s : ttest.getResultValue(idx, testProperty + SIGNIFICANCE_SUFFIX).toString().split("/"))
+			if (addNonSignificant
+					&& (!tests.get(0).getResultValue(idx, compareProperty + "_1")
+							.equals(tests.get(1).getResultValue(idx, compareProperty + "_1")) || (!tests.get(0)
+							.getResultValue(idx, compareProperty + "_2")
+							.equals(tests.get(1).getResultValue(idx, compareProperty + "_2")))))
+				throw new IllegalStateException();
+			r.setResultValue(idx, compareProperty + "_1", tests.get(0).getResultValue(idx, compareProperty + "_1"));
+			r.setResultValue(idx, compareProperty + "_2", tests.get(0).getResultValue(idx, compareProperty + "_2"));
+
+			int win[] = new int[confidences.length];
+			int loss[] = new int[confidences.length];
+			int draw[] = new int[confidences.length];
+
+			for (int c = 0; c < confidences.length; c++)
 			{
-				if (s.equals("-1"))
-					loss++;
-				else if (s.equals("1"))
-					win++;
-				else if (s.equals("0"))
-					draw++;
-				else
-					throw new IllegalStateException();
+				// count losses
+				for (String s : tests.get(c).getResultValue(idx, testProperty + SIGNIFICANCE_SUFFIX).toString()
+						.split("/"))
+				{
+					if (s.equals("-1"))
+						loss[c]++;
+					else if (s.equals("1"))
+						win[c]++;
+					else if (s.equals("0"))
+						draw[c]++;
+					else
+						throw new IllegalStateException();
+				}
 			}
-			r.setResultValue(idx, testProperty + "_win", win);
-			r.setResultValue(idx, testProperty + "_draw", draw);
-			r.setResultValue(idx, testProperty + "_loss", loss);
+			String winStr = win[0] + "";
+			String drawStr = (draw[0] > 0 && confidences[0] == 1.0) ? draw[0] + "" : "";
+			String lossStr = loss[0] + "";
+			if (addNonSignificant)
+			{
+				if (win[1] > 0)
+					winStr += "(" + win[1] + ")";
+				if (loss[1] > 0)
+					lossStr += "(" + loss[1] + ")";
+			}
+			String winDrawLoss = winStr + "/" + lossStr;
+			if (drawStr.length() > 0)
+				winDrawLoss = winStr + "/" + drawStr + "/" + lossStr;
+			r.setResultValue(idx, testProperty, winDrawLoss);
+			//			r.setResultValue(idx, testProperty + "_win", win);
+			//			r.setResultValue(idx, testProperty + "_draw", draw);
+			//			r.setResultValue(idx, testProperty + "_loss", loss);
 		}
 		return r;
 	}
 
+	/**
+	 * if (correctTerm == null) -> normal un-corrected paired t-test
+	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
+	 */
 	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, final String seriesProperty)
+			double confidence, Double correctTerm, final String seriesProperty)
 	{
 		ResultSet res = null;
 		for (final Object series : getResultValues(seriesProperty).values())
@@ -763,7 +881,7 @@ public class ResultSet
 					return result.getValue(seriesProperty).equals(series);
 				}
 			});
-			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty, confidence);
+			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty, confidence, correctTerm);
 			for (int i = 0; i < test.getNumResults(); i++)
 				test.setResultValue(i, seriesProperty, series);
 			if (res == null)
@@ -774,9 +892,71 @@ public class ResultSet
 		return res;
 	}
 
-	public ResultSet pairedTTest_All(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence)
+	public static List<Object> listSeriesWins(ResultSet pairedTTestResult, String compareProperty, String testProperty,
+			String seriesProperty, String compareProbValue1, String compareProbValue2)
 	{
+		List<Object> wins = new ArrayList<>();
+		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
+		{
+			if (pairedTTestResult.getResultValue(i, compareProperty + "_1").equals(compareProbValue1)
+					&& pairedTTestResult.getResultValue(i, compareProperty + "_2").equals(compareProbValue2)
+					&& pairedTTestResult.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX).equals(1))
+				wins.add(pairedTTestResult.getResultValue(i, seriesProperty));
+			if (pairedTTestResult.getResultValue(i, compareProperty + "_2").equals(compareProbValue1)
+					&& pairedTTestResult.getResultValue(i, compareProperty + "_1").equals(compareProbValue2)
+					&& pairedTTestResult.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX).equals(-1))
+				wins.add(pairedTTestResult.getResultValue(i, seriesProperty));
+		}
+		return wins;
+	}
+
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue1,
+			String compareValue2, String testProperty, String seriesProperty, String seriesValue)
+	{
+		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
+		{
+			if (pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
+			{
+				Integer testResult = (Integer) pairedTTestResult.getResultValue(i, testProperty
+						+ ResultSet.SIGNIFICANCE_SUFFIX);
+				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1").toString();
+				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2").toString();
+				if (cmp1.equals(compareValue1))
+				{
+					if (cmp2.equals(compareValue2))
+					{
+						if (testResult == 1)
+							return true;
+						else if (testResult == -1)
+							return false;
+						return null;
+					}
+				}
+				else if (cmp1.equals(compareValue2))
+				{
+					if (cmp2.equals(compareValue1))
+					{
+						if (testResult == 1)
+							return false;
+						else if (testResult == -1)
+							return true;
+						return null;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * if (correctTerm == null) -> normal un-corrected paired t-test
+	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation 1/9.0)
+	 */
+	public ResultSet pairedTTest_All(String compareProperty, List<String> equalProperties, String testProperty,
+			double confidence, Double correctTerm)
+	{
+		//		System.err.println("ttest all " + testProperty + " for " + compareProperty);
+
 		// HashMap<String, List<Object>> differentPropValues = new HashMap<String, List<Object>>();
 		// for (int i = 0; i < results.size(); i++)
 		// {
@@ -862,7 +1042,7 @@ public class ResultSet
 		}
 
 		// calculate ttest value
-		TTest ttest = new TTest();
+		//		TTest ttest = new TTest();
 
 		for (int i = 0; i < compareProps.length; i++)
 		{
@@ -873,24 +1053,46 @@ public class ResultSet
 					int k = 0;
 					//					for (int k = 0; k < 2; k++)
 					//					{
-					double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i : j]),
-							valuesMap.get(compareProps[k == 0 ? j : i]));
+
+					//					int idx1 = k == 0 ? i : j;
+					//					int idx2 = k == 0 ? j : i;
+					//					System.err.println("Comparing: " + compareProps[idx1] + " to " + compareProps[idx2]);
+					//					System.err.println(ArrayUtil.toString(
+					//							ArrayUtil.toDoubleArray(valuesMap.get(compareProps[k == 0 ? i : j])), ",", "(", ")"));
+					//					System.err.println(ArrayUtil.toString(
+					//							ArrayUtil.toDoubleArray(valuesMap.get(compareProps[k == 0 ? j : i])), ",", "(", ")"));
+
+					//					double ttestValue = ttest.pairedTTest(valuesMap.get(compareProps[k == 0 ? i : j]),
+					//							valuesMap.get(compareProps[k == 0 ? j : i]));
+					//					//					System.err.println(ttestValue);
 
 					int index = result.addResult();
-
 					result.setResultValue(index, compareProperty + "_1", compareProps[k == 0 ? i : j]);
 					result.setResultValue(index, compareProperty + "_2", compareProps[k == 0 ? j : i]);
-
 					int test = 0;
-					if (ttestValue <= confidence)
-					{
-						if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap.get(compareProps[k == 0 ? j : i]))
-							test = 1;
-						else
-							test = -1;
-					}
-					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
+					//					if (ttestValue <= (0.5 * confidence)) // one tailed test -> divide by half
+					//					{
+					//						if (meansMap.get(compareProps[k == 0 ? i : j]) > meansMap.get(compareProps[k == 0 ? j : i]))
+					//							test = 1;
+					//						else
+					//							test = -1;
+					//					}
 
+					PairedStats pairedStats;
+					if (correctTerm == null)
+						pairedStats = new PairedStats(confidence);
+					else
+						pairedStats = new PairedStatsCorrected(confidence, correctTerm);
+
+					pairedStats.add(valuesMap.get(compareProps[k == 0 ? i : j]),
+							valuesMap.get(compareProps[k == 0 ? j : i]));
+					pairedStats.calculateDerived();
+					if (pairedStats.differencesSignificance > 0)
+						test = 1;
+					else if (pairedStats.differencesSignificance < 0)
+						test = -1;
+
+					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
 					result.setResultValue(index, "num pairs", valuesMap.get(compareProps[k == 0 ? i : j]).length);
 					//						break;
 					//					}
@@ -1037,7 +1239,40 @@ public class ResultSet
 		}
 
 		return winLoss;
+	}
 
+	public ResultSet rank(String prop, String[] equalProperties)
+	{
+		return rank(prop, ArrayUtil.toList(equalProperties));
+	}
+
+	public ResultSet rank(String prop, List<String> equalProperties)
+	{
+		ResultSet s = copy();
+		int[] group = getGrouping(equalProperties);
+		int groupIdx = -1;
+		while (true)
+		{
+			groupIdx++;
+			List<Double> values = new ArrayList<>();
+			for (int i = 0; i < results.size(); i++)
+				if (group[i] == groupIdx)
+					values.add((Double) getResultValue(i, prop));
+			if (values.size() == 0)
+				break;
+			//			int ranks[] = ArrayUtil.getRanking(ArrayUtil.getOrdering(
+			//					ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false));
+			int ranks[] = ArrayUtil.getRanking(ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false);
+			int idx = 0;
+			for (int i = 0; i < results.size(); i++)
+				if (group[i] == groupIdx)
+				{
+					s.setResultValue(i, prop + RANK_SUFFIX, ranks[idx] + 1);
+					s.setResultValue(i, prop + RANK_BEST_SUFFIX, (ranks[idx] == 0) ? 1 : 0);
+					idx++;
+				}
+		}
+		return s;
 	}
 
 	public void setNumDecimalPlaces(int d)
@@ -1051,7 +1286,7 @@ public class ResultSet
 
 		String features[] = new String[] { "fragments", "descriptor,s" };
 		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "dog", "cat" };
-		String algorithms[] = new String[] { "C4.5", "SVM", "NB" };
+		String algorithms[] = new String[] { "C4.5", "SVM", "NB" }; //, "A", "B" 
 		Random random = new Random();
 
 		for (String feature : features)
@@ -1077,6 +1312,10 @@ public class ResultSet
 						// SVM is slightly better
 						if (algorithm.equals("SVM"))
 							acc += 0.02 + 0.02 * random.nextDouble();
+
+						//						if (algorithm.length() == 1)
+						//							acc = 0.1;
+
 						set.setResultValue(idx, "accuracy", acc);
 					}
 				}
@@ -1135,6 +1374,22 @@ public class ResultSet
 			joined.sortResults("dataset");
 			System.out.println("\nsorted\n");
 			System.out.println(joined.toNiceString());
+
+			// RANK
+
+			System.out.println("\nranked\n");
+			List<String> equalProperties2 = new ArrayList<String>();
+			equalProperties2.add("features");
+			equalProperties2.add("dataset");
+			ResultSet ranked = joined.rank("accuracy", equalProperties2);
+			System.out.println(ranked.toNiceString());
+
+			System.out.println("\nmean rank\n");
+			ranked.clearMergeCountAndVariance();
+			ResultSet rankedJoined = ranked.join("algorithm");
+			rankedJoined.removePropery("features");
+			rankedJoined.removePropery("dataset");
+			System.out.println(rankedJoined.toNiceString());
 		}
 
 		{
@@ -1144,27 +1399,27 @@ public class ResultSet
 			equalProperties.add("features");
 			equalProperties.add("fold");
 
-			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, "dataset");
+			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, "dataset");
 			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, "dataset");
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, "dataset");
 			System.out.println("\npaired t-test with 0.02\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, "dataset");
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, "dataset");
 			System.out.println("\npaired t-test with 0.05\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, "dataset");
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, "dataset");
 			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, "dataset");
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, "dataset");
 			System.out.println("\npaired t-test with 1 (compares mean)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 1, "dataset");
+			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 0.05, null, "dataset", true);
 			System.out.println("\npaired t-test win loss\n");
 			System.out.println(tested.toNiceString());
 			System.exit(1);

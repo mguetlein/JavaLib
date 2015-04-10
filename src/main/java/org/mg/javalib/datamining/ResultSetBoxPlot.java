@@ -3,6 +3,7 @@ package org.mg.javalib.datamining;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -14,12 +15,18 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.CategoryMarker;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.title.Title;
+import org.jfree.data.Range;
 import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
+import org.jfree.ui.Layer;
+import org.jfree.ui.LengthAdjustmentType;
+import org.jfree.ui.RectangleAnchor;
+import org.jfree.ui.TextAnchor;
 import org.mg.javalib.freechart.FreeChartUtil;
 import org.mg.javalib.freechart.MessageChartPanel;
 import org.mg.javalib.util.ArrayUtil;
@@ -75,12 +82,14 @@ public class ResultSetBoxPlot
 	boolean rotateXLabels = false;
 	boolean hideMean = false;
 	boolean printResultsPerPlot = true;
+	boolean printMeanAndStdev = false;
 
 	String seriesProperty2;
 	String categoryProperty;
 
 	DoubleKeyHashMap<String, String, List<Double>> values;
 	DefaultBoxAndWhiskerCategoryDataset dataset;
+	HashMap<String, String> labels;
 
 	/**
 	 * e.g.
@@ -122,6 +131,11 @@ public class ResultSetBoxPlot
 	public void setZeroOneRange(boolean zeroOneRange)
 	{
 		this.zeroOneRange = zeroOneRange;
+	}
+
+	public void setPrintMeanAndStdev(boolean printMeanAndStdev)
+	{
+		this.printMeanAndStdev = printMeanAndStdev;
 	}
 
 	public void setYTickUnit(Double yTickUnit)
@@ -187,6 +201,7 @@ public class ResultSetBoxPlot
 			}
 		}
 
+		labels = new HashMap<>();
 		int minSize = Integer.MAX_VALUE;
 		int maxSize = 0;
 		KeyCounter keyCounter = new KeyCounter();
@@ -197,6 +212,7 @@ public class ResultSetBoxPlot
 			{
 				List<Double> v = values.get(key1, key2);
 				System.out.println(key2 + " * " + DoubleArraySummary.create(v));
+				labels.put(key1, DoubleArraySummary.create(v).toString());
 				dataset.add(v, key2, key1);
 				int s = values.get(key1, key2).size();
 
@@ -277,6 +293,7 @@ public class ResultSetBoxPlot
 			yAxis.setRange(0, 1);
 
 		yAxis.setAutoRangeIncludesZero(false);
+
 		final BoxAndWhiskerRenderer renderer = new BoxAndWhiskerRenderer();
 		renderer.setFillBox(true);
 
@@ -290,6 +307,31 @@ public class ResultSetBoxPlot
 		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
 		JFreeChart chart = new JFreeChart(title, plot);
 		MessageChartPanel chartPanel = new MessageChartPanel(chart);
+
+		if (printMeanAndStdev)
+		{
+			for (Object category : dataset.getColumnKeys())
+			{
+				if (labels.containsKey(category.toString()))
+				{
+					CategoryMarker marker = new CategoryMarker(category.toString());
+					//				marker.setOutlinePaint(null);
+					marker.setPaint(new Color(0, 0, 0, 0));
+					//				marker.setDrawAsLine(false);
+					marker.setLabel(labels.get(category.toString()));
+					//				marker.setLabelFont(plot.getDomainAxis().getLabelFont());
+					marker.setLabelAnchor(RectangleAnchor.BOTTOM);
+					marker.setLabelTextAnchor(TextAnchor.BOTTOM_CENTER);
+					marker.setLabelOffsetType(LengthAdjustmentType.CONTRACT);
+					plot.addDomainMarker(marker, Layer.BACKGROUND);
+				}
+			}
+			if (!zeroOneRange)
+			{
+				Range r = yAxis.getRange();
+				yAxis.setRange(r.getLowerBound() - (r.getLength() * 0.1), r.getUpperBound());
+			}
+		}
 
 		//chartPanel.setBounds(new Rectangle(3000, 500));
 
@@ -359,7 +401,9 @@ public class ResultSetBoxPlot
 			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", null, ArrayUtil.toList(new String[] {
 					"auc", "accuracy", "recall" }));
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
-			SwingUtil.showInDialog(p.getChart());
+			p.setPrintMeanAndStdev(true);
+			SwingUtil.showInDialog(p.getChart(), new Dimension(400, 400));
+			System.exit(0);
 		}
 		{
 			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "auc", "algorithm", "dataset", "auc");
