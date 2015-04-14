@@ -5,6 +5,26 @@ import java.util.Set;
 
 public class SetUtil
 {
+
+	@SuppressWarnings("unchecked")
+	@SafeVarargs
+	public static <T, T2> HashSet<T> createHashSetExplicit(Class<T> type, T2... entries)
+	{
+		HashSet<T> t = new HashSet<>();
+		for (T2 e : entries)
+			t.add((T) e);
+		return t;
+	}
+
+	@SafeVarargs
+	public static <T> HashSet<T> createHashSet(T... entries)
+	{
+		HashSet<T> t = new HashSet<>();
+		for (T e : entries)
+			t.add(e);
+		return t;
+	}
+
 	public static <T> int intersectSize(Set<T> set1, Set<T> set2)
 	{
 		int num = 0;

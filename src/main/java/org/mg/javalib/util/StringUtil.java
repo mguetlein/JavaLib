@@ -85,7 +85,7 @@ public class StringUtil
 		return value;
 	}
 
-	static String toCamelCase(String s)
+	public static String toCamelCase(String s)
 	{
 		String[] parts = s.split("_");
 		String camelCaseString = "";
@@ -96,7 +96,17 @@ public class StringUtil
 		return camelCaseString;
 	}
 
-	static String toProperCase(String s)
+	public static String[] splitCamelCase(String s)
+	{
+		return s.split("(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])");
+	}
+
+	public static String splitCamelCaseToString(String s)
+	{
+		return ArrayUtil.toString(splitCamelCase(s), " ", "", "", "");
+	}
+
+	public static String toProperCase(String s)
 	{
 		return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
 	}

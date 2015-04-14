@@ -221,7 +221,7 @@ public class ResultSet
 		boolean alignLeft = true;
 
 		if (value == null)
-			s = "null";
+			s = "";
 		else if (value instanceof Number[])
 		{
 			s = "";
@@ -405,10 +405,13 @@ public class ResultSet
 	public String toLatexTable(List<Boolean> centerColumn, List<Boolean> hlineLeadingColumn, String preProperties)
 	{
 		StringBuffer s = new StringBuffer();
-		s.append("\\bgroup\n");
 		s.append("\\centering");
-		s.append("\\catcode`\\_=13%\n");
-		s.append("\\def_{\\textunderscore}%\n");
+		//		if (escapeUnderscore)
+		//		{
+		//			s.append("\\bgroup\n");
+		//			s.append("\\catcode`\\_=13%\n");
+		//			s.append("\\def_{\\textunderscore}%\n");
+		//		}
 		s.append("\\begin{tabular}{ ");
 		for (int i = 0; i < properties.size(); i++)
 		{
@@ -452,7 +455,8 @@ public class ResultSet
 			s.append(" \\\\\n");
 		}
 		s.append("\\end{tabular}\n");
-		s.append("\\egroup\n");
+		//		if (escapeUnderscore)
+		//			s.append("\\egroup\n");
 		return s.toString();
 	}
 
