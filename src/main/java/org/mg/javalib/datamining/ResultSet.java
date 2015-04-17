@@ -1267,6 +1267,7 @@ public class ResultSet
 			//			int ranks[] = ArrayUtil.getRanking(ArrayUtil.getOrdering(
 			//					ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false));
 			int ranks[] = ArrayUtil.getRanking(ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false);
+			//System.err.println("ranking " + ranks.length + " methods");
 			int idx = 0;
 			for (int i = 0; i < results.size(); i++)
 				if (group[i] == groupIdx)

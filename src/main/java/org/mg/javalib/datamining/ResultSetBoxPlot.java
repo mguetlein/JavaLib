@@ -2,6 +2,7 @@ package org.mg.javalib.datamining;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -78,6 +79,7 @@ public class ResultSetBoxPlot
 
 	List<String> categoryProperties;
 	Double yTickUnit = null;
+	double yRange[] = null;
 	boolean zeroOneRange = false;
 	boolean rotateXLabels = false;
 	boolean hideMean = false;
@@ -141,6 +143,11 @@ public class ResultSetBoxPlot
 	public void setYTickUnit(Double yTickUnit)
 	{
 		this.yTickUnit = yTickUnit;
+	}
+
+	public void setYRange(double min, double max)
+	{
+		this.yRange = new double[] { min, max };
 	}
 
 	public void setDisplayCategories(List<String> dispProps)
@@ -291,6 +298,8 @@ public class ResultSetBoxPlot
 
 		if (zeroOneRange)
 			yAxis.setRange(0, 1);
+		else if (yRange != null)
+			yAxis.setRange(yRange[0], yRange[1]);
 
 		yAxis.setAutoRangeIncludesZero(false);
 
@@ -307,6 +316,12 @@ public class ResultSetBoxPlot
 		//JFreeChart chart = new JFreeChart(title, new Font("SansSerif", Font.BOLD, 14), plot, true);
 		JFreeChart chart = new JFreeChart(title, plot);
 		MessageChartPanel chartPanel = new MessageChartPanel(chart);
+
+		if (title != null && !title.isEmpty())
+		{
+			Font f = chart.getTitle().getFont();
+			chart.getTitle().setFont(f.deriveFont(f.getSize2D() - 2.0f));
+		}
 
 		if (printMeanAndStdev)
 		{
@@ -326,7 +341,7 @@ public class ResultSetBoxPlot
 					plot.addDomainMarker(marker, Layer.BACKGROUND);
 				}
 			}
-			if (!zeroOneRange)
+			if (!zeroOneRange && yRange == null)
 			{
 				Range r = yAxis.getRange();
 				yAxis.setRange(r.getLowerBound() - (r.getLength() * 0.1), r.getUpperBound());
