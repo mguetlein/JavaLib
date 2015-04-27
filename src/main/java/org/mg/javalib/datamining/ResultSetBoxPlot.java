@@ -214,11 +214,11 @@ public class ResultSetBoxPlot
 		KeyCounter keyCounter = new KeyCounter();
 		for (String key1 : values.keySet1())
 		{
-			System.out.println("* " + key1);
+			//System.out.println("* " + key1);
 			for (String key2 : values.keySet2(key1))
 			{
 				List<Double> v = values.get(key1, key2);
-				System.out.println(key2 + " * " + DoubleArraySummary.create(v));
+				//System.out.println(key2 + " * " + DoubleArraySummary.create(v));
 				labels.put(key1, DoubleArraySummary.create(v).toString());
 				dataset.add(v, key2, key1);
 				int s = values.get(key1, key2).size();
