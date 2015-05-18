@@ -418,7 +418,6 @@ public class ResultSetBoxPlot
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
 			p.setPrintMeanAndStdev(true);
 			SwingUtil.showInDialog(p.getChart(), new Dimension(400, 400));
-			System.exit(0);
 		}
 		{
 			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "auc", "algorithm", "dataset", "auc");

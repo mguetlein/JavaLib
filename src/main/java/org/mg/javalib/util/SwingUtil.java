@@ -86,6 +86,29 @@ public class SwingUtil
 		}
 	}
 
+	public static void waitWhileWindowsVisible()
+	{
+		if (SwingUtilities.isEventDispatchThread())
+			throw new Error("do not wait in awt event thread");
+		boolean viz = true;
+		while (viz)
+		{
+			viz = false;
+			for (Window w : Window.getWindows())
+				if (w.isVisible())
+					viz = true;
+			try
+			{
+				Thread.sleep(100);
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public static void loadingLabel(final JLabel label)
 	{
 		final String loading[] = { "Loading... ", "Loading.. .", "Loading. ..", "Loading ..." };
@@ -383,7 +406,8 @@ public class SwingUtil
 			f.pack();
 			f.pack();
 		}
-		f.setLocationRelativeTo(null);
+		//		f.setLocationRelativeTo(null);
+		ScreenUtil.centerOnScreen(f, ScreenUtil.getLargestScreen());
 		f.setVisible(true);
 		if (wait)
 			waitWhileVisible(f);

@@ -291,5 +291,4 @@ public class ListUtil
 		}
 		return s.substring(0, s.length() - 1);
 	}
-
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.mg.javalib.util.ArrayUtil;
+import org.mg.javalib.util.CountedSet;
 
 public class Result
 {
@@ -199,6 +200,16 @@ public class Result
 	public void clearMergeCount()
 	{
 		mergeCount = null;
+	}
+
+	public void unifyJoinedStringValues(String property)
+	{
+		if (getValue(property) instanceof String)
+		{
+			CountedSet<String> vals = CountedSet.create(getValue(property).toString().split("/"));
+			if (vals.getNumValues() == 1)
+				setValue(property, vals.values().get(0));
+		}
 	}
 
 }

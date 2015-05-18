@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
@@ -915,11 +916,17 @@ public class ResultSet
 	}
 
 	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue1,
+			String compareValue2, String testProperty)
+	{
+		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue1, compareValue2, testProperty, null, null);
+	}
+
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue1,
 			String compareValue2, String testProperty, String seriesProperty, String seriesValue)
 	{
 		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
 		{
-			if (pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
+			if (seriesProperty == null || pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
 			{
 				Integer testResult = (Integer) pairedTTestResult.getResultValue(i, testProperty
 						+ ResultSet.SIGNIFICANCE_SUFFIX);
@@ -950,6 +957,48 @@ public class ResultSet
 			}
 		}
 		return null;
+	}
+
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue,
+			String testProperty)
+	{
+		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue, testProperty, null, null);
+	}
+
+	/**
+	 * true -> only wins, or zero
+	 * null -> only zero
+	 * false -> at least one loss
+	 */
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue,
+			String testProperty, String seriesProperty, String seriesValue)
+	{
+		Boolean win = null;
+		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
+		{
+			if (seriesProperty == null || pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
+			{
+				Integer testResult = (Integer) pairedTTestResult.getResultValue(i, testProperty
+						+ ResultSet.SIGNIFICANCE_SUFFIX);
+				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1").toString();
+				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2").toString();
+				if (cmp1.equals(compareValue))
+				{
+					if (testResult == -1)
+						return false;
+					else if (testResult == 1)
+						win = true;
+				}
+				else if (cmp2.equals(compareValue))
+				{
+					if (testResult == 1)
+						return false;
+					else if (testResult == -1)
+						win = true;
+				}
+			}
+		}
+		return win;
 	}
 
 	/**
@@ -1290,7 +1339,7 @@ public class ResultSet
 		ResultSet set = new ResultSet();
 
 		String features[] = new String[] { "fragments", "descriptor,s" };
-		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "dog", "cat" };
+		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "tiger", "cat" };
 		String algorithms[] = new String[] { "C4.5", "SVM", "NB" }; //, "A", "B" 
 		Random random = new Random();
 
@@ -1305,6 +1354,10 @@ public class ResultSet
 						int idx = set.addResult();
 						set.setResultValue(idx, "features", feature);
 						set.setResultValue(idx, "dataset", dataset);
+						if (dataset.equals("mouse") || dataset.equals("cat"))
+							set.setResultValue(idx, "animal-size", "small");
+						else
+							set.setResultValue(idx, "animal-size", "big");
 						set.setResultValue(idx, "algorithm", algorithm);
 						set.setResultValue(idx, "fold", fold);
 
@@ -1370,6 +1423,7 @@ public class ResultSet
 			varProperties.add("accuracy");
 
 			ResultSet joined = set.join(equalProperties, ommitProperties, varProperties);
+			joined.unifyJoinedStringValues("animal-size");
 			System.out.println("\njoined folds\n");
 			System.out.println(joined.toNiceString());
 
@@ -1380,81 +1434,115 @@ public class ResultSet
 			System.out.println("\nsorted\n");
 			System.out.println(joined.toNiceString());
 
-			// RANK
+			{
+				// RANK
+				System.out.println("\nranked\n");
+				List<String> equalProperties2 = new ArrayList<String>();
+				equalProperties2.add("features");
+				equalProperties2.add("algorithm");
+				ResultSet ranked = joined.rank("accuracy", equalProperties2);
+				System.out.println(ranked.toNiceString());
 
-			System.out.println("\nranked\n");
-			List<String> equalProperties2 = new ArrayList<String>();
-			equalProperties2.add("features");
-			equalProperties2.add("dataset");
-			ResultSet ranked = joined.rank("accuracy", equalProperties2);
-			System.out.println(ranked.toNiceString());
+				System.out.println("\nmean rank\n");
+				ranked.clearMergeCountAndVariance();
+				ResultSet rankedJoined = ranked.join("dataset");
+				rankedJoined.unifyJoinedStringValues("animal-size");
+				rankedJoined.removePropery("features");
+				rankedJoined.removePropery("algorithm");
+				System.out.println(rankedJoined.toNiceString());
 
-			System.out.println("\nmean rank\n");
-			ranked.clearMergeCountAndVariance();
-			ResultSet rankedJoined = ranked.join("algorithm");
-			rankedJoined.removePropery("features");
-			rankedJoined.removePropery("dataset");
-			System.out.println(rankedJoined.toNiceString());
+				System.out.println("correlation between accuracy and rank: "
+						+ rankedJoined.spearmanCorrelation("accuracy", "accuracy_rank"));
+				System.out.println("correlation between animal-size and rank: "
+						+ rankedJoined.spearmanCorrelation("animal-size", "accuracy_rank"));
+			}
+
 		}
 
+		//		{
+		//			// T-TEST
+		//
+		//			List<String> equalProperties = new ArrayList<String>();
+		//			equalProperties.add("features");
+		//			equalProperties.add("fold");
+		//
+		//			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, "dataset");
+		//			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
+		//			System.out.println(tested.toNiceString());
+		//
+		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, "dataset");
+		//			System.out.println("\npaired t-test with 0.02\n");
+		//			System.out.println(tested.toNiceString());
+		//
+		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, "dataset");
+		//			System.out.println("\npaired t-test with 0.05\n");
+		//			System.out.println(tested.toNiceString());
+		//
+		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, "dataset");
+		//			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
+		//			System.out.println(tested.toNiceString());
+		//
+		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, "dataset");
+		//			System.out.println("\npaired t-test with 1 (compares mean)\n");
+		//			System.out.println(tested.toNiceString());
+		//
+		//			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 0.05, null, "dataset", true);
+		//			System.out.println("\npaired t-test win loss\n");
+		//			System.out.println(tested.toNiceString());
+		//			System.exit(1);
+		//		}
+		//
+		//		{
+		//			// DIFF
+		//
+		//			List<String> equalProperties = new ArrayList<String>();
+		//			equalProperties.add("dataset");
+		//			equalProperties.add("algorithm");
+		//
+		//			List<String> ommitProperties = new ArrayList<String>();
+		//			ommitProperties.add("fold");
+		//
+		//			ResultSet diff = set.diff("features", equalProperties, ommitProperties);
+		//			System.out.println("\ndiff\n");
+		//			System.out.println(diff.toNiceString());
+		//
+		//			// WIN-LOSS
+		//
+		//			List<String> equalPropertiesDiff = new ArrayList<String>();
+		//			equalPropertiesDiff.add("features");
+		//			equalPropertiesDiff.add("algorithm");
+		//
+		//			ResultSet winLoss = diff.winLoss(equalPropertiesDiff, null);
+		//			System.out.println("\nwin loss (uses diff as input)\n");
+		//			System.out.println(winLoss.toNiceString());
+		//		}
+
+	}
+
+	private void unifyJoinedStringValues(String property)
+	{
+		for (Result r : results)
+			r.unifyJoinedStringValues(property);
+	}
+
+	public double spearmanCorrelation(String property1, String property2)
+	{
+		double d1[] = new double[getNumResults()];
+		CountedSet<Object> s1 = (getResultValue(0, property1) instanceof Double) ? null : getResultValues(property1);
+		double d2[] = new double[getNumResults()];
+		CountedSet<Object> s2 = (getResultValue(0, property2) instanceof Double) ? null : getResultValues(property2);
+		for (int i = 0; i < d2.length; i++)
 		{
-			// T-TEST
-
-			List<String> equalProperties = new ArrayList<String>();
-			equalProperties.add("features");
-			equalProperties.add("fold");
-
-			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, "dataset");
-			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
-			System.out.println(tested.toNiceString());
-
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, "dataset");
-			System.out.println("\npaired t-test with 0.02\n");
-			System.out.println(tested.toNiceString());
-
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, "dataset");
-			System.out.println("\npaired t-test with 0.05\n");
-			System.out.println(tested.toNiceString());
-
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, "dataset");
-			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
-			System.out.println(tested.toNiceString());
-
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, "dataset");
-			System.out.println("\npaired t-test with 1 (compares mean)\n");
-			System.out.println(tested.toNiceString());
-
-			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 0.05, null, "dataset", true);
-			System.out.println("\npaired t-test win loss\n");
-			System.out.println(tested.toNiceString());
-			System.exit(1);
+			if (getResultValue(i, property1) instanceof Double)
+				d1[i] = (Double) getResultValue(i, property1);
+			else
+				d1[i] = s1.values().indexOf(getResultValue(i, property1));
+			if (getResultValue(i, property2) instanceof Double)
+				d2[i] = (Double) getResultValue(i, property2);
+			else
+				d2[i] = s2.values().indexOf(getResultValue(i, property2));
 		}
-
-		{
-			// DIFF
-
-			List<String> equalProperties = new ArrayList<String>();
-			equalProperties.add("dataset");
-			equalProperties.add("algorithm");
-
-			List<String> ommitProperties = new ArrayList<String>();
-			ommitProperties.add("fold");
-
-			ResultSet diff = set.diff("features", equalProperties, ommitProperties);
-			System.out.println("\ndiff\n");
-			System.out.println(diff.toNiceString());
-
-			// WIN-LOSS
-
-			List<String> equalPropertiesDiff = new ArrayList<String>();
-			equalPropertiesDiff.add("features");
-			equalPropertiesDiff.add("algorithm");
-
-			ResultSet winLoss = diff.winLoss(equalPropertiesDiff, null);
-			System.out.println("\nwin loss (uses diff as input)\n");
-			System.out.println(winLoss.toNiceString());
-		}
-
+		return new SpearmansCorrelation().correlation(d1, d2);
 	}
 
 	public static void main(String args[])

@@ -18,6 +18,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryMarker;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.CombinedDomainCategoryPlot;
@@ -54,6 +55,8 @@ public class ResultSetLinePlot
 
 	XLabelsRotation rotateXLabels = XLabelsRotation.normal;
 	double[] yAxisRange = null;
+	HashMap<String, double[]> yAxisRangePerValue = new HashMap<>();
+	HashMap<String, Double> yAxisTickUnitsPerValue = new HashMap<>();
 	HashMap<String, HashMap<String, String>> drawShape = new HashMap<>();
 
 	public DoubleKeyHashMap<String, String, String> markers = new DoubleKeyHashMap<>();
@@ -325,6 +328,13 @@ public class ResultSetLinePlot
 
 			if (yAxisRange != null)
 				((NumberAxis) plot.getRangeAxis()).setRange(yAxisRange[0], yAxisRange[1]);
+			if (yAxisRangePerValue.containsKey(valueProperty))
+				((NumberAxis) plot.getRangeAxis()).setRange(yAxisRangePerValue.get(valueProperty)[0],
+						yAxisRangePerValue.get(valueProperty)[1]);
+			if (yAxisTickUnitsPerValue.containsKey(valueProperty))
+				((NumberAxis) plot.getRangeAxis()).setTickUnit(new NumberTickUnit(yAxisTickUnitsPerValue
+						.get(valueProperty)));
+
 			//((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(true);
 
 			CategoryAxis axis = plot.getDomainAxis();
@@ -376,6 +386,16 @@ public class ResultSetLinePlot
 	public void setYAxisRange(double min, double max)
 	{
 		yAxisRange = new double[] { min, max };
+	}
+
+	public void setYAxisRange(String valueProperty, double min, double max)
+	{
+		yAxisRangePerValue.put(valueProperty, new double[] { min, max });
+	}
+
+	public void setYAxisTickUnits(String valueProperty, double tick)
+	{
+		yAxisTickUnitsPerValue.put(valueProperty, tick);
 	}
 
 	public void setTitle(String title)
