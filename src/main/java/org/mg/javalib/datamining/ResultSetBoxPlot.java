@@ -18,6 +18,7 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.plot.CategoryMarker;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
 import org.jfree.chart.title.TextTitle;
@@ -85,6 +86,8 @@ public class ResultSetBoxPlot
 	boolean hideMean = false;
 	boolean printResultsPerPlot = true;
 	boolean printMeanAndStdev = false;
+	boolean drawLineForHighestMedian = false;
+	boolean drawLineForFirstMedian = false;
 
 	String seriesProperty2;
 	String categoryProperty;
@@ -92,6 +95,9 @@ public class ResultSetBoxPlot
 	DoubleKeyHashMap<String, String, List<Double>> values;
 	DefaultBoxAndWhiskerCategoryDataset dataset;
 	HashMap<String, String> labels;
+
+	Double highestMedian = 0.0;
+	Double firstMedian = null;
 
 	/**
 	 * e.g.
@@ -172,7 +178,7 @@ public class ResultSetBoxPlot
 						values.put(key1, seriesVal, new ArrayList<Double>());
 					Object v = set.getResultValue(r, categoryProperties.get(i));
 					if (v == null)
-						throw new Error("no value for " + key1);
+						throw new Error("no value for " + key1 + " for " + categoryProperties.get(i));
 					Double d = Double.parseDouble(v + "");
 					if (!d.isNaN())
 						values.get(key1, seriesVal).add(d);
@@ -182,7 +188,7 @@ public class ResultSetBoxPlot
 		{
 			CountedSet<Object> series2 = set.getResultValues(seriesProperty2);
 
-			for (final Object series2Value : series2.values())
+			for (final Object series2Value : series2.valuesInsertionOrder())
 			{
 				ResultSet filtered = set.filter(new ResultSetFilter()
 				{
@@ -214,12 +220,19 @@ public class ResultSetBoxPlot
 		KeyCounter keyCounter = new KeyCounter();
 		for (String key1 : values.keySet1())
 		{
-			//System.out.println("* " + key1);
 			for (String key2 : values.keySet2(key1))
 			{
 				List<Double> v = values.get(key1, key2);
-				//System.out.println(key2 + " * " + DoubleArraySummary.create(v));
-				labels.put(key1, DoubleArraySummary.create(v).toString());
+				String l = "";
+				if (labels.containsKey(key1))
+					l += labels.get(key1) + "  /  ";
+				DoubleArraySummary valSum = DoubleArraySummary.create(v);
+				labels.put(key1, l + valSum.toString());
+				if (valSum.getMedian() > highestMedian)
+					highestMedian = valSum.getMedian();
+				if (firstMedian == null)
+					firstMedian = valSum.getMedian();
+
 				dataset.add(v, key2, key1);
 				int s = values.get(key1, key2).size();
 
@@ -259,9 +272,19 @@ public class ResultSetBoxPlot
 		this.hideMean = hideMean;
 	}
 
-	public void printResultsPerPlot(boolean b)
+	public void printNumResultsPerPlot(boolean b)
 	{
 		this.printResultsPerPlot = b;
+	}
+
+	public void setDrawLineForFirstMedian(boolean drawLineForFirstMedian)
+	{
+		this.drawLineForFirstMedian = drawLineForFirstMedian;
+	}
+
+	public void setDrawLineForHighestMedian(boolean drawLineForHighestMedian)
+	{
+		this.drawLineForHighestMedian = drawLineForHighestMedian;
 	}
 
 	public DoubleKeyHashMap<String, String, List<Double>> getValues()
@@ -329,6 +352,8 @@ public class ResultSetBoxPlot
 			{
 				if (labels.containsKey(category.toString()))
 				{
+					System.err.println("label for " + category.toString() + " " + labels.get(category.toString()));
+
 					CategoryMarker marker = new CategoryMarker(category.toString());
 					//				marker.setOutlinePaint(null);
 					marker.setPaint(new Color(0, 0, 0, 0));
@@ -340,6 +365,10 @@ public class ResultSetBoxPlot
 					marker.setLabelOffsetType(LengthAdjustmentType.CONTRACT);
 					plot.addDomainMarker(marker, Layer.BACKGROUND);
 				}
+				else
+				{
+					System.err.println("no label");
+				}
 			}
 			if (!zeroOneRange && yRange == null)
 			{
@@ -348,6 +377,18 @@ public class ResultSetBoxPlot
 			}
 		}
 
+		if (drawLineForHighestMedian)
+		{
+			ValueMarker marker = new ValueMarker(highestMedian); // position is the value on the axis
+			marker.setPaint(Color.GRAY);
+			plot.addRangeMarker(marker);
+		}
+		if (drawLineForFirstMedian && firstMedian != null)
+		{
+			ValueMarker marker = new ValueMarker(firstMedian); // position is the value on the axis
+			marker.setPaint(Color.GRAY);
+			plot.addRangeMarker(marker);
+		}
 		//chartPanel.setBounds(new Rectangle(3000, 500));
 
 		//chartPanel.setPreferredSize(new Dimension(3000, 500));
@@ -390,6 +431,10 @@ public class ResultSetBoxPlot
 
 		//		if (results.getResultValues(compareProp).size() == 1)
 		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
+
+		renderer.setSeriesPaint(0, Color.BLACK);
+		renderer.setFillBox(false);
+
 		return chartPanel;
 
 	}
@@ -431,7 +476,9 @@ public class ResultSetBoxPlot
 		{
 			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", "algorithm",
 					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
+
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
+			//			p.setPrintMeanAndStdev(true);
 			SwingUtil.showInDialog(p.getChart());
 		}
 

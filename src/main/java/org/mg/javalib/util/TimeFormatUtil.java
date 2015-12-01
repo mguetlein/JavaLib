@@ -41,6 +41,8 @@ public class TimeFormatUtil
 
 	public static String format(long d)
 	{
+		if (d < 0)
+			return "n/a";
 		if (d >= YEAR)
 			return formatTime(d, YEAR, MONTH, "years", "months");
 		else if (d >= MONTH)

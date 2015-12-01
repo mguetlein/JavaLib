@@ -48,4 +48,13 @@ public class BitSetUtil
 		return redundantCount;
 	}
 
+	public static double tanimotoSimilarity(BitSet b1, BitSet b2)
+	{
+		BitSet and = (BitSet) b1.clone();
+		and.and(b2);
+		BitSet or = (BitSet) b1.clone();
+		or.or(b2);
+		return and.cardinality() / (double) or.cardinality();
+	}
+
 }

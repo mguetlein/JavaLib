@@ -1,5 +1,6 @@
 package org.mg.javalib.datamining;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Set;
 import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.CountedSet;
 
-public class Result
+public class Result implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private HashMap<String, Object> values = new HashMap<String, Object>();
 
 	// private HashMap<String, Double> variance = new HashMap<String, Double>();
@@ -210,6 +213,17 @@ public class Result
 			if (vals.getNumValues() == 1)
 				setValue(property, vals.values().get(0));
 		}
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof Result))
+			return false;
+		Result r = (Result) o;
+		if (!r.values.equals(values))
+			return false;
+		return true;
 	}
 
 }

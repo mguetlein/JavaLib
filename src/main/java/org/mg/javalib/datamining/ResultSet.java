@@ -2,6 +2,7 @@ package org.mg.javalib.datamining;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.mg.javalib.util.ArrayUtil;
 import org.mg.javalib.util.CountedSet;
 import org.mg.javalib.util.DoubleUtil;
 import org.mg.javalib.util.FileUtil;
+import org.mg.javalib.util.HashUtil;
 import org.mg.javalib.util.ListUtil;
 import org.mg.javalib.util.StringUtil;
 import org.mg.javalib.util.TimeFormatUtil;
@@ -38,8 +40,10 @@ import weka.experiment.PairedStatsCorrected;
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 
-public class ResultSet
+public class ResultSet implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private int numDecimalPlaces = 2;
 
 	private List<String> properties = new ArrayList<String>();
@@ -400,13 +404,71 @@ public class ResultSet
 
 	public String toLatexTable()
 	{
-		return toLatexTable(null, null, null);
+		return toLatexTable(null, (Integer[]) null, null, false);
 	}
 
-	public String toLatexTable(List<Boolean> centerColumn, List<Boolean> hlineLeadingColumn, String preProperties)
+	public String toLatexTable(Boolean[] centerColumn, Boolean[] hlineLeadingColumn, String preProperties)
+	{
+		Integer[] numLines = null;
+		if (hlineLeadingColumn != null)
+		{
+			numLines = new Integer[hlineLeadingColumn.length];
+			for (int i = 0; i < numLines.length; i++)
+				numLines[i] = hlineLeadingColumn[i] ? 1 : 0;
+		}
+		return toLatexTable(centerColumn, numLines, preProperties, false);
+	}
+
+	public String toLatexTable(boolean renderTime)
+	{
+		return toLatexTable(null, (Integer[]) null, null, renderTime);
+	}
+
+	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties)
+	{
+		return toLatexTable(centerColumn, hlineLeadingColumn, preProperties, false);
+	}
+
+	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties,
+			boolean renderTime)
+	{
+		return toLatexTable(new LatexTableSettings(centerColumn, hlineLeadingColumn, preProperties, renderTime));
+	}
+
+	public static class LatexTableSettings
+	{
+		public Boolean[] centerColumn;
+		public Integer[] hlineLeadingColumn;
+		public String preProperties;
+		public boolean renderTime;
+		public boolean headerBold;
+		public boolean firstRowBold;
+
+		public LatexTableSettings(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties,
+				boolean renderTime)
+		{
+			this.centerColumn = centerColumn;
+			this.hlineLeadingColumn = hlineLeadingColumn;
+			this.preProperties = preProperties;
+			this.renderTime = renderTime;
+		}
+
+		public LatexTableSettings()
+		{
+		}
+	}
+
+	public String toLatexTable(LatexTableSettings settings)
 	{
 		StringBuffer s = new StringBuffer();
-		s.append("\\centering");
+		s.append("\\centering\n");
+
+		if (settings.renderTime)
+		{
+			s.append("\\arrayrulecolor{white}\n");
+			s.append("\\setlength{\\arrayrulewidth}{1px}\n");
+		}
+
 		//		if (escapeUnderscore)
 		//		{
 		//			s.append("\\bgroup\n");
@@ -414,21 +476,33 @@ public class ResultSet
 		//			s.append("\\def_{\\textunderscore}%\n");
 		//		}
 		s.append("\\begin{tabular}{ ");
+		if (settings.renderTime)
+			s.append("@{\\extracolsep{1px}}");
+
 		for (int i = 0; i < properties.size(); i++)
 		{
-			if (hlineLeadingColumn != null && hlineLeadingColumn.get(i))
-				s.append("| ");
-			if (centerColumn != null && centerColumn.get(i))
+			if (settings.hlineLeadingColumn != null)
+			{
+				for (int j = 0; j < settings.hlineLeadingColumn[i]; j++)
+					s.append("| ");
+			}
+			if (settings.centerColumn != null && settings.centerColumn[i])
 				s.append("c ");
 			else
 				s.append("l ");
 		}
 		s.append("}\n");
-		if (preProperties != null)
-			s.append(preProperties + "\n");
+		if (settings.preProperties != null)
+			s.append(settings.preProperties + "\n");
 		for (int i = 0; i < properties.size(); i++)
 		{
-			s.append(" " + getNiceProperty(properties.get(i)));
+			boolean bold = settings.headerBold || (i == 0 && settings.firstRowBold);
+			s.append(" ");
+			if (bold)
+				s.append("\\textbf{");
+			s.append(getNiceProperty(properties.get(i)));
+			if (bold)
+				s.append("}");
 			if (i < properties.size() - 1)
 				s.append(" &");
 		}
@@ -438,22 +512,55 @@ public class ResultSet
 		{
 			for (int i = 0; i < properties.size(); i++)
 			{
-				String v = niceValue(r.getValue(properties.get(i)), -1);
-				if (v.equals("<"))
-					v = "$<$";
-				else if (v.equals(">"))
-					v = "$>$";
-				if (v.contains("+-"))
-					v = "$" + v.replace("+-", "\\pm") + "$";
-				if (v.contains(Character.toString((char) 0x2022)))
-					v = v.replace(Character.toString((char) 0x2022), "\\bullet");
-				if (v.contains(Character.toString((char) 0x25E6)))
-					v = v.replace(Character.toString((char) 0x25E6), "\\circ");
-				s.append(" " + v);
+				String p = properties.get(i);
+				if (settings.renderTime && r.getValue(p) instanceof Long)
+				{
+					double seconds = ((Long) r.getValue(p)).longValue() / 1000.0;
+					if (seconds < 0)
+						s.append(" \\cellcolor{red}");
+					else if (seconds <= 60)
+						s.append(" \\cellcolor{green}");
+					else if (seconds >= 60 * 5)
+						s.append(" \\cellcolor{red}");
+					else
+						s.append(" \\cellcolor{yellow}");
+					boolean bold = i == 0 && settings.firstRowBold;
+					s.append(" ");
+					if (bold)
+						s.append("\\textbf{");
+					s.append(niceValue(r.getValue(p), -1, true));
+					if (bold)
+						s.append("}");
+					//s += "| " + style + niceValue(r.getValue(p), -1, longToTime) + "\n";
+				}
+				else
+				{
+					String v = niceValue(r.getValue(p), -1);
+					if (v.equals("<"))
+						v = "$<$";
+					else if (v.equals(">"))
+						v = "$>$";
+					if (v.contains("+-"))
+						v = "$" + v.replace("+-", "\\pm") + "$";
+					if (v.contains(Character.toString((char) 0x2022)))
+						v = v.replace(Character.toString((char) 0x2022), "\\bullet");
+					if (v.contains(Character.toString((char) 0x25E6)))
+						v = v.replace(Character.toString((char) 0x25E6), "\\circ");
+					s.append(" ");
+					boolean bold = i == 0 && settings.firstRowBold;
+					if (bold)
+						s.append("\\textbf{");
+					s.append(v);
+					if (bold)
+						s.append("}");
+
+				}
 				if (i < properties.size() - 1)
 					s.append(" &");
 			}
 			s.append(" \\\\\n");
+			if (settings.renderTime)
+				s.append("\\hline\n");
 		}
 		s.append("\\end{tabular}\n");
 		//		if (escapeUnderscore)
@@ -558,30 +665,56 @@ public class ResultSet
 
 	private int[] getGrouping(List<String> equalProperties)
 	{
-		int groupId = 0;
 		int[] group = new int[results.size()];
+
+		HashMap<Integer, Integer> valCombinationToGroup = new HashMap<>();
 
 		for (int i = 0; i < results.size(); i++)
 		{
-			int match = -1;
-			for (int j = 0; j < i; j++)
-			{
-				if (results.get(i).equals(equalProperties, results.get(j)))
-				{
-					match = j;
-					break;
-				}
-			}
+			Object[] vals = new Object[equalProperties.size()];
+			for (int j = 0; j < vals.length; j++)
+				vals[j] = getResultValue(i, equalProperties.get(j));
+			int hashkey = HashUtil.hashCode(vals);
+			if (!valCombinationToGroup.containsKey(hashkey))
+				valCombinationToGroup.put(hashkey, valCombinationToGroup.size());
+			group[i] = valCombinationToGroup.get(hashkey);
 
-			if (match != -1)
-				group[i] = group[match];
-			else
-			{
-				group[i] = groupId;
-				groupId++;
-			}
+			//			int prevResultWithEqualValues = -1;
+			//			for (int j = 0; j < i; j++)
+			//			{
+			//				if (results.get(i).equals(equalProperties, results.get(j)))
+			//				{
+			//					prevResultWithEqualValues = j;
+			//					break;
+			//				}
+			//			}
+			//
+			//			if (prevResultWithEqualValues != -1)
+			//				group[i] = group[prevResultWithEqualValues];
+			//			else
+			//			{
+			//				group[i] = groupId;
+			//				groupId++;
+			//			}
 		}
+
+		//		for (int i = 0; i < results.size(); i++) // verify
+		//			for (int j = 0; j < results.size(); j++)
+		//				if (i != j && group[j] == group[i])
+		//					if (!results.get(i).equals(equalProperties, results.get(j)))
+		//						throw new IllegalStateException("not equal");
+
 		return group;
+	}
+
+	private ResultSet filterGroup(int groupIdx, int grouping[])
+	{
+		ResultSet s = new ResultSet();
+		s.properties = ListUtil.clone(properties);
+		for (int i = 0; i < grouping.length; i++)
+			if (grouping[i] == groupIdx)
+				s.results.add(results.get(i));
+		return s;
 	}
 
 	public ResultSet join(String equalProperty)
@@ -710,6 +843,12 @@ public class ResultSet
 		return res;
 	}
 
+	public void filterLastResult(ResultSetFilter filter)
+	{
+		if (!filter.accept(results.get(results.size() - 1)))
+			results.remove(results.size() - 1);
+	}
+
 	public int addResult()
 	{
 		results.add(new Result());
@@ -794,8 +933,15 @@ public class ResultSet
 	 * if (correctTerm == null) -> normal un-corrected paired t-test
 	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
 	 */
+	public ResultSet pairedTTestWinLoss(String compareProperty, String[] equalProperties, String testProperty,
+			double confidence, Double correctTerm, String[] seriesProperty, boolean addNonSignificant)
+	{
+		return pairedTTestWinLoss(compareProperty, ArrayUtil.toList(equalProperties), testProperty, confidence,
+				correctTerm, ArrayUtil.toList(seriesProperty), addNonSignificant);
+	}
+
 	public ResultSet pairedTTestWinLoss(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, Double correctTerm, final String seriesProperty, boolean addNonSignificant)
+			double confidence, Double correctTerm, List<String> seriesProperty, boolean addNonSignificant)
 	{
 		double confidences[] = new double[] { confidence };
 		if (addNonSignificant)
@@ -810,6 +956,7 @@ public class ResultSet
 			for (int i = 0; i < ttest.getNumResults(); i++)
 				ttest.setResultValue(i, testProperty + SIGNIFICANCE_SUFFIX,
 						ttest.getResultValue(i, testProperty + SIGNIFICANCE_SUFFIX) + "");
+
 			ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" }, null, null);
 			tests.add(ttest);
 		}
@@ -872,27 +1019,35 @@ public class ResultSet
 	 * if (correctTerm == null) -> normal un-corrected paired t-test
 	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
 	 */
+	public ResultSet pairedTTest(String compareProperty, String[] equalProperties, String testProperty,
+			double confidence, Double correctTerm, String[] seriesProperty)
+	{
+		return pairedTTest(compareProperty, ArrayUtil.toList(equalProperties), testProperty, confidence, correctTerm,
+				ArrayUtil.toList(seriesProperty));
+	}
+
 	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, Double correctTerm, final String seriesProperty)
+			double confidence, Double correctTerm, List<String> seriesProperty)
 	{
 		ResultSet res = null;
-		for (final Object series : getResultValues(seriesProperty).values())
+
+		int[] grp = getGrouping(seriesProperty);
+		int grpIdx = 0;
+		while (true)
 		{
-			ResultSet r = filter(new ResultSetFilter()
-			{
-				@Override
-				public boolean accept(Result result)
-				{
-					return result.getValue(seriesProperty).equals(series);
-				}
-			});
+			ResultSet r = filterGroup(grpIdx, grp);
+			if (r.getNumResults() == 0)
+				break;
 			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty, confidence, correctTerm);
 			for (int i = 0; i < test.getNumResults(); i++)
-				test.setResultValue(i, seriesProperty, series);
+				for (String p : seriesProperty)
+					test.setResultValue(i, p, r.getResultValue(0, p));
 			if (res == null)
 				res = test;
 			else
 				res.concat(test);
+
+			grpIdx++;
 		}
 		return res;
 	}
@@ -966,7 +1121,7 @@ public class ResultSet
 	}
 
 	/**
-	 * true -> only wins, or zero
+	 * true -> only wins or zero (at least one win)
 	 * null -> only zero
 	 * false -> at least one loss
 	 */
@@ -1047,13 +1202,22 @@ public class ResultSet
 		}
 
 		// check for equal number of indices
+		Object val = null;
 		int size = -1;
-		for (List<Integer> indices : indexMap.values())
+		for (Object k : indexMap.keySet())
 		{
+			List<Integer> indices = indexMap.get(k);
 			if (size == -1)
+			{
+				val = k;
 				size = indices.size();
+			}
 			else if (size != indices.size())
-				throw new IllegalStateException("illegal num results");
+			{
+				System.err.println(toNiceString());
+				throw new IllegalStateException("illegal num results " + val + ":" + size + " != " + k + ":"
+						+ indices.size());
+			}
 		}
 
 		// check for equality, should be fine as long as the order of the results (equalProps, e.g. folds,seed) is correct
@@ -1069,7 +1233,10 @@ public class ResultSet
 				if (groupForIndex[i] == -1)
 					groupForIndex[i] = group[indices.get(i)];
 				else if (groupForIndex[i] != group[indices.get(i)])
+				{
+					System.err.println(toNiceString());
 					throw new IllegalStateException("grouping doesnt fit");
+				}
 			}
 		}
 
@@ -1162,10 +1329,15 @@ public class ResultSet
 
 	}
 
-	public ResultSet diff(String prop, List<String> equalProperties, List<String> ommitProperties)
+	public ResultSet diff(String prop, List<String> equalProperties, List<String> diffProperties,
+			List<String> ratioProperties)
 	{
 		if (equalProperties.contains(prop))
 			throw new Error("not working");
+		if (diffProperties == null)
+			diffProperties = new ArrayList<>();
+		if (ratioProperties == null)
+			ratioProperties = new ArrayList<>();
 
 		List<String> equalPlusProp = new ArrayList<String>();
 		equalPlusProp.add(prop);
@@ -1187,23 +1359,31 @@ public class ResultSet
 					Result res2 = joined.results.get(j);
 
 					int x = diff.addResult();
-					diff.setResultValue(x, prop, res1.getValue(prop) + " - " + res2.getValue(prop));
+					diff.setResultValue(x, prop, res1.getValue(prop) + (diffProperties.size() > 0 ? " - " : " / ")
+							+ res2.getValue(prop));
 					for (String p : equalProperties)
 						diff.setResultValue(x, p, res1.getValue(p));
 					for (String p : properties)
 					{
-						if (equalPlusProp.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
+						if (equalPlusProp.contains(p))// || (ommitProperties != null && ommitProperties.contains(p)))
 							continue;
 
-						Object val1 = res1.getValue(p);
-						Object val2 = res2.getValue(p);
-						if (val1 instanceof Number)
+						if (diffProperties.contains(p) || ratioProperties.contains(p))
 						{
-							double value = ((Number) val1).doubleValue() - ((Number) val2).doubleValue();
-							diff.setResultValue(x, p, value);
+							Object val1 = res1.getValue(p);
+							Object val2 = res2.getValue(p);
+							if (val1 instanceof Number)
+							{
+								double value;
+								if (diffProperties.contains(p))
+									value = ((Number) val1).doubleValue() - ((Number) val2).doubleValue();
+								else
+									value = ((Number) val1).doubleValue() / ((Number) val2).doubleValue();
+								diff.setResultValue(x, p, value);
+							}
+							else
+								throw new IllegalArgumentException("not a numeric prop: " + p);
 						}
-						else
-							diff.setResultValue(x, p, "n/a");
 					}
 				}
 			}
@@ -1213,86 +1393,86 @@ public class ResultSet
 
 	}
 
-	/**
-	 * use diff as input, >0 ist counted as win, <0 as loss
-	 * 
-	 * @param winLossProp
-	 * @return
-	 */
-	public ResultSet winLoss(List<String> equalProperties, List<String> ommitProperties)
-	{
-		int[] group = this.getGrouping(equalProperties);
-		ResultSet winLoss = new ResultSet();
-
-		int groupId = 0;
-		while (true)
-		{
-			int matchIndex = -1;
-
-			boolean na[] = new boolean[properties.size()];
-			int win[] = new int[properties.size()];
-			int equal[] = new int[properties.size()];
-			int loss[] = new int[properties.size()];
-
-			for (int i = 0; i < group.length; i++)
-			{
-				if (group[i] == groupId)
-				{
-					matchIndex = i;
-
-					for (int k = 0; k < properties.size(); k++)
-					{
-						String p = properties.get(k);
-						if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
-							continue;
-
-						Object val = results.get(i).getValue(p);
-						if (val instanceof Number)
-						{
-							double v = ((Number) val).doubleValue();
-
-							if (v > 0)
-								win[k]++;
-							else if (v < 0)
-								loss[k]++;
-							else
-								equal[k]++;
-						}
-						else
-							na[k] = true;
-					}
-				}
-			}
-
-			if (matchIndex == -1)
-				break;
-			else
-			{
-				int x = winLoss.addResult();
-
-				for (String p : equalProperties)
-					winLoss.setResultValue(x, p, results.get(matchIndex).getValue(p));
-
-				for (int k = 0; k < properties.size(); k++)
-				{
-					String p = properties.get(k);
-					if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
-						continue;
-
-					if (na[k])
-						continue;
-
-					winLoss.setResultValue(x, p + "-W", win[k]);
-					winLoss.setResultValue(x, p + "-EQ", equal[k]);
-					winLoss.setResultValue(x, p + "-L", loss[k]);
-				}
-			}
-
-			groupId++;
-		}
-
-		return winLoss;
-	}
+	//	/**
+	//	 * use diff as input, >0 ist counted as win, <0 as loss
+	//	 * 
+	//	 * @param winLossProp
+	//	 * @return
+	//	 */
+	//	public ResultSet winLoss(List<String> equalProperties, List<String> ommitProperties)
+	//	{
+	//		int[] group = this.getGrouping(equalProperties);
+	//		ResultSet winLoss = new ResultSet();
+	//
+	//		int groupId = 0;
+	//		while (true)
+	//		{
+	//			int matchIndex = -1;
+	//
+	//			boolean na[] = new boolean[properties.size()];
+	//			int win[] = new int[properties.size()];
+	//			int equal[] = new int[properties.size()];
+	//			int loss[] = new int[properties.size()];
+	//
+	//			for (int i = 0; i < group.length; i++)
+	//			{
+	//				if (group[i] == groupId)
+	//				{
+	//					matchIndex = i;
+	//
+	//					for (int k = 0; k < properties.size(); k++)
+	//					{
+	//						String p = properties.get(k);
+	//						if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
+	//							continue;
+	//
+	//						Object val = results.get(i).getValue(p);
+	//						if (val instanceof Number)
+	//						{
+	//							double v = ((Number) val).doubleValue();
+	//
+	//							if (v > 0)
+	//								win[k]++;
+	//							else if (v < 0)
+	//								loss[k]++;
+	//							else
+	//								equal[k]++;
+	//						}
+	//						else
+	//							na[k] = true;
+	//					}
+	//				}
+	//			}
+	//
+	//			if (matchIndex == -1)
+	//				break;
+	//			else
+	//			{
+	//				int x = winLoss.addResult();
+	//
+	//				for (String p : equalProperties)
+	//					winLoss.setResultValue(x, p, results.get(matchIndex).getValue(p));
+	//
+	//				for (int k = 0; k < properties.size(); k++)
+	//				{
+	//					String p = properties.get(k);
+	//					if (equalProperties.contains(p) || (ommitProperties != null && ommitProperties.contains(p)))
+	//						continue;
+	//
+	//					if (na[k])
+	//						continue;
+	//
+	//					winLoss.setResultValue(x, p + "-W", win[k]);
+	//					winLoss.setResultValue(x, p + "-EQ", equal[k]);
+	//					winLoss.setResultValue(x, p + "-L", loss[k]);
+	//				}
+	//			}
+	//
+	//			groupId++;
+	//		}
+	//
+	//		return winLoss;
+	//	}
 
 	public ResultSet rank(String prop, String[] equalProperties)
 	{
@@ -1340,6 +1520,7 @@ public class ResultSet
 
 		String features[] = new String[] { "fragments", "descriptor,s" };
 		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "tiger", "cat" };
+		// , "animal1", "animal2","animal3", "animal4", "animal5", "animal6" };
 		String algorithms[] = new String[] { "C4.5", "SVM", "NB" }; //, "A", "B" 
 		Random random = new Random();
 
@@ -1349,6 +1530,9 @@ public class ResultSet
 			{
 				for (String algorithm : algorithms)
 				{
+					//					for (int seed = 0; seed < 10; seed++)
+					//					{
+
 					for (int fold = 0; fold < 10; fold++)
 					{
 						int idx = set.addResult();
@@ -1360,6 +1544,7 @@ public class ResultSet
 							set.setResultValue(idx, "animal-size", "big");
 						set.setResultValue(idx, "algorithm", algorithm);
 						set.setResultValue(idx, "fold", fold);
+						//							set.setResultValue(idx, "seed", seed);
 
 						double acc = 0.4 + 0.2 * random.nextDouble();
 						// mouse works better, elephant works worse
@@ -1375,6 +1560,7 @@ public class ResultSet
 						//							acc = 0.1;
 
 						set.setResultValue(idx, "accuracy", acc);
+						//						}
 					}
 				}
 			}
@@ -1418,6 +1604,7 @@ public class ResultSet
 
 			List<String> ommitProperties = new ArrayList<String>();
 			ommitProperties.add("fold");
+			ommitProperties.add("seed");
 
 			List<String> varProperties = new ArrayList<String>();
 			varProperties.add("accuracy");
@@ -1459,63 +1646,76 @@ public class ResultSet
 
 		}
 
-		//		{
-		//			// T-TEST
-		//
-		//			List<String> equalProperties = new ArrayList<String>();
-		//			equalProperties.add("features");
-		//			equalProperties.add("fold");
-		//
-		//			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, "dataset");
-		//			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
-		//			System.out.println(tested.toNiceString());
-		//
-		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, "dataset");
-		//			System.out.println("\npaired t-test with 0.02\n");
-		//			System.out.println(tested.toNiceString());
-		//
-		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, "dataset");
-		//			System.out.println("\npaired t-test with 0.05\n");
-		//			System.out.println(tested.toNiceString());
-		//
-		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, "dataset");
-		//			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
-		//			System.out.println(tested.toNiceString());
-		//
-		//			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, "dataset");
-		//			System.out.println("\npaired t-test with 1 (compares mean)\n");
-		//			System.out.println(tested.toNiceString());
-		//
-		//			tested = set.pairedTTestWinLoss("algorithm", equalProperties, "accuracy", 0.05, null, "dataset", true);
-		//			System.out.println("\npaired t-test win loss\n");
-		//			System.out.println(tested.toNiceString());
-		//			System.exit(1);
-		//		}
-		//
-		//		{
-		//			// DIFF
-		//
-		//			List<String> equalProperties = new ArrayList<String>();
-		//			equalProperties.add("dataset");
-		//			equalProperties.add("algorithm");
-		//
-		//			List<String> ommitProperties = new ArrayList<String>();
-		//			ommitProperties.add("fold");
-		//
-		//			ResultSet diff = set.diff("features", equalProperties, ommitProperties);
-		//			System.out.println("\ndiff\n");
-		//			System.out.println(diff.toNiceString());
-		//
-		//			// WIN-LOSS
-		//
-		//			List<String> equalPropertiesDiff = new ArrayList<String>();
-		//			equalPropertiesDiff.add("features");
-		//			equalPropertiesDiff.add("algorithm");
-		//
-		//			ResultSet winLoss = diff.winLoss(equalPropertiesDiff, null);
-		//			System.out.println("\nwin loss (uses diff as input)\n");
-		//			System.out.println(winLoss.toNiceString());
-		//		}
+		{
+			// T-TEST
+
+			String equalProperties[] = { "features", "fold" };
+			String seriesProperties[] = { "dataset" };
+
+			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, seriesProperties);
+			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, seriesProperties);
+			System.out.println("\npaired t-test with 0.02\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, seriesProperties);
+			System.out.println("\npaired t-test with 0.05\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, seriesProperties);
+			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, seriesProperties);
+			System.out.println("\npaired t-test with 1 (compares mean)\n");
+			System.out.println(tested.toNiceString());
+
+			tested = set.pairedTTestWinLoss("algorithm", new String[] { "features", "fold" }, "accuracy", 0.15, null,
+					seriesProperties, true);
+			System.out.println("\npaired t-test win loss - 1\n");
+			System.out.println(tested.toNiceString());
+
+			String equalProperties2[] = { "fold" };
+			String seriesProperties2[] = { "dataset", "features" };
+
+			tested = set.pairedTTestWinLoss("algorithm", equalProperties2, "accuracy", 0.15, null, seriesProperties2,
+					true);
+			System.out.println("\npaired t-test win loss - 2\n");
+			System.out.println(tested.toNiceString());
+
+			System.exit(1);
+		}
+
+		{
+			// DIFF
+
+			List<String> equalProperties = new ArrayList<String>();
+			equalProperties.add("dataset");
+			equalProperties.add("algorithm");
+
+			List<String> diffProperties = new ArrayList<String>();
+			diffProperties.add("accuracy");
+
+			ResultSet diff = set.diff("features", equalProperties, diffProperties, null);
+			System.out.println("\ndiff\n");
+			System.out.println(diff.toNiceString());
+
+			diff = set.diff("features", equalProperties, null, diffProperties);
+			System.out.println("\nratio\n");
+			System.out.println(diff.toNiceString());
+
+			//			// WIN-LOSS
+			//
+			//			List<String> equalPropertiesDiff = new ArrayList<String>();
+			//			equalPropertiesDiff.add("features");
+			//			equalPropertiesDiff.add("algorithm");
+			//
+			//			ResultSet winLoss = diff.winLoss(equalPropertiesDiff, null);
+			//			System.out.println("\nwin loss (uses diff as input)\n");
+			//			System.out.println(winLoss.toNiceString());
+		}
 
 	}
 
@@ -1644,6 +1844,16 @@ public class ResultSet
 		return o;
 	}
 
+	public boolean isUniqueValue(String prop)
+	{
+		return isUniqueValue(prop, true);
+	}
+
+	public boolean isUniqueValue(String prop, boolean includingNull)
+	{
+		return getResultValues(prop).getNumValues(includingNull) == 1;
+	}
+
 	public Object getUniqueValue(String prop)
 	{
 		CountedSet<Object> o = getResultValues(prop);
@@ -1756,19 +1966,37 @@ public class ResultSet
 	public static ResultSet fromWekaDataset(Instances data)
 	{
 		ResultSet set = new ResultSet();
+		for (int a = 0; a < data.numAttributes(); a++)
+			set.properties.add(data.attribute(a).name());
+
 		for (Instance instance : data)
 		{
-			int rIdx = set.addResult();
+			Result r = new Result();
 			for (int a = 0; a < data.numAttributes(); a++)
 			{
 				Attribute att = data.attribute(a);
 				if (att.isNumeric())
-					set.setResultValue(rIdx, att.name(), instance.value(att));
+					r.setValue(att.name(), instance.value(att));
 				else
-					set.setResultValue(rIdx, att.name(), instance.stringValue(att));
+					r.setValue(att.name(), instance.stringValue(att));
 			}
+			set.results.add(r);
 		}
 		return set;
+	}
+
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof ResultSet))
+			return false;
+		ResultSet r = (ResultSet) o;
+		if (r.getNumResults() != getNumResults())
+			return false;
+		if (!r.properties.equals(properties))
+			return false;
+		if (!r.results.equals(results))
+			return false;
+		return true;
 	}
 
 }

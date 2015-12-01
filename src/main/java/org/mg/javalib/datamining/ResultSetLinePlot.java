@@ -341,7 +341,10 @@ public class ResultSetLinePlot
 			if (rotateXLabels == XLabelsRotation.diagonal)
 				axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
 			if (rotateXLabels == XLabelsRotation.vertical)
+			{
 				axis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
+				axis.setMaximumCategoryLabelWidthRatio(1.0f);
+			}
 
 			//			axis.setTickLabelsVisible(true);
 
@@ -475,9 +478,8 @@ public class ResultSetLinePlot
 				"algorithm", "dataset");
 		plot.addMarker("accuracy", "mouse", "mark");
 		{
-			List<String> eqProperties = new ArrayList<String>();
-			eqProperties.add("fold");
-			ResultSet test = set.pairedTTest("algorithm", eqProperties, "accuracy", 0.01, null, "dataset");
+			ResultSet test = set.pairedTTest("algorithm", new String[] { "fold" }, "accuracy", 0.01, null,
+					new String[] { "dataset" });
 			for (Object datasetWins : ResultSet.listSeriesWins(test, "algorithm", "accuracy", "dataset", "SVM", "NB"))
 				plot.setDrawShape("accuracy", datasetWins.toString(), "SVM");
 			System.out.println(test.toNiceString());

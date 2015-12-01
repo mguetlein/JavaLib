@@ -3,7 +3,7 @@ package org.mg.javalib.util;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Random;
 
 public class StopWatchUtil
@@ -88,7 +88,7 @@ public class StopWatchUtil
 
 	private static long totalRuntime;
 
-	private static HashMap<String, Run> runs = new HashMap<String, Run>();
+	private static LinkedHashMap<String, Run> runs = new LinkedHashMap<String, Run>();
 
 	private static Run getRun(String property)
 	{

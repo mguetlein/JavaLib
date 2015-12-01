@@ -120,6 +120,12 @@ public class ListUtil
 	}
 
 	@SuppressWarnings("unchecked")
+	/**
+	 * also copies list
+	 * @param type
+	 * @param list
+	 * @return
+	 */
 	public static <T, T2> List<T> cast(Class<T> type, List<T2> list)
 	{
 		List<T> l = new ArrayList<T>(list.size());
@@ -291,4 +297,20 @@ public class ListUtil
 		}
 		return s.substring(0, s.length() - 1);
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> createList(T... values)
+	{
+		return ArrayUtil.toList(values);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, T2> List<T> create(Class<T> type, T2... values)
+	{
+		List<T> l = new ArrayList<T>(values.length);
+		for (T2 e : values)
+			l.add((T) e);
+		return l;
+	}
+
 }

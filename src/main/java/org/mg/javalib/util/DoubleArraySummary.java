@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.math3.util.FastMath;
 import org.mg.javalib.datamining.ResultSet;
 
 public class DoubleArraySummary implements ArraySummary
@@ -47,6 +48,7 @@ public class DoubleArraySummary implements ArraySummary
 		b.append("mean " + mean + "\n");
 		b.append("median " + median + "\n");
 		b.append("var " + var + "\n");
+		b.append("std " + FastMath.sqrt(var) + "\n");
 		b.append("numZero " + numZero + "\n");
 		b.append("numNull " + numNull + "\n");
 		b.append("numDistinct " + numDistinct + "\n");

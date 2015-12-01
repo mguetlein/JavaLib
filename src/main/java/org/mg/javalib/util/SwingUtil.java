@@ -21,6 +21,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -326,6 +327,27 @@ public class SwingUtil
 		}
 	}
 
+	public static BufferedImage thresholdImage(BufferedImage image, int threshold)
+	{
+		BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		result.getGraphics().drawImage(image, 0, 0, null);
+		WritableRaster raster = result.getRaster();
+		int[] pixels = new int[image.getWidth()];
+		for (int y = 0; y < image.getHeight(); y++)
+		{
+			raster.getPixels(0, y, image.getWidth(), 1, pixels);
+			for (int i = 0; i < pixels.length; i++)
+			{
+				if (pixels[i] < threshold)
+					pixels[i] = 0;
+				else
+					pixels[i] = 255;
+			}
+			raster.setPixels(0, y, image.getWidth(), 1, pixels);
+		}
+		return result;
+	}
+
 	public static String toFile(final String file, final JComponent c, Dimension dim)
 	{
 		final JFrame f = new JFrame();
@@ -341,6 +363,7 @@ public class SwingUtil
 			public void run()
 			{
 				BufferedImage bi = new BufferedImage(c.getSize().width, c.getSize().height, BufferedImage.TYPE_INT_ARGB);
+				//				bi = thresholdImage(bi, 100);
 				Graphics g = bi.createGraphics();
 				c.paint(g);
 				g.dispose();

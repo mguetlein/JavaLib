@@ -136,7 +136,7 @@ public class ParallelHandler
 	public static void main(String args[]) throws InterruptedException
 	{
 		final Random r = new Random();
-		ParallelHandler h = new ParallelHandler(2);
+		ParallelHandler h = new ParallelHandler(8);
 
 		int count = 0;
 

@@ -658,6 +658,20 @@ public class ArrayUtil
 		return c;
 	}
 
+	public static double[] push(double[] array, double elem)
+	{
+		double res[] = Arrays.copyOf(array, array.length + 1);
+		res[res.length - 1] = elem;
+		return res;
+	}
+
+	public static int[] push(int[] array, int elem)
+	{
+		int res[] = Arrays.copyOf(array, array.length + 1);
+		res[res.length - 1] = elem;
+		return res;
+	}
+
 	public static <T> T[] push(T[] array, T elem)
 	{
 		if (array.length == 0)
@@ -854,6 +868,18 @@ public class ArrayUtil
 	}
 
 	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket,
+			String space)
+	{
+		String s = openingBracket;
+		for (int i = 0; i < array.length; i++)
+			s += array[i] + seperator + space;
+		if (array.length > 0)
+			s = s.substring(0, s.length() - (space.length() + seperator.length()));
+		s += closingBracket;
+		return s;
+	}
+
+	public static String toString(int array[], String seperator, String openingBracket, String closingBracket,
 			String space)
 	{
 		String s = openingBracket;
@@ -1466,10 +1492,13 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		int[] a = new int[] { 1 };
-		System.out.println(ListUtil.toString(ArrayUtil.toList(a)));
-		System.out.println(ArrayUtil.toList(a).getClass());
-		ArrayUtil.toList(a).add((Integer) 2);
+		int[] a = new int[] { 1, 2, 3 };
+		System.out.println(ArrayUtil.toString(push(a, 4)));
+
+		//		int[] a = new int[] { 1 };
+		//		System.out.println(ListUtil.toString(ArrayUtil.toList(a)));
+		//		System.out.println(ArrayUtil.toList(a).getClass());
+		//		ArrayUtil.toList(a).add((Integer) 2);
 
 		//		Double[] a = new Double[] { 0.0, 1.0, 2.0, 3.0, 1.0, 0.0, 4.0, 5.0 };
 		//		System.out.println(ArrayUtil.toString(removeDuplicates(a)));

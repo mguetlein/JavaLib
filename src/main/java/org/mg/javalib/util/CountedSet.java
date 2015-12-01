@@ -3,29 +3,28 @@ package org.mg.javalib.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-
-import javax.swing.JLabel;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
 public class CountedSet<T> implements ArraySummary
 {
-	public HashMap<T, Integer> map;
+	public LinkedHashMap<T, Integer> map;
 
 	T toBack;
 
 	public CountedSet()
 	{
-		map = new HashMap<T, Integer>();
+		map = new LinkedHashMap<T, Integer>();
 	}
 
 	@SuppressWarnings({ "unchecked", "hiding" })
 	public <T> CountedSet<T> copy()
 	{
 		CountedSet<T> r = new CountedSet<T>();
-		r.map = (HashMap<T, Integer>) map.clone();
+		r.map = (LinkedHashMap<T, Integer>) map.clone();
 		return r;
 	}
 
@@ -88,6 +87,11 @@ public class CountedSet<T> implements ArraySummary
 			if (includingNull || key != null)
 				sum += map.get(key);
 		return sum;
+	}
+
+	public Set<T> valuesInsertionOrder()
+	{
+		return map.keySet();
 	}
 
 	/**
@@ -225,8 +229,14 @@ public class CountedSet<T> implements ArraySummary
 
 	public static void main(String args[])
 	{
-		SwingUtil.showInDialog(new JLabel("<html>"
-				+ CountedSet.create(new String[] { "asdf", "asdf", "ene", "mene" }).toString(true) + "</html>"));
+		CountedSet<Object> o = new CountedSet<Object>();
+		o.add("B");
+		o.add("A");
+		System.out.println(o.values());
+		System.out.println(o.valuesInsertionOrder());
+
+		//		SwingUtil.showInDialog(new JLabel("<html>"
+		//				+ CountedSet.create(new String[] { "asdf", "asdf", "ene", "mene" }).toString(true) + "</html>"));
 		//		System.out.println(fromArray(new String[] { "a", "b", "b", "c", "a", "b", "c", "b" }));
 	}
 
