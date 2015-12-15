@@ -123,6 +123,44 @@ public class ScreenUtil
 		return 0;
 	}
 
+	public static void centerWindowsOnScreen()
+	{
+		centerWindowsOnScreen(Window.getWindows());
+	}
+
+	public static void centerWindowsOnScreen(Window... window)
+	{
+		centerWindowsOnScreen(window, getLargestScreen());
+	}
+
+	public static void centerWindowsOnScreen(Window[] window, int screen)
+	{
+		int w = 0;
+		int h = 0;
+		for (Window win : window)
+		{
+			if (win.isVisible())
+			{
+				w += win.getSize().width;
+				h = Math.max(h, win.getSize().height);
+			}
+		}
+		Dimension size = getScreenSize(screen);
+		int x = Math.max(0, (size.width - w) / 2);
+		int y = Math.max(0, (size.height - h) / 2);
+		Point loc = getScreenLocation(screen);
+
+		w = 0;
+		for (Window win : window)
+		{
+			if (win.isVisible())
+			{
+				win.setLocation(loc.x + w + x, loc.y + y);
+				w += win.getWidth();
+			}
+		}
+	}
+
 	public static void centerOnScreen(Window w, int screen)
 	{
 		Dimension size = getScreenSize(screen);

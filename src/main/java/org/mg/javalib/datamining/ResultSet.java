@@ -17,6 +17,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.commons.math3.stat.inference.TTest;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
@@ -31,12 +32,6 @@ import org.mg.javalib.util.ListUtil;
 import org.mg.javalib.util.StringUtil;
 import org.mg.javalib.util.TimeFormatUtil;
 
-import weka.core.Attribute;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.experiment.PairedStats;
-import weka.experiment.PairedStatsCorrected;
-
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 
@@ -46,9 +41,9 @@ public class ResultSet implements Serializable
 
 	private int numDecimalPlaces = 2;
 
-	private List<String> properties = new ArrayList<String>();
+	protected List<String> properties = new ArrayList<String>();
 
-	private List<Result> results = new ArrayList<Result>();
+	protected List<Result> results = new ArrayList<Result>();
 
 	public static final String VARIANCE_SUFFIX = "_variance";
 
@@ -1298,19 +1293,11 @@ public class ResultSet implements Serializable
 					//							test = -1;
 					//					}
 
-					PairedStats pairedStats;
-					if (correctTerm == null)
-						pairedStats = new PairedStats(confidence);
-					else
-						pairedStats = new PairedStatsCorrected(confidence, correctTerm);
-
-					pairedStats.add(valuesMap.get(compareProps[k == 0 ? i : j]),
-							valuesMap.get(compareProps[k == 0 ? j : i]));
-					pairedStats.calculateDerived();
-					if (pairedStats.differencesSignificance > 0)
-						test = 1;
-					else if (pairedStats.differencesSignificance < 0)
-						test = -1;
+					double v1[] = valuesMap.get(compareProps[k == 0 ? i : j]);
+					double v2[] = valuesMap.get(compareProps[k == 0 ? j : i]);
+					double m1 = meansMap.get(compareProps[k == 0 ? i : j]);
+					double m2 = meansMap.get(compareProps[k == 0 ? j : i]);
+					test = T_TESTER.ttest(v1, v2, m1, m2, confidence, correctTerm);
 
 					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
 					result.setResultValue(index, "num pairs", valuesMap.get(compareProps[k == 0 ? i : j]).length);
@@ -1328,6 +1315,30 @@ public class ResultSet implements Serializable
 		return result;
 
 	}
+
+	public static interface TTester
+	{
+		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence, Double correctTerm);
+	}
+
+	public static TTester T_TESTER = new TTester()
+	{
+		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence, Double correctTerm)
+		{
+			TTest ttest = new TTest();
+			double ttestValue = ttest.pairedTTest(v1, v2);
+			int test = 0;
+			if (ttestValue <= (0.5 * confidence)) // one tailed test -> divide by half
+			{
+				if (mean1 > mean2)
+					test = 1;
+				else
+					test = -1;
+			}
+			//		System.err.println("check for one-tailed/two-tailed issue");
+			return test;
+		}
+	};
 
 	public ResultSet diff(String prop, List<String> equalProperties, List<String> diffProperties,
 			List<String> ratioProperties)
@@ -1518,7 +1529,7 @@ public class ResultSet implements Serializable
 	{
 		ResultSet set = new ResultSet();
 
-		String features[] = new String[] { "fragments", "descriptor,s" };
+		String features[] = new String[] { "fragments", "descriptor,s", "other" };
 		String datasets[] = new String[] { "mouse", "elephant", "crocodile()", "tiger", "cat" };
 		// , "animal1", "animal2","animal3", "animal4", "animal5", "animal6" };
 		String algorithms[] = new String[] { "C4.5", "SVM", "NB" }; //, "A", "B" 
@@ -1961,28 +1972,6 @@ public class ResultSet implements Serializable
 				t.setResultValue(idx, "value" + (getNumResults() > 1 ? (i + 1) : ""), getResultValue(i, p));
 		}
 		return t;
-	}
-
-	public static ResultSet fromWekaDataset(Instances data)
-	{
-		ResultSet set = new ResultSet();
-		for (int a = 0; a < data.numAttributes(); a++)
-			set.properties.add(data.attribute(a).name());
-
-		for (Instance instance : data)
-		{
-			Result r = new Result();
-			for (int a = 0; a < data.numAttributes(); a++)
-			{
-				Attribute att = data.attribute(a);
-				if (att.isNumeric())
-					r.setValue(att.name(), instance.value(att));
-				else
-					r.setValue(att.name(), instance.stringValue(att));
-			}
-			set.results.add(r);
-		}
-		return set;
 	}
 
 	public boolean equals(Object o)

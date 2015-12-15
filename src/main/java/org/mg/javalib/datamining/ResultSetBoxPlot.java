@@ -353,12 +353,15 @@ public class ResultSetBoxPlot
 				if (labels.containsKey(category.toString()))
 				{
 					System.err.println("label for " + category.toString() + " " + labels.get(category.toString()));
-
 					CategoryMarker marker = new CategoryMarker(category.toString());
 					//				marker.setOutlinePaint(null);
 					marker.setPaint(new Color(0, 0, 0, 0));
 					//				marker.setDrawAsLine(false);
-					marker.setLabel(labels.get(category.toString()));
+					String lab = labels.get(category.toString());
+					lab = lab.replaceAll("0\\.", ".");
+					lab = lab.replaceAll("0,", ",");
+					lab = lab.replaceAll("\\s", "");
+					marker.setLabel(lab);
 					//				marker.setLabelFont(plot.getDomainAxis().getLabelFont());
 					marker.setLabelAnchor(RectangleAnchor.BOTTOM);
 					marker.setLabelTextAnchor(TextAnchor.BOTTOM_CENTER);
@@ -380,13 +383,13 @@ public class ResultSetBoxPlot
 		if (drawLineForHighestMedian)
 		{
 			ValueMarker marker = new ValueMarker(highestMedian); // position is the value on the axis
-			marker.setPaint(Color.GRAY);
+			marker.setPaint(Color.DARK_GRAY);
 			plot.addRangeMarker(marker);
 		}
 		if (drawLineForFirstMedian && firstMedian != null)
 		{
 			ValueMarker marker = new ValueMarker(firstMedian); // position is the value on the axis
-			marker.setPaint(Color.GRAY);
+			marker.setPaint(Color.DARK_GRAY);
 			plot.addRangeMarker(marker);
 		}
 		//chartPanel.setBounds(new Rectangle(3000, 500));
@@ -432,8 +435,14 @@ public class ResultSetBoxPlot
 		//		if (results.getResultValues(compareProp).size() == 1)
 		//			boxPlot1.getChart().getCategoryPlot().getRenderer().setSeriesVisibleInLegend(0, Boolean.FALSE);
 
-		renderer.setSeriesPaint(0, Color.BLACK);
-		renderer.setFillBox(false);
+		if (dataset.getRowCount() == 1)
+		{
+			renderer.setSeriesPaint(0, Color.BLACK);
+			renderer.setFillBox(false);
+		}
+
+		chartPanel.setMaximumDrawWidth(100000);
+		chartPanel.setMaximumDrawHeight(100000);
 
 		return chartPanel;
 
@@ -469,6 +478,7 @@ public class ResultSetBoxPlot
 			ChartPanel pp = p.getChart();
 
 			pp.setMaximumDrawWidth(100000);
+			pp.setMaximumDrawHeight(100000);
 			pp.setPreferredSize(new Dimension(2000, 1000));
 
 			SwingUtil.showInDialog(pp);

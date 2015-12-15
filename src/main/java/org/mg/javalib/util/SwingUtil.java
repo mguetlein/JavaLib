@@ -353,7 +353,10 @@ public class SwingUtil
 		final JFrame f = new JFrame();
 		f.add(c);
 		if (dim != null)
+		{
+			c.setPreferredSize(dim);
 			c.setSize(dim);
+		}
 		f.pack();
 		f.pack();
 		f.setVisible(true);
