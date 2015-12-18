@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.mg.javalib.util.ArrayUtil;
 
@@ -26,7 +27,7 @@ public class KeyValueFileStore<K, V extends Serializable>
 
 	private String filename(K k)
 	{
-		return Integer.toString(k.hashCode());
+		return DigestUtils.md5Hex(k.toString());
 	}
 
 	public synchronized boolean contains(K k)
@@ -50,10 +51,11 @@ public class KeyValueFileStore<K, V extends Serializable>
 	{
 		try
 		{
-			if (files.contains(k))
-				throw new IllegalArgumentException();
-			SerializationUtils.serialize(v, new FileOutputStream(new File(dir, filename(k))));
-			files.add(filename(k));
+			String name = filename(k);
+			//			if (files.contains(name))
+			//				throw new IllegalArgumentException();
+			SerializationUtils.serialize(v, new FileOutputStream(new File(dir, name)));
+			files.add(name);
 		}
 		catch (Exception e)
 		{
@@ -70,10 +72,11 @@ public class KeyValueFileStore<K, V extends Serializable>
 
 	public void clear(K k)
 	{
-		if (!files.contains(filename(k)))
+		String name = filename(k);
+		if (!files.contains(name))
 			throw new IllegalArgumentException();
-		new File(dir, filename(k)).delete();
-		files.remove(filename(k));
+		new File(dir, name).delete();
+		files.remove(name);
 	}
 
 }
