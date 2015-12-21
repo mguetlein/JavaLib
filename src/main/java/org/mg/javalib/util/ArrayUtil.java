@@ -1490,6 +1490,17 @@ public class ArrayUtil
 		return idx;
 	}
 
+	public static List<Object> flatten(Object[] elements)
+	{
+		List<Object> o = new ArrayList<>();
+		for (Object e : elements)
+			if (e == null || !e.getClass().isArray())
+				o.add(e);
+			else
+				o.addAll(flatten((Object[]) e));
+		return o;
+	}
+
 	public static void main(String args[])
 	{
 		int[] a = new int[] { 1, 2, 3 };

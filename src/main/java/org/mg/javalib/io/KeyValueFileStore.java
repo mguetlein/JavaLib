@@ -32,7 +32,16 @@ public class KeyValueFileStore<K, V extends Serializable>
 
 	public synchronized boolean contains(K k)
 	{
-		return files.contains(filename(k));
+		String name = filename(k);
+		if (files.contains(name))
+			return true;
+		// dynamic update
+		if (new File(dir, name).exists())
+		{
+			files.add(dir);
+			return true;
+		}
+		return false;
 	}
 
 	public synchronized V get(K k)
@@ -72,9 +81,9 @@ public class KeyValueFileStore<K, V extends Serializable>
 
 	public void clear(K k)
 	{
-		String name = filename(k);
-		if (!files.contains(name))
+		if (!contains(k))
 			throw new IllegalArgumentException();
+		String name = filename(k);
 		new File(dir, name).delete();
 		files.remove(name);
 	}
