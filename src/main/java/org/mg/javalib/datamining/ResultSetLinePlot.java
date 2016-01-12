@@ -44,9 +44,11 @@ public class ResultSetLinePlot
 
 	String title = "Title";
 	String yAxisLabel = null;
+	String yAxisLabelSuffix = "";
 	String xAxisLabel = "Categories";
-	boolean includeLegend = true;
+	boolean showLegend = true;
 	boolean tooltips = false;
+	boolean showDomainAxis = true;
 
 	public static enum XLabelsRotation
 	{
@@ -92,17 +94,21 @@ public class ResultSetLinePlot
 			if (diamond)
 			{
 				Polygon2D p1 = new Polygon2D();
-				p1.addPoint((float) p.getBounds2D().getX() + 0, (float) p.getBounds2D().getY() - size / 2.0f);
-				p1.addPoint((float) p.getBounds2D().getX() + size / 2.0f, (float) p.getBounds2D().getY());
-				p1.addPoint((float) p.getBounds2D().getX(), (float) p.getBounds2D().getY() + size / 2.0f);
-				p1.addPoint((float) p.getBounds2D().getX() - size / 2.0f, (float) p.getBounds2D().getY());
+				p1.addPoint((float) p.getBounds2D().getX() + 0,
+						(float) p.getBounds2D().getY() - size / 2.0f);
+				p1.addPoint((float) p.getBounds2D().getX() + size / 2.0f,
+						(float) p.getBounds2D().getY());
+				p1.addPoint((float) p.getBounds2D().getX(),
+						(float) p.getBounds2D().getY() + size / 2.0f);
+				p1.addPoint((float) p.getBounds2D().getX() - size / 2.0f,
+						(float) p.getBounds2D().getY());
 				//p1.translate((int) p.getBounds2D().getX(), (int) p.getBounds2D().getY());
 				p2 = p1;
 			}
 			else
 			{
-				p2 = new Ellipse2D.Float((float) p.getBounds2D().getX() - size / 2.0f, (float) p.getBounds2D().getY()
-						- size / 2.0f, size, size);
+				p2 = new Ellipse2D.Float((float) p.getBounds2D().getX() - size / 2.0f,
+						(float) p.getBounds2D().getY() - size / 2.0f, size, size);
 			}
 			return p2;
 		}
@@ -147,11 +153,13 @@ public class ResultSetLinePlot
 		{
 			final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 			for (int i = 0; i < set.getNumResults(); i++)
-				dataset.addValue((Double) set.getResultValue(i, valueProperty), set.getResultValue(i, seriesP)
-						.toString(), set.getResultValue(i, categoryP).toString());
+				dataset.addValue((Double) set.getResultValue(i, valueProperty),
+						set.getResultValue(i, seriesP).toString(),
+						set.getResultValue(i, categoryP).toString());
 			JFreeChart chart = ChartFactory.createLineChart(title, xAxisLabel,
-					(yAxisLabel == null) ? set.getNiceProperty(valueProperty) : yAxisLabel, dataset,
-					PlotOrientation.VERTICAL, includeLegend, tooltips, false /*urls*/);
+					((yAxisLabel == null) ? set.getNiceProperty(valueProperty) : yAxisLabel)
+							+ yAxisLabelSuffix,
+					dataset, PlotOrientation.VERTICAL, showLegend, tooltips, false /*urls*/);
 
 			chart.getPlot().setBackgroundPaint(Color.WHITE);
 			((CategoryPlot) chart.getPlot()).setRangeGridlinePaint(Color.GRAY);
@@ -164,12 +172,15 @@ public class ResultSetLinePlot
 			Shape shapes[] = null;
 			if (dataset.getRowCount() == 2)
 			{
-				cols = new Color[] { ColorUtil.bright(FreeChartUtil.COLORS[0]), ColorUtil.dark(FreeChartUtil.COLORS[1]) };
-				shapes = new Shape[] { ShapeUtilities.createDiamond(4.5f), new Ellipse2D.Float(-3f, -3f, 6f, 6f) };
+				cols = new Color[] { ColorUtil.bright(FreeChartUtil.COLORS[0]),
+						ColorUtil.dark(FreeChartUtil.COLORS[1]) };
+				shapes = new Shape[] { ShapeUtilities.createDiamond(4.5f),
+						new Ellipse2D.Float(-3f, -3f, 6f, 6f) };
 			}
 			else if (dataset.getRowCount() == 3)
 				cols = new Color[] { ColorUtil.bright(FreeChartUtil.COLORS[0]),
-						ColorUtil.dark(FreeChartUtil.COLORS[1]), ColorUtil.mediumBrightness(FreeChartUtil.COLORS[2]) };
+						ColorUtil.dark(FreeChartUtil.COLORS[1]),
+						ColorUtil.mediumBrightness(FreeChartUtil.COLORS[2]) };
 			else
 				cols = FreeChartUtil.COLORS;
 
@@ -238,8 +249,8 @@ public class ResultSetLinePlot
 				{
 					String seriesValue = dataset.getRowKey(series).toString();
 					String categoryValue = dataset.getColumnKey(item).toString();
-					return (drawShape.containsKey(valueProperty) && seriesValue.equals(drawShape.get(valueProperty)
-							.get(categoryValue)));
+					return (drawShape.containsKey(valueProperty)
+							&& seriesValue.equals(drawShape.get(valueProperty).get(categoryValue)));
 				}
 
 				@Override
@@ -320,7 +331,8 @@ public class ResultSetLinePlot
 				//					renderer.setSeriesStroke(i, new BasicStroke(thick, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
 				//							1.0f, new float[] { 1.5f * thick, 1.5f * thick }, 3f * thick));
 				//				else
-				renderer.setSeriesStroke(i, new BasicStroke(thick, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+				renderer.setSeriesStroke(i,
+						new BasicStroke(thick, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 				//, 1.0f,new float[] { dash, 2 * thick }, dash / 2));
 
@@ -329,22 +341,16 @@ public class ResultSetLinePlot
 			if (yAxisRange != null)
 				((NumberAxis) plot.getRangeAxis()).setRange(yAxisRange[0], yAxisRange[1]);
 			if (yAxisRangePerValue.containsKey(valueProperty))
-				((NumberAxis) plot.getRangeAxis()).setRange(yAxisRangePerValue.get(valueProperty)[0],
+				((NumberAxis) plot.getRangeAxis()).setRange(
+						yAxisRangePerValue.get(valueProperty)[0],
 						yAxisRangePerValue.get(valueProperty)[1]);
 			if (yAxisTickUnitsPerValue.containsKey(valueProperty))
-				((NumberAxis) plot.getRangeAxis()).setTickUnit(new NumberTickUnit(yAxisTickUnitsPerValue
-						.get(valueProperty)));
+				((NumberAxis) plot.getRangeAxis())
+						.setTickUnit(new NumberTickUnit(yAxisTickUnitsPerValue.get(valueProperty)));
 
 			//((NumberAxis) plot.getRangeAxis()).setAutoRangeIncludesZero(true);
 
 			CategoryAxis axis = plot.getDomainAxis();
-			if (rotateXLabels == XLabelsRotation.diagonal)
-				axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-			if (rotateXLabels == XLabelsRotation.vertical)
-			{
-				axis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
-				axis.setMaximumCategoryLabelWidthRatio(1.0f);
-			}
 
 			//			axis.setTickLabelsVisible(true);
 
@@ -362,15 +368,24 @@ public class ResultSetLinePlot
 				c.setBackgroundPaint(new Color(0, 0, 0, 0));
 				c.addLegend(chart.getLegend());
 				axis = plot.getDomainAxis();
-				if (rotateXLabels == XLabelsRotation.diagonal)
-					axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-				if (rotateXLabels == XLabelsRotation.vertical)
-					axis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
 			}
 			else
 			{
 				combinedP.add(chart.getCategoryPlot());
 			}
+
+			if (rotateXLabels == XLabelsRotation.diagonal)
+				axis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+			if (rotateXLabels == XLabelsRotation.vertical)
+			{
+				axis.setCategoryLabelPositions(CategoryLabelPositions.DOWN_90);
+				axis.setMaximumCategoryLabelWidthRatio(1.0f);
+			}
+			axis.setLowerMargin(0);
+			axis.setUpperMargin(0);
+			if (!showDomainAxis)
+				axis.setVisible(false);
+
 		}
 		ChartPanel cp = new ChartPanel(c);
 		return cp;
@@ -416,9 +431,24 @@ public class ResultSetLinePlot
 		this.yAxisLabel = yAxisLabel;
 	}
 
+	public void setYAxisLabelSuffix(String string)
+	{
+		this.yAxisLabelSuffix = string;
+	}
+
 	public void setRotateXLabels(XLabelsRotation rotateXLabels)
 	{
 		this.rotateXLabels = rotateXLabels;
+	}
+
+	public void setShowLegend(boolean showLegend)
+	{
+		this.showLegend = showLegend;
+	}
+
+	public void setShowDomainAxis(boolean showDomainAxis)
+	{
+		this.showDomainAxis = showDomainAxis;
 	}
 
 	//	public static ChartPanel getCombinedPlot(ResultSet set, String valueP1, String valueP2, String seriesP,
@@ -450,7 +480,8 @@ public class ResultSetLinePlot
 				set.setResultValue(idx, "Value", new Random().nextDouble());
 			}
 		}
-		ResultSetLinePlot plot = new ResultSetLinePlot(set, new String[] { "Value" }, "Series", "Category");
+		ResultSetLinePlot plot = new ResultSetLinePlot(set, new String[] { "Value" }, "Series",
+				"Category");
 		SwingUtil.showInFrame(plot.getChartPanel());
 		System.exit(0);
 	}
@@ -474,13 +505,14 @@ public class ResultSetLinePlot
 		System.out.println("\njoined folds\n");
 		System.out.println(joined.toNiceString());
 
-		ResultSetLinePlot plot = new ResultSetLinePlot(joined, new String[] { "accuracy", "accuracy", "accuracy" },
-				"algorithm", "dataset");
+		ResultSetLinePlot plot = new ResultSetLinePlot(joined,
+				new String[] { "accuracy", "accuracy", "accuracy" }, "algorithm", "dataset");
 		plot.addMarker("accuracy", "mouse", "mark");
 		{
-			ResultSet test = set.pairedTTest("algorithm", new String[] { "fold" }, "accuracy", 0.01, null,
-					new String[] { "dataset" });
-			for (Object datasetWins : ResultSet.listSeriesWins(test, "algorithm", "accuracy", "dataset", "SVM", "NB"))
+			ResultSet test = set.pairedTTest("algorithm", new String[] { "fold" }, "accuracy", 0.01,
+					null, new String[] { "dataset" });
+			for (Object datasetWins : ResultSet.listSeriesWins(test, "algorithm", "accuracy",
+					"dataset", "SVM", "NB"))
 				plot.setDrawShape("accuracy", datasetWins.toString(), "SVM");
 			System.out.println(test.toNiceString());
 		}

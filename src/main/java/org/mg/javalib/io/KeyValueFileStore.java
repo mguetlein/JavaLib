@@ -4,15 +4,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.nio.channels.FileLock;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
-import org.mg.javalib.util.ArrayUtil;
 
 public class KeyValueFileStore<K, V extends Serializable>
 {
@@ -20,14 +23,20 @@ public class KeyValueFileStore<K, V extends Serializable>
 	Set<String> files;
 	boolean md5Enabled = false;
 	boolean compress = false;
+	String tmpDir = null;
+	boolean permanent = false;
 
-	public KeyValueFileStore(String dir, boolean md5Enabled, boolean compress)
+	public KeyValueFileStore(String dir, boolean md5Enabled, boolean compress, String tmpDir,
+			boolean permanent)
 	{
 		if (!new File(dir).isDirectory())
 			throw new IllegalArgumentException("directory not found: " + dir);
 		this.dir = dir;
 		this.compress = compress;
-		files = new HashSet<>(ArrayUtil.toList(new File(dir).list()));
+		this.tmpDir = tmpDir;
+		this.permanent = permanent;
+		if (permanent)
+			files = new HashSet<>();
 	}
 
 	private String filename(K k)
@@ -41,12 +50,13 @@ public class KeyValueFileStore<K, V extends Serializable>
 	public synchronized boolean contains(K k)
 	{
 		String name = filename(k);
-		if (files.contains(name))
+		if (permanent && files.contains(name))
 			return true;
 		// dynamic update
 		if (new File(dir, name).exists())
 		{
-			files.add(name);
+			if (permanent)
+				files.add(name);
 			return true;
 		}
 		return false;
@@ -82,16 +92,35 @@ public class KeyValueFileStore<K, V extends Serializable>
 	public synchronized void store(K k, V v)
 	{
 		FileOutputStream o = null;
+		RandomAccessFile raf = null;
+		FileLock lock = null;
 		try
 		{
 			String name = filename(k);
-			new File(dir, name).getParentFile().mkdirs();
-			o = new FileOutputStream(new File(dir, name));
+			String directory = dir;
+			if (tmpDir != null)
+				directory = tmpDir;
+
+			File destFile = new File(directory, name);
+			destFile.getParentFile().mkdirs();
+			raf = new RandomAccessFile(new File(directory, name), "rw");
+			lock = raf.getChannel().tryLock();
+			if (lock == null)
+				throw new RuntimeException("already locked " + destFile);
+			o = new FileOutputStream(destFile);
 			if (compress)
 				SerializationUtilsCompressed.serialize(v, o);
 			else
 				SerializationUtils.serialize(v, o);
-			files.add(name);
+
+			if (tmpDir != null)
+			{
+				File realDestFile = new File(dir, name);
+				realDestFile.getParentFile().mkdirs();
+				FileUtils.moveFile(destFile, realDestFile);
+			}
+			if (permanent)
+				files.add(name);
 		}
 		catch (Exception e)
 		{
@@ -101,23 +130,36 @@ public class KeyValueFileStore<K, V extends Serializable>
 		{
 			if (o != null)
 				IOUtils.closeQuietly(o);
+			if (lock != null)
+				try
+				{
+					lock.release();
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException(e);
+				}
+			if (raf != null)
+				IOUtils.closeQuietly(raf);
 		}
 	}
 
 	public void clear()
 	{
+		if (permanent)
+			throw new IllegalArgumentException();
 		for (String f : files)
 			new File(dir, f).delete();
-		files.clear();
 	}
 
 	public void clear(K k)
 	{
+		if (permanent)
+			throw new IllegalArgumentException();
 		if (!contains(k))
 			throw new IllegalArgumentException();
 		String name = filename(k);
 		new File(dir, name).delete();
-		files.remove(name);
 	}
 
 }

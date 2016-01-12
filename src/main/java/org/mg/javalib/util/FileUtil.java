@@ -59,7 +59,8 @@ public class FileUtil
 				throw new IllegalArgumentException();
 			CSVFile newCsv = new CSVFile();
 			for (int i = 0; i < content.size(); i++)
-				newCsv.content.add(ArrayUtil.concat(String.class, content.get(i), csvFile.content.get(i)));
+				newCsv.content.add(
+						ArrayUtil.concat(String.class, content.get(i), csvFile.content.get(i)));
 			return newCsv;
 		}
 
@@ -148,7 +149,8 @@ public class FileUtil
 			{
 				int i = ArrayUtil.indexOf(getHeader(), s);
 				if (i == -1)
-					throw new IllegalArgumentException("not found: " + s + " in " + ArrayUtil.toString(getHeader()));
+					throw new IllegalArgumentException(
+							"not found: " + s + " in " + ArrayUtil.toString(getHeader()));
 				colIndex.add(i);
 			}
 			return exclude(ArrayUtil.toPrimitiveIntArray(colIndex));
@@ -191,7 +193,8 @@ public class FileUtil
 			csv.content = new ArrayList<String[]>();
 			csv.content.add(ArrayUtil.concat(String.class, content.get(0), new String[] { col }));
 			for (int i = 1; i < content.size(); i++)
-				csv.content.add(ArrayUtil.concat(String.class, content.get(i), new String[] { values[i - 1] }));
+				csv.content.add(ArrayUtil.concat(String.class, content.get(i),
+						new String[] { values[i - 1] }));
 			return csv;
 		}
 	}
@@ -247,12 +250,14 @@ public class FileUtil
 		}
 	}
 
-	public static CSVFile readCSV(String filename, int expectedNumCols) throws UnexpectedNumColsException
+	public static CSVFile readCSV(String filename, int expectedNumCols)
+			throws UnexpectedNumColsException
 	{
 		return readCSV(filename, expectedNumCols, null);
 	}
 
-	public static CSVFile readCSV(String filename, int expectedNumCols, String sep) throws UnexpectedNumColsException
+	public static CSVFile readCSV(String filename, int expectedNumCols, String sep)
+			throws UnexpectedNumColsException
 	{
 		if (sep != null && sep.length() != 1)
 			throw new IllegalArgumentException("seperator must have length 1");
@@ -331,11 +336,13 @@ public class FileUtil
 						dest.getAbsolutePath() };
 				System.out.println(cmd);
 				Process p = Runtime.getRuntime().exec(cmd);
-				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				BufferedReader input = new BufferedReader(
+						new InputStreamReader(p.getInputStream()));
 				while ((line = input.readLine()) != null)
 					System.out.println(line);
 				input.close();
-				BufferedReader input2 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+				BufferedReader input2 = new BufferedReader(
+						new InputStreamReader(p.getErrorStream()));
 				while ((line = input2.readLine()) != null)
 					System.out.println(line);
 				input2.close();
