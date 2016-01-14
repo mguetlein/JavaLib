@@ -48,8 +48,8 @@ public class OBSmartsMatcher
 		return match(smarts, minNumMatches, smilesOrSdFile, numCompounds);
 	}
 
-	public List<boolean[]> match(List<String> smarts, List<Integer> minNumMatches, String smilesOrSdFile,
-			int numCompounds)
+	public List<boolean[]> match(List<String> smarts, List<Integer> minNumMatches,
+			String smilesOrSdFile, int numCompounds)
 	{
 		registerFP(smarts);
 		createFPFile(smarts, minNumMatches);
@@ -106,7 +106,8 @@ public class OBSmartsMatcher
 			int i = 0;
 			for (String smart : smarts)
 			{
-				out.write("  " + i + ":('" + smart + "'," + minNumMatches.get(i) + ") # " + i + "\n");
+				out.write(
+						"  " + i + ":('" + smart + "'," + minNumMatches.get(i) + ") # " + i + "\n");
 				i++;
 			}
 			out.close();
@@ -117,8 +118,8 @@ public class OBSmartsMatcher
 		}
 	}
 
-	private List<boolean[]> matchSmarts(List<String> smarts, List<Integer> minNumMatches, String inputFile,
-			int numCompounds)
+	private List<boolean[]> matchSmarts(List<String> smarts, List<Integer> minNumMatches,
+			String inputFile, int numCompounds)
 	{
 		List<boolean[]> l = new ArrayList<boolean[]>();
 		for (int i = 0; i < smarts.size(); i++)
@@ -130,15 +131,19 @@ public class OBSmartsMatcher
 			tmp = File.createTempFile("sdf" + numCompounds, "OBsmarts");
 			String cmd[];
 			if (inputFile.endsWith(".sdf"))
-				cmd = new String[] { babelLocation, "-isdf", inputFile, "-ofpt", "-xf", getKey(smarts), "-xs" };
+				cmd = new String[] { babelLocation, "-isdf", inputFile, "-ofpt", "-xf",
+						getKey(smarts), "-xs" };
 			else if (inputFile.endsWith(".smi"))
-				cmd = new String[] { babelLocation, "-ismi", inputFile, "-ofpt", "-xf", getKey(smarts), "-xs" };
+				cmd = new String[] { babelLocation, "-ismi", inputFile, "-ofpt", "-xf",
+						getKey(smarts), "-xs" };
 			else
 				throw new IllegalArgumentException("input neither sdf nor smi");
 			logger.debug("Running babel: " + ArrayUtil.toString(cmd, " ", "", ""));
 			ExternalTool ext = new ExternalTool(logger);
-			ext.run("ob-fingerprints", cmd, tmp, true, new String[] { "BABEL_DATADIR=" + babelDataDir });
-			logger.debug("Parsing match of " + smarts.size() + " smarts on " + numCompounds + " molecules");
+			ext.run("ob-fingerprints", cmd, tmp, true,
+					new String[] { "BABEL_DATADIR=" + babelDataDir });
+			logger.debug("Parsing match of " + smarts.size() + " smarts on " + numCompounds
+					+ " molecules");
 			BufferedReader buffy = new BufferedReader(new FileReader(tmp));
 			String line = null;
 			int compoundIndex = -1;

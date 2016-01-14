@@ -29,8 +29,8 @@ public class KeyValueFileStore<K, V extends Serializable>
 	public KeyValueFileStore(String dir, boolean md5Enabled, boolean compress, String tmpDir,
 			boolean permanent)
 	{
-		if (!new File(dir).isDirectory())
-			throw new IllegalArgumentException("directory not found: " + dir);
+		//		if (!new File(dir).isDirectory())
+		//			throw new IllegalArgumentException("directory not found: " + dir);
 		this.dir = dir;
 		this.compress = compress;
 		this.tmpDir = tmpDir;

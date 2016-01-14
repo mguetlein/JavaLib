@@ -66,7 +66,8 @@ public class Result implements Serializable
 
 				Double var = null;
 
-				if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM) && val1 instanceof Number)
+				if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM)
+						&& val1 instanceof Number)
 				{
 					if (val1 instanceof String && val1.equals("null"))
 						val1 = Double.NaN;
@@ -81,7 +82,8 @@ public class Result implements Serializable
 					else if (Double.isNaN(d2))
 					{
 						val = d1;
-						if (joinMode == JOIN_MODE_MEAN && mergeCount != null && mergeCount.containsKey(prop))
+						if (joinMode == JOIN_MODE_MEAN && mergeCount != null
+								&& mergeCount.containsKey(prop))
 						{
 							if (rs.mergeCount == null)
 								rs.mergeCount = new HashMap<String, Integer>();
@@ -92,17 +94,19 @@ public class Result implements Serializable
 					{
 						if (joinMode == JOIN_MODE_MEAN)
 						{
-							double weight = (mergeCount != null && mergeCount.containsKey(prop)) ? mergeCount.get(prop)
-									: 1;
+							double weight = (mergeCount != null && mergeCount.containsKey(prop))
+									? mergeCount.get(prop) : 1;
 							double value = ((d1 * weight) + d2) / ((double) (weight + 1));
 							val = value;
 							if (varianceProperties != null && varianceProperties.contains(prop))
 							{
 								double oldStdDev = 0;
 								if (values.containsKey(prop + ResultSet.VARIANCE_SUFFIX))
-									oldStdDev = Math.pow((Double) values.get(prop + ResultSet.VARIANCE_SUFFIX), 2);
-								double stdDev = oldStdDev * (weight / (double) (weight + 1)) + Math.pow(d2 - value, 2)
-										* (1 / (double) weight);
+									oldStdDev = Math.pow(
+											(Double) values.get(prop + ResultSet.VARIANCE_SUFFIX),
+											2);
+								double stdDev = oldStdDev * (weight / (double) (weight + 1))
+										+ Math.pow(d2 - value, 2) * (1 / (double) weight);
 								var = Math.sqrt(stdDev);
 							}
 							if (rs.mergeCount == null)
@@ -113,7 +117,8 @@ public class Result implements Serializable
 							val = d1 + d2;
 					}
 				}
-				else if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM) && val1 instanceof Number[])
+				else if ((joinMode == JOIN_MODE_MEAN || joinMode == JOIN_MODE_SUM)
+						&& val1 instanceof Number[])
 				{
 					throw new Error("no array join implemented");
 				}

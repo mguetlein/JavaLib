@@ -2,9 +2,11 @@ package org.mg.javalib.datamining;
 
 public class StatisticsUtil
 {
-	public static double getChangeDifferenceNemenyi(double confidence, int numClassifiers, int numDatasets)
+	public static double getChangeDifferenceNemenyi(double confidence, int numClassifiers,
+			int numDatasets)
 	{
-		return /* Math.pow(confidence, 2) */Math.sqrt((numClassifiers * (numClassifiers + 1)) / (double) (6 * numDatasets));
+		return /* Math.pow(confidence, 2) */Math
+				.sqrt((numClassifiers * (numClassifiers + 1)) / (double) (6 * numDatasets));
 	}
 
 	public static void main(String args[])

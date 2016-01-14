@@ -137,7 +137,8 @@ public class ResultSet implements Serializable
 			maxLength[i] = Math.max(maxLength[i], getNiceProperty(properties.get(i)).length());
 
 			for (Result r : results)
-				maxLength[i] = Math.max(maxLength[i], niceValue(r.getValue(properties.get(i)), -1, true).length());
+				maxLength[i] = Math.max(maxLength[i],
+						niceValue(r.getValue(properties.get(i)), -1, true).length());
 		}
 
 		StringBuffer s = new StringBuffer();
@@ -226,7 +227,8 @@ public class ResultSet implements Serializable
 		{
 			s = "";
 			for (Number n : (Number[]) value)
-				s += (s.length() == 0 ? "" : "; ") + StringUtil.formatDouble((Double) n, numDecimalPlaces);
+				s += (s.length() == 0 ? "" : "; ")
+						+ StringUtil.formatDouble((Double) n, numDecimalPlaces);
 			// s += " ]";
 			alignLeft = false;
 		}
@@ -402,7 +404,8 @@ public class ResultSet implements Serializable
 		return toLatexTable(null, (Integer[]) null, null, false);
 	}
 
-	public String toLatexTable(Boolean[] centerColumn, Boolean[] hlineLeadingColumn, String preProperties)
+	public String toLatexTable(Boolean[] centerColumn, Boolean[] hlineLeadingColumn,
+			String preProperties)
 	{
 		Integer[] numLines = null;
 		if (hlineLeadingColumn != null)
@@ -419,15 +422,17 @@ public class ResultSet implements Serializable
 		return toLatexTable(null, (Integer[]) null, null, renderTime);
 	}
 
-	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties)
+	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn,
+			String preProperties)
 	{
 		return toLatexTable(centerColumn, hlineLeadingColumn, preProperties, false);
 	}
 
-	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties,
-			boolean renderTime)
+	public String toLatexTable(Boolean[] centerColumn, Integer[] hlineLeadingColumn,
+			String preProperties, boolean renderTime)
 	{
-		return toLatexTable(new LatexTableSettings(centerColumn, hlineLeadingColumn, preProperties, renderTime));
+		return toLatexTable(new LatexTableSettings(centerColumn, hlineLeadingColumn, preProperties,
+				renderTime));
 	}
 
 	public static class LatexTableSettings
@@ -439,8 +444,8 @@ public class ResultSet implements Serializable
 		public boolean headerBold;
 		public boolean firstRowBold;
 
-		public LatexTableSettings(Boolean[] centerColumn, Integer[] hlineLeadingColumn, String preProperties,
-				boolean renderTime)
+		public LatexTableSettings(Boolean[] centerColumn, Integer[] hlineLeadingColumn,
+				String preProperties, boolean renderTime)
 		{
 			this.centerColumn = centerColumn;
 			this.hlineLeadingColumn = hlineLeadingColumn;
@@ -618,8 +623,8 @@ public class ResultSet implements Serializable
 						}
 						catch (ClassCastException e)
 						{
-							System.err.println(e.getMessage() + " : " + property + " -> " + o1.getValue(property)
-									+ " / " + o2.getValue(property));
+							System.err.println(e.getMessage() + " : " + property + " -> "
+									+ o1.getValue(property) + " / " + o2.getValue(property));
 							e.printStackTrace();
 							System.exit(1);
 						}
@@ -652,8 +657,8 @@ public class ResultSet implements Serializable
 					}
 				}
 				else
-					return niceValue(o1.getValue(property)).compareTo(niceValue(o2.getValue(property)))
-							* (ascending ? 1 : -1);
+					return niceValue(o1.getValue(property))
+							.compareTo(niceValue(o2.getValue(property))) * (ascending ? 1 : -1);
 			}
 		});
 	}
@@ -722,20 +727,22 @@ public class ResultSet implements Serializable
 		return join(ArrayUtil.toList(new String[] { equalProperty }), null, null, joinMode);
 	}
 
-	public ResultSet join(String equalProperties[], String ommitProperties[], String varianceProperties[])
+	public ResultSet join(String equalProperties[], String ommitProperties[],
+			String varianceProperties[])
 	{
 		return join(ArrayUtil.toList(equalProperties),
-				ommitProperties == null ? null : ArrayUtil.toList(ommitProperties), varianceProperties == null ? null
-						: ArrayUtil.toList(varianceProperties));
+				ommitProperties == null ? null : ArrayUtil.toList(ommitProperties),
+				varianceProperties == null ? null : ArrayUtil.toList(varianceProperties));
 	}
 
-	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties)
+	public ResultSet join(List<String> equalProperties, List<String> ommitProperties,
+			List<String> varianceProperties)
 	{
 		return join(equalProperties, ommitProperties, varianceProperties, Result.JOIN_MODE_MEAN);
 	}
 
-	public ResultSet join(List<String> equalProperties, List<String> ommitProperties, List<String> varianceProperties,
-			int joinMode)
+	public ResultSet join(List<String> equalProperties, List<String> ommitProperties,
+			List<String> varianceProperties, int joinMode)
 	{
 		ResultSet joined = new ResultSet();
 
@@ -757,10 +764,8 @@ public class ResultSet implements Serializable
 			if (joined.results.size() <= group[i])
 				joined.results.add(results.get(i));
 			else
-				joined.results.set(
-						group[i],
-						joined.results.get(group[i]).join(results.get(i), joined.properties, equalProperties,
-								varianceProperties, joinMode));
+				joined.results.set(group[i], joined.results.get(group[i]).join(results.get(i),
+						joined.properties, equalProperties, varianceProperties, joinMode));
 		}
 
 		return joined;
@@ -785,7 +790,8 @@ public class ResultSet implements Serializable
 				setResultValue(i, p, set.getResultValue(i, p));
 	}
 
-	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set, String setMergePropValue)
+	public ResultSet merge(String mergeProperty, String thisMergePropValue, ResultSet set,
+			String setMergePropValue)
 	{
 		for (String p : properties)
 			if (!p.equals(mergeProperty) && !set.properties.contains(p))
@@ -928,15 +934,17 @@ public class ResultSet implements Serializable
 	 * if (correctTerm == null) -> normal un-corrected paired t-test
 	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
 	 */
-	public ResultSet pairedTTestWinLoss(String compareProperty, String[] equalProperties, String testProperty,
-			double confidence, Double correctTerm, String[] seriesProperty, boolean addNonSignificant)
+	public ResultSet pairedTTestWinLoss(String compareProperty, String[] equalProperties,
+			String testProperty, double confidence, Double correctTerm, String[] seriesProperty,
+			boolean addNonSignificant)
 	{
-		return pairedTTestWinLoss(compareProperty, ArrayUtil.toList(equalProperties), testProperty, confidence,
-				correctTerm, ArrayUtil.toList(seriesProperty), addNonSignificant);
+		return pairedTTestWinLoss(compareProperty, ArrayUtil.toList(equalProperties), testProperty,
+				confidence, correctTerm, ArrayUtil.toList(seriesProperty), addNonSignificant);
 	}
 
-	public ResultSet pairedTTestWinLoss(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, Double correctTerm, List<String> seriesProperty, boolean addNonSignificant)
+	public ResultSet pairedTTestWinLoss(String compareProperty, List<String> equalProperties,
+			String testProperty, double confidence, Double correctTerm, List<String> seriesProperty,
+			boolean addNonSignificant)
 	{
 		double confidences[] = new double[] { confidence };
 		if (addNonSignificant)
@@ -945,14 +953,15 @@ public class ResultSet implements Serializable
 		List<ResultSet> tests = new ArrayList<>();
 		for (int c = 0; c < confidences.length; c++)
 		{
-			ResultSet ttest = pairedTTest(compareProperty, equalProperties, testProperty, confidences[c], correctTerm,
-					seriesProperty);
+			ResultSet ttest = pairedTTest(compareProperty, equalProperties, testProperty,
+					confidences[c], correctTerm, seriesProperty);
 			// 	convert to string to concat via / instead of compute mean when joining
 			for (int i = 0; i < ttest.getNumResults(); i++)
 				ttest.setResultValue(i, testProperty + SIGNIFICANCE_SUFFIX,
 						ttest.getResultValue(i, testProperty + SIGNIFICANCE_SUFFIX) + "");
 
-			ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" }, null, null);
+			ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" },
+					null, null);
 			tests.add(ttest);
 		}
 
@@ -960,14 +969,15 @@ public class ResultSet implements Serializable
 		for (int i = 0; i < tests.get(0).getNumResults(); i++)
 		{
 			int idx = r.addResult();
-			if (addNonSignificant
-					&& (!tests.get(0).getResultValue(idx, compareProperty + "_1")
-							.equals(tests.get(1).getResultValue(idx, compareProperty + "_1")) || (!tests.get(0)
-							.getResultValue(idx, compareProperty + "_2")
+			if (addNonSignificant && (!tests.get(0).getResultValue(idx, compareProperty + "_1")
+					.equals(tests.get(1).getResultValue(idx, compareProperty + "_1"))
+					|| (!tests.get(0).getResultValue(idx, compareProperty + "_2")
 							.equals(tests.get(1).getResultValue(idx, compareProperty + "_2")))))
 				throw new IllegalStateException();
-			r.setResultValue(idx, compareProperty + "_1", tests.get(0).getResultValue(idx, compareProperty + "_1"));
-			r.setResultValue(idx, compareProperty + "_2", tests.get(0).getResultValue(idx, compareProperty + "_2"));
+			r.setResultValue(idx, compareProperty + "_1",
+					tests.get(0).getResultValue(idx, compareProperty + "_1"));
+			r.setResultValue(idx, compareProperty + "_2",
+					tests.get(0).getResultValue(idx, compareProperty + "_2"));
 
 			int win[] = new int[confidences.length];
 			int loss[] = new int[confidences.length];
@@ -976,8 +986,8 @@ public class ResultSet implements Serializable
 			for (int c = 0; c < confidences.length; c++)
 			{
 				// count losses
-				for (String s : tests.get(c).getResultValue(idx, testProperty + SIGNIFICANCE_SUFFIX).toString()
-						.split("/"))
+				for (String s : tests.get(c).getResultValue(idx, testProperty + SIGNIFICANCE_SUFFIX)
+						.toString().split("/"))
 				{
 					if (s.equals("-1"))
 						loss[c]++;
@@ -1014,15 +1024,15 @@ public class ResultSet implements Serializable
 	 * if (correctTerm == null) -> normal un-corrected paired t-test
 	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation: 1/9.0)
 	 */
-	public ResultSet pairedTTest(String compareProperty, String[] equalProperties, String testProperty,
-			double confidence, Double correctTerm, String[] seriesProperty)
+	public ResultSet pairedTTest(String compareProperty, String[] equalProperties,
+			String testProperty, double confidence, Double correctTerm, String[] seriesProperty)
 	{
-		return pairedTTest(compareProperty, ArrayUtil.toList(equalProperties), testProperty, confidence, correctTerm,
-				ArrayUtil.toList(seriesProperty));
+		return pairedTTest(compareProperty, ArrayUtil.toList(equalProperties), testProperty,
+				confidence, correctTerm, ArrayUtil.toList(seriesProperty));
 	}
 
-	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, Double correctTerm, List<String> seriesProperty)
+	public ResultSet pairedTTest(String compareProperty, List<String> equalProperties,
+			String testProperty, double confidence, Double correctTerm, List<String> seriesProperty)
 	{
 		ResultSet res = null;
 
@@ -1033,7 +1043,8 @@ public class ResultSet implements Serializable
 			ResultSet r = filterGroup(grpIdx, grp);
 			if (r.getNumResults() == 0)
 				break;
-			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty, confidence, correctTerm);
+			ResultSet test = r.pairedTTest_All(compareProperty, equalProperties, testProperty,
+					confidence, correctTerm);
 			for (int i = 0; i < test.getNumResults(); i++)
 				for (String p : seriesProperty)
 					test.setResultValue(i, p, r.getResultValue(0, p));
@@ -1047,41 +1058,61 @@ public class ResultSet implements Serializable
 		return res;
 	}
 
-	public static List<Object> listSeriesWins(ResultSet pairedTTestResult, String compareProperty, String testProperty,
-			String seriesProperty, String compareProbValue1, String compareProbValue2)
+	public static List<Object> listSeriesWins(ResultSet pairedTTestResult, String compareProperty,
+			String testProperty, String seriesProperty, String compareProbValue1,
+			String compareProbValue2)
 	{
 		List<Object> wins = new ArrayList<>();
 		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
 		{
-			if (pairedTTestResult.getResultValue(i, compareProperty + "_1").equals(compareProbValue1)
-					&& pairedTTestResult.getResultValue(i, compareProperty + "_2").equals(compareProbValue2)
-					&& pairedTTestResult.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX).equals(1))
+			if (pairedTTestResult
+					.getResultValue(i, compareProperty + "_1").equals(
+							compareProbValue1)
+					&& pairedTTestResult
+							.getResultValue(i,
+									compareProperty + "_2")
+							.equals(compareProbValue2)
+					&& pairedTTestResult
+							.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX)
+							.equals(1))
 				wins.add(pairedTTestResult.getResultValue(i, seriesProperty));
-			if (pairedTTestResult.getResultValue(i, compareProperty + "_2").equals(compareProbValue1)
-					&& pairedTTestResult.getResultValue(i, compareProperty + "_1").equals(compareProbValue2)
-					&& pairedTTestResult.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX).equals(-1))
+			if (pairedTTestResult
+					.getResultValue(i, compareProperty + "_2").equals(
+							compareProbValue1)
+					&& pairedTTestResult
+							.getResultValue(i,
+									compareProperty + "_1")
+							.equals(compareProbValue2)
+					&& pairedTTestResult
+							.getResultValue(i, testProperty + ResultSet.SIGNIFICANCE_SUFFIX)
+							.equals(-1))
 				wins.add(pairedTTestResult.getResultValue(i, seriesProperty));
 		}
 		return wins;
 	}
 
-	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue1,
-			String compareValue2, String testProperty)
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty,
+			String compareValue1, String compareValue2, String testProperty)
 	{
-		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue1, compareValue2, testProperty, null, null);
+		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue1, compareValue2,
+				testProperty, null, null);
 	}
 
-	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue1,
-			String compareValue2, String testProperty, String seriesProperty, String seriesValue)
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty,
+			String compareValue1, String compareValue2, String testProperty, String seriesProperty,
+			String seriesValue)
 	{
 		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
 		{
-			if (seriesProperty == null || pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
+			if (seriesProperty == null
+					|| pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
 			{
-				Integer testResult = (Integer) pairedTTestResult.getResultValue(i, testProperty
-						+ ResultSet.SIGNIFICANCE_SUFFIX);
-				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1").toString();
-				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2").toString();
+				Integer testResult = (Integer) pairedTTestResult.getResultValue(i,
+						testProperty + ResultSet.SIGNIFICANCE_SUFFIX);
+				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1")
+						.toString();
+				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2")
+						.toString();
 				if (cmp1.equals(compareValue1))
 				{
 					if (cmp2.equals(compareValue2))
@@ -1109,10 +1140,11 @@ public class ResultSet implements Serializable
 		return null;
 	}
 
-	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue,
-			String testProperty)
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty,
+			String compareValue, String testProperty)
 	{
-		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue, testProperty, null, null);
+		return isWinOrLoss(pairedTTestResult, compareProperty, compareValue, testProperty, null,
+				null);
 	}
 
 	/**
@@ -1120,18 +1152,21 @@ public class ResultSet implements Serializable
 	 * null -> only zero
 	 * false -> at least one loss
 	 */
-	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty, String compareValue,
-			String testProperty, String seriesProperty, String seriesValue)
+	public static Boolean isWinOrLoss(ResultSet pairedTTestResult, String compareProperty,
+			String compareValue, String testProperty, String seriesProperty, String seriesValue)
 	{
 		Boolean win = null;
 		for (int i = 0; i < pairedTTestResult.getNumResults(); i++)
 		{
-			if (seriesProperty == null || pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
+			if (seriesProperty == null
+					|| pairedTTestResult.getResultValue(i, seriesProperty).equals(seriesValue))
 			{
-				Integer testResult = (Integer) pairedTTestResult.getResultValue(i, testProperty
-						+ ResultSet.SIGNIFICANCE_SUFFIX);
-				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1").toString();
-				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2").toString();
+				Integer testResult = (Integer) pairedTTestResult.getResultValue(i,
+						testProperty + ResultSet.SIGNIFICANCE_SUFFIX);
+				String cmp1 = pairedTTestResult.getResultValue(i, compareProperty + "_1")
+						.toString();
+				String cmp2 = pairedTTestResult.getResultValue(i, compareProperty + "_2")
+						.toString();
 				if (cmp1.equals(compareValue))
 				{
 					if (testResult == -1)
@@ -1155,8 +1190,8 @@ public class ResultSet implements Serializable
 	 * if (correctTerm == null) -> normal un-corrected paired t-test
 	 * in WEKA testTrainRatio is used as correctTerm (i.e., in ten-fold crossvalidation 1/9.0)
 	 */
-	public ResultSet pairedTTest_All(String compareProperty, List<String> equalProperties, String testProperty,
-			double confidence, Double correctTerm)
+	public ResultSet pairedTTest_All(String compareProperty, List<String> equalProperties,
+			String testProperty, double confidence, Double correctTerm)
 	{
 		//		System.err.println("ttest all " + testProperty + " for " + compareProperty);
 
@@ -1210,8 +1245,8 @@ public class ResultSet implements Serializable
 			else if (size != indices.size())
 			{
 				System.err.println(toNiceString());
-				throw new IllegalStateException("illegal num results " + val + ":" + size + " != " + k + ":"
-						+ indices.size());
+				throw new IllegalStateException("illegal num results " + val + ":" + size + " != "
+						+ k + ":" + indices.size());
 			}
 		}
 
@@ -1248,7 +1283,8 @@ public class ResultSet implements Serializable
 
 			List<Integer> indices = indexMap.get(p);
 			for (int i = 0; i < values.length; i++)
-				values[i] = ((Double) results.get(indices.get(i)).getValue(testProperty)).doubleValue();
+				values[i] = ((Double) results.get(indices.get(i)).getValue(testProperty))
+						.doubleValue();
 
 			valuesMap.put(p, values);
 			meansMap.put(p, ArrayUtil.getMean(values));
@@ -1282,8 +1318,10 @@ public class ResultSet implements Serializable
 					//					//					System.err.println(ttestValue);
 
 					int index = result.addResult();
-					result.setResultValue(index, compareProperty + "_1", compareProps[k == 0 ? i : j]);
-					result.setResultValue(index, compareProperty + "_2", compareProps[k == 0 ? j : i]);
+					result.setResultValue(index, compareProperty + "_1",
+							compareProps[k == 0 ? i : j]);
+					result.setResultValue(index, compareProperty + "_2",
+							compareProps[k == 0 ? j : i]);
 					int test = 0;
 					//					if (ttestValue <= (0.5 * confidence)) // one tailed test -> divide by half
 					//					{
@@ -1300,7 +1338,8 @@ public class ResultSet implements Serializable
 					test = T_TESTER.ttest(v1, v2, m1, m2, confidence, correctTerm);
 
 					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
-					result.setResultValue(index, "num pairs", valuesMap.get(compareProps[k == 0 ? i : j]).length);
+					result.setResultValue(index, "num pairs",
+							valuesMap.get(compareProps[k == 0 ? i : j]).length);
 					//						break;
 					//					}
 				}
@@ -1318,12 +1357,14 @@ public class ResultSet implements Serializable
 
 	public static interface TTester
 	{
-		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence, Double correctTerm);
+		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence,
+				Double correctTerm);
 	}
 
 	public static TTester T_TESTER = new TTester()
 	{
-		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence, Double correctTerm)
+		public int ttest(double v1[], double v2[], double mean1, double mean2, double confidence,
+				Double correctTerm)
 		{
 			TTest ttest = new TTest();
 			double ttestValue = ttest.pairedTTest(v1, v2);
@@ -1370,8 +1411,8 @@ public class ResultSet implements Serializable
 					Result res2 = joined.results.get(j);
 
 					int x = diff.addResult();
-					diff.setResultValue(x, prop, res1.getValue(prop) + (diffProperties.size() > 0 ? " - " : " / ")
-							+ res2.getValue(prop));
+					diff.setResultValue(x, prop, res1.getValue(prop)
+							+ (diffProperties.size() > 0 ? " - " : " / ") + res2.getValue(prop));
 					for (String p : equalProperties)
 						diff.setResultValue(x, p, res1.getValue(p));
 					for (String p : properties)
@@ -1387,9 +1428,11 @@ public class ResultSet implements Serializable
 							{
 								double value;
 								if (diffProperties.contains(p))
-									value = ((Number) val1).doubleValue() - ((Number) val2).doubleValue();
+									value = ((Number) val1).doubleValue()
+											- ((Number) val2).doubleValue();
 								else
-									value = ((Number) val1).doubleValue() / ((Number) val2).doubleValue();
+									value = ((Number) val1).doubleValue()
+											/ ((Number) val2).doubleValue();
 								diff.setResultValue(x, p, value);
 							}
 							else
@@ -1506,7 +1549,8 @@ public class ResultSet implements Serializable
 				break;
 			//			int ranks[] = ArrayUtil.getRanking(ArrayUtil.getOrdering(
 			//					ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false));
-			int ranks[] = ArrayUtil.getRanking(ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false);
+			int ranks[] = ArrayUtil
+					.getRanking(ArrayUtil.toPrimitiveDoubleArray(ArrayUtil.toArray(values)), false);
 			//System.err.println("ranking " + ranks.length + " methods");
 			int idx = 0;
 			for (int i = 0; i < results.size(); i++)
@@ -1663,36 +1707,41 @@ public class ResultSet implements Serializable
 			String equalProperties[] = { "features", "fold" };
 			String seriesProperties[] = { "dataset" };
 
-			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null, seriesProperties);
+			ResultSet tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.01, null,
+					seriesProperties);
 			System.out.println("\npaired t-test with 0.01 (should not detect that svm is best)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null, seriesProperties);
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.02, null,
+					seriesProperties);
 			System.out.println("\npaired t-test with 0.02\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null, seriesProperties);
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.05, null,
+					seriesProperties);
 			System.out.println("\npaired t-test with 0.05\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null, seriesProperties);
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 0.15, null,
+					seriesProperties);
 			System.out.println("\npaired t-test with 0.15  (should detect that svm is best)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null, seriesProperties);
+			tested = set.pairedTTest("algorithm", equalProperties, "accuracy", 1, null,
+					seriesProperties);
 			System.out.println("\npaired t-test with 1 (compares mean)\n");
 			System.out.println(tested.toNiceString());
 
-			tested = set.pairedTTestWinLoss("algorithm", new String[] { "features", "fold" }, "accuracy", 0.15, null,
-					seriesProperties, true);
+			tested = set.pairedTTestWinLoss("algorithm", new String[] { "features", "fold" },
+					"accuracy", 0.15, null, seriesProperties, true);
 			System.out.println("\npaired t-test win loss - 1\n");
 			System.out.println(tested.toNiceString());
 
 			String equalProperties2[] = { "fold" };
 			String seriesProperties2[] = { "dataset", "features" };
 
-			tested = set.pairedTTestWinLoss("algorithm", equalProperties2, "accuracy", 0.15, null, seriesProperties2,
-					true);
+			tested = set.pairedTTestWinLoss("algorithm", equalProperties2, "accuracy", 0.15, null,
+					seriesProperties2, true);
 			System.out.println("\npaired t-test win loss - 2\n");
 			System.out.println(tested.toNiceString());
 
@@ -1739,9 +1788,11 @@ public class ResultSet implements Serializable
 	public double spearmanCorrelation(String property1, String property2)
 	{
 		double d1[] = new double[getNumResults()];
-		CountedSet<Object> s1 = (getResultValue(0, property1) instanceof Double) ? null : getResultValues(property1);
+		CountedSet<Object> s1 = (getResultValue(0, property1) instanceof Double) ? null
+				: getResultValues(property1);
 		double d2[] = new double[getNumResults()];
-		CountedSet<Object> s2 = (getResultValue(0, property2) instanceof Double) ? null : getResultValues(property2);
+		CountedSet<Object> s2 = (getResultValue(0, property2) instanceof Double) ? null
+				: getResultValues(property2);
 		for (int i = 0; i < d2.length; i++)
 		{
 			if (getResultValue(i, property1) instanceof Double)
@@ -1808,8 +1859,8 @@ public class ResultSet implements Serializable
 			results.remove(res);
 	}
 
-	public ChartPanel barPlot(String title, String yAxis, String seriesProperty, List<String> categoryProperties,
-			double[] range, Color[] cols)
+	public ChartPanel barPlot(String title, String yAxis, String seriesProperty,
+			List<String> categoryProperties, double[] range, Color[] cols)
 	{
 		List<String> seriesNames = new ArrayList<String>();
 		ArrayList<?>[] values = new ArrayList<?>[getNumResults()];
@@ -1903,8 +1954,8 @@ public class ResultSet implements Serializable
 		{
 			Object[] v = values.get(i);
 			if (p.length != v.length)
-				throw new IllegalArgumentException(ArrayUtil.toString(p) + " does not fit as properties for "
-						+ ArrayUtil.toString(v));
+				throw new IllegalArgumentException(ArrayUtil.toString(p)
+						+ " does not fit as properties for " + ArrayUtil.toString(v));
 			int x = set.addResult();
 			for (int j = 0; j < v.length; j++)
 				set.setResultValue(x, p[j], v[j]);
@@ -1936,8 +1987,8 @@ public class ResultSet implements Serializable
 				if (p.endsWith(VARIANCE_SUFFIX))
 					continue;
 				if (properties.contains(p + VARIANCE_SUFFIX))
-					rs.setResultValue(i, p,
-							niceValue(getResultValue(i, p)) + "+-" + niceValue(getResultValue(i, p + VARIANCE_SUFFIX)));
+					rs.setResultValue(i, p, niceValue(getResultValue(i, p)) + "+-"
+							+ niceValue(getResultValue(i, p + VARIANCE_SUFFIX)));
 				else
 					rs.setResultValue(i, p, getResultValue(i, p));
 			}
@@ -1969,7 +2020,8 @@ public class ResultSet implements Serializable
 			int idx = t.addResult();
 			t.setResultValue(idx, "property", p);
 			for (int i = 0; i < getNumResults(); i++)
-				t.setResultValue(idx, "value" + (getNumResults() > 1 ? (i + 1) : ""), getResultValue(i, p));
+				t.setResultValue(idx, "value" + (getNumResults() > 1 ? (i + 1) : ""),
+						getResultValue(i, p));
 		}
 		return t;
 	}
