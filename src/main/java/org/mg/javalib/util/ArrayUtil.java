@@ -36,7 +36,8 @@ public class ArrayUtil
 			for (Object st : a)
 			{
 				if (addQuotes == false && (st + "").contains(","))
-					throw new IllegalArgumentException("cannot convert elem with ',' to csv string: " + st);
+					throw new IllegalArgumentException(
+							"cannot convert elem with ',' to csv string: " + st);
 				if (addQuotes)
 				{
 					s.append("\"");
@@ -438,7 +439,8 @@ public class ArrayUtil
 	 * @param array
 	 * @return
 	 */
-	public static Double[] normalize(Double array[], double min, double max, boolean replaceNullWithMedian)
+	public static Double[] normalize(Double array[], double min, double max,
+			boolean replaceNullWithMedian)
 	{
 		DoubleArraySummary sum = DoubleArraySummary.create(array);
 		double deltaVal = sum.max - sum.min;
@@ -837,7 +839,8 @@ public class ArrayUtil
 	{
 		String s = "[ ";
 		for (int i = 0; i < array.length; i++)
-			s += (formatSpace != -1 ? StringUtil.concatWhitespace(array[i] + "", formatSpace, false) : array[i]) + "; ";
+			s += (formatSpace != -1 ? StringUtil.concatWhitespace(array[i] + "", formatSpace, false)
+					: array[i]) + "; ";
 		if (array.length > 0)
 			s = s.substring(0, s.length() - 2);
 		s += " ]";
@@ -862,13 +865,14 @@ public class ArrayUtil
 		return s;
 	}
 
-	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket)
+	public static String toString(Object array[], String seperator, String openingBracket,
+			String closingBracket)
 	{
 		return toString(array, seperator, openingBracket, closingBracket, " ");
 	}
 
-	public static String toString(Object array[], String seperator, String openingBracket, String closingBracket,
-			String space)
+	public static String toString(Object array[], String seperator, String openingBracket,
+			String closingBracket, String space)
 	{
 		String s = openingBracket;
 		for (int i = 0; i < array.length; i++)
@@ -879,8 +883,8 @@ public class ArrayUtil
 		return s;
 	}
 
-	public static String toString(int array[], String seperator, String openingBracket, String closingBracket,
-			String space)
+	public static String toString(int array[], String seperator, String openingBracket,
+			String closingBracket, String space)
 	{
 		String s = openingBracket;
 		for (int i = 0; i < array.length; i++)
@@ -983,7 +987,8 @@ public class ArrayUtil
 		Double d[] = new Double[array.length];
 		for (int i = 0; i < d.length; i++)
 		{
-			if (array[i] == null || array[i].equals("null") || array[i].toString().trim().length() == 0)
+			if (array[i] == null || array[i].equals("null")
+					|| array[i].toString().trim().length() == 0)
 				d[i] = null;
 			else if (array[i].equals("nan"))
 				d[i] = Double.NaN;
@@ -1011,7 +1016,8 @@ public class ArrayUtil
 		Integer ints[] = new Integer[array.length];
 		for (int i = 0; i < ints.length; i++)
 		{
-			if (array[i] == null || array[i].equals("null") || array[i].toString().trim().length() == 0)
+			if (array[i] == null || array[i].equals("null")
+					|| array[i].toString().trim().length() == 0)
 				ints[i] = null;
 			else
 			{
@@ -1145,11 +1151,12 @@ public class ArrayUtil
 			return Arrays.copyOfRange(a, 1, a.length);
 		if (index == a.length - 1)
 			return Arrays.copyOfRange(a, 0, a.length - 1);
-		return ArrayUtil.concat(type, Arrays.copyOfRange(a, 0, index), Arrays.copyOfRange(a, index + 1, a.length));
+		return ArrayUtil.concat(type, Arrays.copyOfRange(a, 0, index),
+				Arrays.copyOfRange(a, index + 1, a.length));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T[] remove(Class<T> type, T[] a1, T[] a2)
+	public static <T> T[] remove(Class<T> type, T[] a1, T... a2)
 	{
 		List<T> rem = new ArrayList<T>();
 		for (int i = 0; i < a1.length; i++)
@@ -1400,8 +1407,8 @@ public class ArrayUtil
 			}
 			else if (map1.containsKey(a1[i]) || map2.containsKey(a2[i]))
 			{
-				if (!map1.containsKey(a1[i]) || !map1.get(a1[i]).equals(a2[i]) || !map2.containsKey(a2[i])
-						|| !map2.get(a2[i]).equals(a1[i]))
+				if (!map1.containsKey(a1[i]) || !map1.get(a1[i]).equals(a2[i])
+						|| !map2.containsKey(a2[i]) || !map2.get(a2[i]).equals(a1[i]))
 					return false;
 			}
 			else

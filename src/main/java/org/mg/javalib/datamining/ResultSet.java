@@ -839,7 +839,7 @@ public class ResultSet implements Serializable
 
 		for (Result r : results)
 			if (filter.accept(r))
-				res.results.add(r);
+				res.results.add(r.copy());
 
 		return res;
 	}
@@ -963,6 +963,8 @@ public class ResultSet implements Serializable
 			ttest = ttest.join(new String[] { compareProperty + "_1", compareProperty + "_2" },
 					null, null);
 			tests.add(ttest);
+
+			//			System.out.println(confidences[c] + " confidence\n" + ttest.toNiceString());
 		}
 
 		ResultSet r = new ResultSet();
@@ -1335,6 +1337,9 @@ public class ResultSet implements Serializable
 					double v2[] = valuesMap.get(compareProps[k == 0 ? j : i]);
 					double m1 = meansMap.get(compareProps[k == 0 ? i : j]);
 					double m2 = meansMap.get(compareProps[k == 0 ? j : i]);
+
+					//System.out.println("num values for t-test: " + v1.length);
+
 					test = T_TESTER.ttest(v1, v2, m1, m2, confidence, correctTerm);
 
 					result.setResultValue(index, testProperty + SIGNIFICANCE_SUFFIX, test);
