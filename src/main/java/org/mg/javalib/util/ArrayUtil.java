@@ -536,23 +536,52 @@ public class ArrayUtil
 		return ranking;
 	}
 
-	public static int[] getOrdering(double[] array, boolean ascending)
+	public static int[] getOrdering(double[] array, final boolean ascending)
 	{
-		int order[] = new int[array.length];
-		for (int i = 0; i < order.length; i++)
-			order[i] = i;
-		for (int i = 0; i < order.length - 1; i++)
-			for (int j = i + 1; j < order.length; j++)
+		class Elem implements Comparable<Elem>
+		{
+			double d;
+			int i;
+
+			public Elem(double d, int i)
 			{
-				if ((ascending && array[order[i]] > array[order[j]])
-						|| (!ascending && array[order[i]] < array[order[j]]))
-				{
-					int tmp = order[i];
-					order[i] = order[j];
-					order[j] = tmp;
-				}
+				this.d = d;
+				this.i = i;
 			}
+
+			public int compareTo(Elem o)
+			{
+				if (ascending)
+					return Double.compare(d, o.d);
+				else
+					return Double.compare(o.d, d);
+			}
+		}
+		Elem preds[] = new Elem[array.length];
+		for (int i = 0; i < preds.length; i++)
+			preds[i] = new Elem(array[i], i);
+		Arrays.sort(preds);
+		int order[] = new int[array.length];
+		for (int i = 0; i < preds.length; i++)
+			order[i] = preds[i].i;
 		return order;
+
+		// old way with bubble sort
+		//		int order[] = new int[array.length];
+		//		for (int i = 0; i < order.length; i++)
+		//			order[i] = i;
+		//		for (int i = 0; i < order.length - 1; i++)
+		//			for (int j = i + 1; j < order.length; j++)
+		//			{
+		//				if ((ascending && array[order[i]] > array[order[j]])
+		//						|| (!ascending && array[order[i]] < array[order[j]]))
+		//				{
+		//					int tmp = order[i];
+		//					order[i] = order[j];
+		//					order[j] = tmp;
+		//				}
+		//			}
+		//		return order;
 	}
 
 	public static <T> T[] sort(T[] array, Comparator<T> comp)
@@ -582,6 +611,14 @@ public class ArrayUtil
 	public static double[] sortAccordingToOrdering(int[] order, double[] array)
 	{
 		double[] res = new double[array.length];
+		for (int j = 0; j < array.length; j++)
+			res[j] = array[order[j]];
+		return res;
+	}
+
+	public static boolean[] sortAccordingToOrdering(int[] order, boolean[] array)
+	{
+		boolean[] res = new boolean[array.length];
 		for (int j = 0; j < array.length; j++)
 			res[j] = array[order[j]];
 		return res;
@@ -778,6 +815,22 @@ public class ArrayUtil
 		{
 			int j = r.nextInt(array.length);
 			float tmp = array[j];
+			array[j] = array[i];
+			array[i] = tmp;
+		}
+	}
+
+	public static void scramble(char[] array)
+	{
+		scramble(array, new Random());
+	}
+
+	public static void scramble(char[] array, Random r)
+	{
+		for (int i = 0; i < array.length; i++)
+		{
+			int j = r.nextInt(array.length);
+			char tmp = array[j];
 			array[j] = array[i];
 			array[i] = tmp;
 		}
@@ -1510,8 +1563,24 @@ public class ArrayUtil
 
 	public static void main(String args[])
 	{
-		int[] a = new int[] { 1, 2, 3 };
-		System.out.println(ArrayUtil.toString(push(a, 4)));
+		//		int[] a = new int[] { 1, 2, 3 };
+		//		System.out.println(ArrayUtil.toString(push(a, 4)));
+
+		//		Random r = new Random();
+		//		int n = 30000;
+		//		double a[] = new double[n];
+		//		for (int i = 0; i < a.length; i++)
+		//			a[i] = r.nextDouble();
+		//		//		System.out.println(ArrayUtil.toString(a));
+		//		StopWatchUtil.start("new");
+		//		int o1[] = getOrdering(a, false);
+		//		StopWatchUtil.stop("new");
+		//		StopWatchUtil.start("old");
+		//		int o2[] = getOrdering_(a, false);
+		//		StopWatchUtil.stop("old");
+		//		StopWatchUtil.print();
+		//		System.out.println(ArrayUtil.toString(o1));
+		//		System.out.println(ArrayUtil.toString(o2));
 
 		//		int[] a = new int[] { 1 };
 		//		System.out.println(ListUtil.toString(ArrayUtil.toList(a)));

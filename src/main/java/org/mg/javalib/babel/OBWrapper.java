@@ -126,6 +126,7 @@ public class OBWrapper
 						logger.warn("babel does not work for mixtures, using gen2d: " + mol);
 						gen3d = "--gen2d";
 					}
+					//System.out.println("result will eventually go to " + file);
 					ext.run("obgen3d",
 							new String[] { babelPath, gen3d, "-d", "-i" + type,
 									tmp.getAbsolutePath(), "-osdf", out.getAbsolutePath() },
@@ -286,8 +287,12 @@ public class OBWrapper
 		return l;
 	}
 
-	public void main(String args[])
+	public static void main(String args[])
 	{
+		System.out.println(StringUtil.getMD5(
+				"CC(C)(C[Sn](CC(C)(C)C1=CC=CC=C1)(CC(C)(C)C2=CC=CC=C2)O[Sn](CC(C)(C)C3=CC=CC=C3)(CC(C)(C)C4=CC=CC=C4)CC(C)(C)C5=CC=CC=C5)C6=CC=CC=C6"));
+		System.exit(0);
+
 		try
 		{
 			OBWrapper obwrapper = new OBWrapper(

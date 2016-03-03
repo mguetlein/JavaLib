@@ -66,7 +66,8 @@ public class SwingUtil
 	{
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		Point p2 = comp.getLocationOnScreen();
-		return (p.x >= p2.x && p.y >= p2.y && p.x <= p2.x + comp.getWidth() && p.y <= p2.y + comp.getHeight());
+		return (p.x >= p2.x && p.y >= p2.y && p.x <= p2.x + comp.getWidth()
+				&& p.y <= p2.y + comp.getHeight());
 	}
 
 	public static void waitWhileVisible(Window f)
@@ -161,10 +162,12 @@ public class SwingUtil
 		});
 	}
 
-	public static void showTable(String title, List<String> names, List<Vector<Object>> values, int sortColumn,
-			SortOrder sortOrder, boolean numericSort, final ActionListener actionListener)
+	public static void showTable(String title, List<String> names, List<Vector<Object>> values,
+			int sortColumn, SortOrder sortOrder, boolean numericSort,
+			final ActionListener actionListener)
 	{
-		showTable(title, names, values, sortColumn, sortOrder, numericSort, actionListener, null, null);
+		showTable(title, names, values, sortColumn, sortOrder, numericSort, actionListener, null,
+				null);
 	}
 
 	public static interface BackgroundPainter
@@ -172,8 +175,9 @@ public class SwingUtil
 		public Color getColor(Object firstColumnVal, int row);
 	}
 
-	public static void showTable(String title, List<String> names, List<Vector<Object>> values, int sortColumn,
-			SortOrder sortOrder, boolean numericSort, final ActionListener actionListener, String additionalInfo,
+	public static void showTable(String title, List<String> names, List<Vector<Object>> values,
+			int sortColumn, SortOrder sortOrder, boolean numericSort,
+			final ActionListener actionListener, String additionalInfo,
 			TableCellRenderer cellRenderer)
 	{
 		DefaultTableModel m = new DefaultTableModel()
@@ -191,12 +195,13 @@ public class SwingUtil
 		if (cellRenderer == null)
 			cellRenderer = new DefaultTableCellRenderer()
 			{
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-						boolean hasFocus, int row, int column)
+				public Component getTableCellRendererComponent(JTable table, Object value,
+						boolean isSelected, boolean hasFocus, int row, int column)
 				{
 					if (value instanceof Double)
 						value = StringUtil.formatDouble(((Double) value).doubleValue());
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+							row, column);
 				}
 			};
 		t.setDefaultRenderer(Object.class, cellRenderer);
@@ -244,7 +249,8 @@ public class SwingUtil
 				if (arg0.getClickCount() > 1)
 				{
 					if (actionListener != null)
-						actionListener.actionPerformed(new ActionEvent(t.getValueAt(t.getSelectedRow(), 0), -1, ""));
+						actionListener.actionPerformed(
+								new ActionEvent(t.getValueAt(t.getSelectedRow(), 0), -1, ""));
 				}
 			}
 		});
@@ -252,14 +258,15 @@ public class SwingUtil
 		// SwingUtil.waitWhileVisible(f);
 	}
 
-	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel, JFrame owner)
+	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel,
+			JFrame owner)
 	{
 		return selectFromListWithDialog(list, selected, titel, owner, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel, JFrame owner,
-			ListCellRenderer renderer)
+	public static <T> T selectFromListWithDialog(List<T> list, T selected, String titel,
+			JFrame owner, ListCellRenderer renderer)
 	{
 		final JDialog d = new JDialog(owner, titel);
 		d.setModal(owner != null);
@@ -329,7 +336,8 @@ public class SwingUtil
 
 	public static BufferedImage thresholdImage(BufferedImage image, int threshold)
 	{
-		BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_BYTE_GRAY);
 		result.getGraphics().drawImage(image, 0, 0, null);
 		WritableRaster raster = result.getRaster();
 		int[] pixels = new int[image.getWidth()];
@@ -348,7 +356,7 @@ public class SwingUtil
 		return result;
 	}
 
-	public static String toFile(final String file, final JComponent c, Dimension dim)
+	public static String toFile(final String file, final JComponent c, final Dimension dim)
 	{
 		final JFrame f = new JFrame();
 		f.add(c);
@@ -365,7 +373,8 @@ public class SwingUtil
 			@Override
 			public void run()
 			{
-				BufferedImage bi = new BufferedImage(c.getSize().width, c.getSize().height, BufferedImage.TYPE_INT_ARGB);
+				BufferedImage bi = new BufferedImage(dim.width, dim.height,
+						BufferedImage.TYPE_INT_ARGB);
 				//				bi = thresholdImage(bi, 100);
 				Graphics g = bi.createGraphics();
 				c.paint(g);
@@ -460,19 +469,20 @@ public class SwingUtil
 		showInDialog(c, title, dim, null);
 	}
 
-	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible)
+	public static void showInDialog(JComponent c, String title, Dimension dim,
+			final Runnable runAfterVisible)
 	{
 		showInDialog(c, title, dim, runAfterVisible, null);
 	}
 
-	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
-			JFrame owner)
+	public static void showInDialog(JComponent c, String title, Dimension dim,
+			final Runnable runAfterVisible, JFrame owner)
 	{
 		showInDialog(c, title, dim, runAfterVisible, owner, -1);
 	}
 
-	public static void showInDialog(JComponent c, String title, Dimension dim, final Runnable runAfterVisible,
-			JFrame owner, int screenIndex)
+	public static void showInDialog(JComponent c, String title, Dimension dim,
+			final Runnable runAfterVisible, JFrame owner, int screenIndex)
 	{
 		final JDialog f = new JDialog(owner);
 		f.setModal(true);
@@ -653,12 +663,14 @@ public class SwingUtil
 	public static void checkNoAWTEventThread() throws IllegalStateException
 	{
 		if (SwingUtilities.isEventDispatchThread())
-			throw new IllegalStateException("not allowed in awt-event thread : " + Thread.currentThread().getName());
+			throw new IllegalStateException(
+					"not allowed in awt-event thread : " + Thread.currentThread().getName());
 	}
 
 	public static void checkIsAWTEventThread() throws IllegalStateException
 	{
 		if (!SwingUtilities.isEventDispatchThread())
-			throw new IllegalStateException("only allowed in awt-event thread : " + Thread.currentThread().getName());
+			throw new IllegalStateException(
+					"only allowed in awt-event thread : " + Thread.currentThread().getName());
 	}
 }

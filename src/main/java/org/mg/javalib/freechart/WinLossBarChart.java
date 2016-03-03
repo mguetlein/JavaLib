@@ -3,6 +3,7 @@ package org.mg.javalib.freechart;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -14,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -61,7 +61,8 @@ public class WinLossBarChart
 
 	String title = "Title";
 
-	public WinLossBarChart(ResultSet rs, String winLossCmp, String winLossMsre, String mainCategory, String subCategory)
+	public WinLossBarChart(ResultSet rs, String winLossCmp, String winLossMsre, String mainCategory,
+			String subCategory)
 	{
 		this.rs = rs;
 		this.winLossCmp = winLossCmp;
@@ -82,10 +83,17 @@ public class WinLossBarChart
 
 	public JPanel getChart()
 	{
-		Color colWin = ChartColor.GREEN;
-		Color colWinBright = new Color(187, 255, 187);
-		Color colLoss = ChartColor.RED;
-		Color colLossBright = new Color(255, 187, 187);
+		//		Color colWinSignificant = ChartColor.GREEN;
+		//		Color colWin = new Color(187, 255, 187);
+
+		//		Color colLossSignificant = ChartColor.RED;
+		//		Color colLoss = new Color(255, 187, 187);
+
+		Color colWinSignificant = new Color(24, 90, 169);
+		Color colWin = new Color(155, 220, 255);
+
+		Color colLossSignificant = new Color(225, 46, 47);
+		Color colLoss = new Color(255, 155, 161);
 
 		CombinedDomainCategoryPlot combinedPlot = new CombinedDomainCategoryPlot();
 		if (datasets == null)
@@ -103,7 +111,7 @@ public class WinLossBarChart
 					false, // legend
 					false, // tooltips
 					false // urls
-					);
+			);
 
 			GroupedStackedBarRenderer renderer = new GroupedStackedBarRenderer();
 			renderer.setBarPainter(new StandardBarPainter());
@@ -113,10 +121,10 @@ public class WinLossBarChart
 			for (@SuppressWarnings("unused")
 			String s : subCategoryValues)
 			{
-				renderer.setSeriesPaint(n++, colWinBright);
 				renderer.setSeriesPaint(n++, colWin);
-				renderer.setSeriesPaint(n++, colLossBright);
+				renderer.setSeriesPaint(n++, colWinSignificant);
 				renderer.setSeriesPaint(n++, colLoss);
+				renderer.setSeriesPaint(n++, colLossSignificant);
 			}
 			renderer.setSeriesToGroupMap(map);
 			renderer.setItemMargin(0.1);
@@ -126,6 +134,8 @@ public class WinLossBarChart
 			plot.setRangeGridlinePaint(Color.GRAY);
 			plot.setBackgroundPaint(Color.WHITE);
 			plot.getRangeAxis().setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+			plot.getRangeAxis()
+					.setTickLabelFont(plot.getRangeAxis().getTickLabelFont().deriveFont(fontSize));
 
 			// remember maxRange to adjust range of all plots
 			Range r = plot.getRangeAxis().getRange();
@@ -149,6 +159,7 @@ public class WinLossBarChart
 					markerX.setLabelAnchor(RectangleAnchor.TOP);
 					markerX.setLabelTextAnchor(TextAnchor.TOP_CENTER);
 					markerX.setLabelOffsetType(LengthAdjustmentType.CONTRACT);
+					markerX.setLabelFont(markerX.getLabelFont().deriveFont(fontSize * 0.8F));
 					plot.addDomainMarker(markerX, Layer.BACKGROUND);
 				}
 			}
@@ -159,8 +170,8 @@ public class WinLossBarChart
 
 		// create legend
 		LegendItemCollection coll = new LegendItemCollection();
-		Object o[][] = new Object[][] { { "Significant Win", colWin }, { "Win", colWinBright },
-				{ "Loss", colLossBright }, { "Significant Loss", colLoss } };
+		Object o[][] = new Object[][] { { "Significant Win", colWinSignificant }, { "Win", colWin },
+				{ "Loss", colLoss }, { "Significant Loss", colLossSignificant } };
 		for (Object[] os : o)
 		{
 			LegendItem i = new LegendItem((String) os[0], (Color) os[1]);
@@ -178,8 +189,8 @@ public class WinLossBarChart
 		for (String v : subCategoryValues)
 			domainAxis.addSubCategory(v);
 		domainAxis.setMaximumCategoryLabelWidthRatio(1.33f); // allow to draw larger label then main category
-		domainAxis.setTickLabelFont(plots.get(0).getRangeAxis().getLabelFont()
-				.deriveFont(plots.get(0).getRangeAxis().getLabelFont().getSize() - 0.0f));
+		domainAxis.setTickLabelFont(domainAxis.getTickLabelFont().deriveFont(fontSize * 1.2F));
+		domainAxis.setSubLabelFont(domainAxis.getSubLabelFont().deriveFont(fontSize));
 		combinedPlot.setDomainAxis(domainAxis);
 
 		// adjust range for all plots, add factor 1.2 to postive range to draw marker
@@ -192,32 +203,41 @@ public class WinLossBarChart
 		String k : datasets.keySet())
 			layout += "fill:p:grow,";
 		layout += SPACE_FOR_LEGEND_AND_X_AXIS + "px";
-		DefaultFormBuilder buildRangeAxisLabelPanel = new DefaultFormBuilder(new FormLayout("p", layout));
+		DefaultFormBuilder buildRangeAxisLabelPanel = new DefaultFormBuilder(
+				new FormLayout("p", layout));
 		buildRangeAxisLabelPanel.nextLine();
 		for (String vsLabel : datasets.keySet())
 		{
 			JLabel l = new JLabel(vsLabel);
 			l.setHorizontalAlignment(SwingConstants.CENTER);
-			l.setFont(plots.get(0).getRangeAxis().getLabelFont()
-					.deriveFont(plots.get(0).getRangeAxis().getLabelFont().getSize() - 0.0f));
+			l.setFont(domainAxis.getTickLabelFont());
 			buildRangeAxisLabelPanel.append(l);
 		}
 		buildRangeAxisLabelPanel.getPanel().setOpaque(false);
 
 		JFreeChart fc = new JFreeChart(combinedPlot);
-		fc.setTitle(new TextTitle(title, plots.get(0).getRangeAxis().getLabelFont()
-				.deriveFont(plots.get(0).getRangeAxis().getLabelFont().getSize() + 2.0f)));
+		fc.setTitle(new TextTitle(title,
+				domainAxis.getTickLabelFont().deriveFont(Font.BOLD, fontSize * 1.4F)));
 		fc.setBackgroundPaint(Color.WHITE);
 		fc.getLegend().setBorder(0, 0, 0, 0);
+		fc.getLegend().setItemFont(fc.getLegend().getItemFont().deriveFont(fontSize));
+
 		ChartPanel cp = new ChartPanel(fc);
 		cp.setPreferredSize(new Dimension(100, 100)); // set low dimension and scale up, otherwise it cannot be decreased with this layout
 		fc.setPadding(new RectangleInsets(0, -5, 0, 0)); // hack remove space of plot to the left
 
-		DefaultFormBuilder buildChartPanel = new DefaultFormBuilder(new FormLayout("p,0dlu,fill:p:grow", "fill:p:grow"));
+		cp.setMaximumDrawWidth(100000);
+		cp.setMaximumDrawHeight(100000);
+		cp.setMinimumDrawWidth(100);
+		cp.setMinimumDrawHeight(100);
+
+		DefaultFormBuilder buildChartPanel = new DefaultFormBuilder(
+				new FormLayout("p,0dlu,fill:p:grow", "fill:p:grow"));
 		buildChartPanel.append(buildRangeAxisLabelPanel.getPanel(), 1);
 		buildChartPanel.append(cp, 1);
 		buildChartPanel.getPanel().setBackground(Color.WHITE);
 		buildChartPanel.getPanel().setPreferredSize(new Dimension(800, 400));
+
 		return buildChartPanel.getPanel();
 	}
 
@@ -247,7 +267,8 @@ public class WinLossBarChart
 			winPln = wins.substring(0, wins.indexOf('('));
 			winSig = wins.substring(wins.indexOf('(') + 1, wins.indexOf(')'));
 		}
-		return new int[] { Integer.parseInt(winPln), winSig.isEmpty() ? 0 : Integer.parseInt(winSig) };
+		return new int[] { Integer.parseInt(winPln),
+				winSig.isEmpty() ? 0 : Integer.parseInt(winSig) };
 	}
 
 	private HashMap<String, DefaultCategoryDataset> datasets;
@@ -272,8 +293,8 @@ public class WinLossBarChart
 		{
 			Object vsProp1 = rs.getResultValue(resIdx, winLossCmp + "_1");
 			Object vsProb2 = rs.getResultValue(resIdx, winLossCmp + "_2");
-			String vsLabel = "<html><div style='text-align: center;'>" + vsProp1 + "<br>vs<br>" + vsProb2
-					+ "</div></html>";
+			String vsLabel = "<html><div style='text-align: center;'>" + vsProp1 + "<br>vs<br>"
+					+ vsProb2 + "</div></html>";
 
 			if (!datasets.containsKey(vsLabel))
 			{
@@ -288,9 +309,11 @@ public class WinLossBarChart
 			//			System.err.println(vsProp1 + " vs " + vsProb2 + " : w:" + ArrayUtil.toString(winLosses[0]) + " l:"
 			//					+ ArrayUtil.toString(winLosses[1]) + " " + mainCat + " " + subCat);
 
-			datasets.get(vsLabel).addValue(winLosses[0][0] - winLosses[0][1], subCat + " Wins", mainCat);
+			datasets.get(vsLabel).addValue(winLosses[0][0] - winLosses[0][1], subCat + " Wins",
+					mainCat);
 			datasets.get(vsLabel).addValue(winLosses[0][1], subCat + " Wins-Sig", mainCat);
-			datasets.get(vsLabel).addValue(-(winLosses[1][0] - winLosses[1][1]), subCat + " Losses", mainCat);
+			datasets.get(vsLabel).addValue(-(winLosses[1][0] - winLosses[1][1]), subCat + " Losses",
+					mainCat);
 			datasets.get(vsLabel).addValue(-winLosses[1][1], subCat + " Losses-Sig", mainCat);
 
 			if (!sigWinLossLabels.get(vsLabel).containsKey(mainCat))
@@ -298,10 +321,10 @@ public class WinLossBarChart
 			else
 				sigWinLossLabels.get(vsLabel).put(mainCat,
 						sigWinLossLabels.get(vsLabel).get(mainCat) + SPACE_BETWEEN_CAT1_MARKER);
-			sigWinLossLabels.get(vsLabel).put(
-					mainCat,
-					sigWinLossLabels.get(vsLabel).get(mainCat) + StringUtil.concatWhitespace(winLosses[0][1] + "", 2)
-							+ "/" + StringUtil.concatWhitespace(winLosses[1][1] + "", 2));
+			sigWinLossLabels.get(vsLabel).put(mainCat,
+					sigWinLossLabels.get(vsLabel).get(mainCat)
+							+ StringUtil.concatWhitespace(winLosses[0][1] + "", 2) + "/"
+							+ StringUtil.concatWhitespace(winLosses[1][1] + "", 2));
 
 			subCategoryValues.add(rs.getResultValue(resIdx, subCategory).toString());
 
@@ -320,7 +343,8 @@ public class WinLossBarChart
 				l = Math.max(l, sigWinLossLabels.get(k1).get(k2).length());
 		for (String k1 : sigWinLossLabels.keySet())
 			for (String k2 : sigWinLossLabels.get(k1).keySet())
-				sigWinLossLabels.get(k1).put(k2, StringUtil.concatWhitespace(sigWinLossLabels.get(k1).get(k2), l));
+				sigWinLossLabels.get(k1).put(k2,
+						StringUtil.concatWhitespace(sigWinLossLabels.get(k1).get(k2), l));
 	}
 
 	public static void main(String[] args)
@@ -344,8 +368,8 @@ public class WinLossBarChart
 						return result.getValue("features").equals(features);
 					}
 				});
-				ResultSet tested = setX.pairedTTestWinLoss("algorithm", new String[] { "fold" }, "accuracy", 0.15,
-						null, new String[] { "dataset" }, true);
+				ResultSet tested = setX.pairedTTestWinLoss("algorithm", new String[] { "fold" },
+						"accuracy", 0.15, null, new String[] { "dataset" }, true);
 				System.out.println("\npaired t-test win loss - 1\n");
 				System.out.println(tested.toNiceString());
 
@@ -367,9 +391,18 @@ public class WinLossBarChart
 		}
 
 		WinLossBarChart c = new WinLossBarChart(tot, "algorithm", "accuracy", "features", "run");
+		c.setFontSize(15F);
+
 		//		c.toPNGFile("/tmp/chart.png", new Dimension(800, 500));
-		SwingUtil.showInFrame(c.getChart());
+		SwingUtil.showInFrame(c.getChart(), new Dimension(1200, 600));
 		System.exit(1);
+	}
+
+	Float fontSize = 12.0F;
+
+	public void setFontSize(float f)
+	{
+		fontSize = f;
 	}
 
 }

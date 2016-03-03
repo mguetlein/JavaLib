@@ -345,8 +345,10 @@ public class ResultSetBoxPlot
 		if (title != null && !title.isEmpty())
 		{
 			Font f = chart.getTitle().getFont();
-			chart.getTitle().setFont(
-					f.deriveFont(fontSize == null ? (f.getSize2D() - 2.0f) : (fontSize + 4F)));
+			if (fontSize == null)
+				chart.getTitle().setFont(f.deriveFont(f.getSize2D() - 2.0f));
+			else
+				chart.getTitle().setFont(f.deriveFont(fontSize * 1.4F));
 		}
 
 		if (printMeanAndStdev)
@@ -362,8 +364,8 @@ public class ResultSetBoxPlot
 					marker.setPaint(new Color(0, 0, 0, 0));
 					//				marker.setDrawAsLine(false);
 					String lab = labels.get(category.toString());
-					lab = lab.replaceAll("0\\.", ".");
-					lab = lab.replaceAll("0,", ",");
+					//					lab = lab.replaceAll("0\\.", ".");
+					//					lab = lab.replaceAll("0,", ",");
 					lab = lab.replaceAll("\\s", "");
 					marker.setLabel(lab);
 					//				marker.setLabelFont(plot.getDomainAxis().getLabelFont());
@@ -412,8 +414,10 @@ public class ResultSetBoxPlot
 			{
 				if (s != null)
 				{
-					Title t = new TextTitle(s);
+					TextTitle t = new TextTitle(s);
 					sub.add(t);
+					if (fontSize != null)
+						t.setFont(t.getFont().deriveFont(fontSize * 0.8F));
 				}
 			}
 			if (sub.size() > 0)
@@ -451,21 +455,21 @@ public class ResultSetBoxPlot
 		xAxis.setMaximumCategoryLabelWidthRatio(1.33f); // allow to draw larger label then main category
 		if (fontSize != null)
 		{
-			if (chart.getTitle() != null)
-				chart.getTitle().setFont(chart.getTitle().getFont().deriveFont(fontSize + 4F));
 			if (chart.getLegend() != null)
 				chart.getLegend().setItemFont(chart.getLegend().getItemFont().deriveFont(fontSize));
 			CategoryPlot p = (CategoryPlot) plot;
-			p.getRangeAxis().setLabelFont(p.getRangeAxis().getLabelFont().deriveFont(fontSize));
+			p.getRangeAxis().setLabelFont(
+					p.getRangeAxis().getLabelFont().deriveFont(Font.BOLD, fontSize * 1.2F));
 			p.getRangeAxis()
 					.setTickLabelFont(p.getRangeAxis().getTickLabelFont().deriveFont(fontSize));
-			p.getDomainAxis().setLabelFont(p.getDomainAxis().getLabelFont().deriveFont(fontSize));
+			p.getDomainAxis().setLabelFont(
+					p.getDomainAxis().getLabelFont().deriveFont(Font.BOLD, fontSize * 1.2F));
 			p.getDomainAxis()
 					.setTickLabelFont(p.getDomainAxis().getTickLabelFont().deriveFont(fontSize));
 			if (printMeanAndStdev)
 				for (Object m : p.getDomainMarkers(Layer.BACKGROUND))
 					((CategoryMarker) m).setLabelFont(
-							((CategoryMarker) m).getLabelFont().deriveFont(fontSize - 2F));
+							((CategoryMarker) m).getLabelFont().deriveFont(fontSize * 0.8F));
 		}
 
 		return chartPanel;
@@ -494,7 +498,6 @@ public class ResultSetBoxPlot
 			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", null,
 					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
-			p.setPrintMeanAndStdev(true);
 			SwingUtil.showInDialog(p.getChart(), new Dimension(400, 400));
 		}
 		{
@@ -513,7 +516,8 @@ public class ResultSetBoxPlot
 					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
 
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
-			//			p.setPrintMeanAndStdev(true);
+			p.setPrintMeanAndStdev(true);
+			p.setFontSize(16F);
 			SwingUtil.showInDialog(p.getChart());
 		}
 

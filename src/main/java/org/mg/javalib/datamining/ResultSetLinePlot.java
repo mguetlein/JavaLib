@@ -178,11 +178,33 @@ public class ResultSetLinePlot
 						new Ellipse2D.Float(-3f, -3f, 6f, 6f) };
 			}
 			else if (dataset.getRowCount() == 3)
-				cols = new Color[] { ColorUtil.bright(FreeChartUtil.COLORS[0]),
-						ColorUtil.dark(FreeChartUtil.COLORS[1]),
-						ColorUtil.mediumBrightness(FreeChartUtil.COLORS[2]) };
+			{
+				Color orange = new Color(244, 125, 43);
+				//Color orange = new Color(255, 145, 63);
+				Color red = new Color(238, 46, 47);
+				Color blue = new Color(24, 90, 169);
+				//Color blue = new Color(4, 70, 149);
+				cols = new Color[] { red, orange, blue };
+
+				//				
+				//				Color bright = Color.MAGENTA;
+				//				Color medium = Color.RED;
+				//				Color dark = new Color(0, 0, 75);
+				//				cols = new Color[] { bright, medium, dark };
+			}
 			else
 				cols = FreeChartUtil.COLORS;
+
+			//			for (int i = 0; i < cols.length; i++)
+			//			{
+			//				cols[i] = ColorUtil.grayscale(cols[i]);
+			//				int color = cols[i].getRGB();
+			//				int red = (color >>> 16) & 0xFF;
+			//				int green = (color >>> 8) & 0xFF;
+			//				int blue = (color >>> 0) & 0xFF;
+			//				float luminance = (red * 0.2126f + green * 0.7152f + blue * 0.0722f) / 255;
+			//				System.out.println(luminance);
+			//			}
 
 			//			for (int i = 0; i < dataset.getColumnCount(); i++)
 			//			{
