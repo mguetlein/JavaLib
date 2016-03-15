@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -67,8 +68,8 @@ public class StringUtil
 
 	public static String textToHtml(String text)
 	{
-		return text.replaceAll(">", "&gt;").replaceAll("\\* ", "&bull; ").replaceAll("\\+-", "&#177;")
-				.replaceAll("\n", "<br>");
+		return text.replaceAll(">", "&gt;").replaceAll("\\* ", "&bull; ")
+				.replaceAll("\\+-", "&#177;").replaceAll("\n", "<br>");
 	}
 
 	public static String trimQuotes(String value)
@@ -202,7 +203,8 @@ public class StringUtil
 		for (int i = begin; i != end; i += step)
 		{
 			if (shortString.charAt(i) == longString.charAt(longOffset + i))
-				suffix = forward ? (suffix + shortString.charAt(i)) : (shortString.charAt(i) + suffix);
+				suffix = forward ? (suffix + shortString.charAt(i))
+						: (shortString.charAt(i) + suffix);
 			else
 				break;
 		}
@@ -261,8 +263,8 @@ public class StringUtil
 		}
 	}
 
-	public static List<String> split(String input, boolean skipEmptyFields, int expectedNumCols, char sep)
-			throws UnexpectedNumColsException
+	public static List<String> split(String input, boolean skipEmptyFields, int expectedNumCols,
+			char sep) throws UnexpectedNumColsException
 	{
 		List<String> result = new ArrayList<String>();
 		if (input != null && input.trim().length() > 0)
@@ -293,8 +295,8 @@ public class StringUtil
 			if (result.size() == expectedNumCols + 1 && result.get(result.size() - 1) == null)
 				result.remove(result.size() - 1);
 			if (result.size() != expectedNumCols)
-				throw new UnexpectedNumColsException("csv string has not the expected length: " + result.size()
-						+ " != " + expectedNumCols);
+				throw new UnexpectedNumColsException("csv string has not the expected length: "
+						+ result.size() + " != " + expectedNumCols);
 		}
 		return result;
 	}
@@ -473,15 +475,16 @@ public class StringUtil
 		return randomString(minLength, maxLength, r, true);
 	}
 
-	public static String randomString(int minLength, int maxLength, Random r, boolean emptySpaceAllowed)
+	public static String randomString(int minLength, int maxLength, Random r,
+			boolean emptySpaceAllowed)
 	{
 		String chars = "abcdefghijklmnopqrstuvwxyz";
 		if (emptySpaceAllowed)
 			chars = "         " + chars;
 		String s = "";
 		double p = 1 / (double) (maxLength - minLength);
-		while (s.length() < maxLength
-				&& (s.length() < minLength || r.nextDouble() < (1 - ((s.length() - minLength) * p))))
+		while (s.length() < maxLength && (s.length() < minLength
+				|| r.nextDouble() < (1 - ((s.length() - minLength) * p))))
 		{
 			// System.out.println(s.length() + " " + (1 - ((s.length() - minLength) * p)));
 			s += chars.charAt(r.nextInt(chars.length()));
@@ -784,6 +787,18 @@ public class StringUtil
 		catch (java.io.UnsupportedEncodingException e)
 		{
 			throw new RuntimeException("UTF-8 is an unknown encoding!?");
+		}
+	}
+
+	public static String urlEncodeUTF8(String s)
+	{
+		try
+		{
+			return URLEncoder.encode(s, "UTF-8");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new IllegalStateException("this should not happen", e);
 		}
 	}
 
