@@ -575,9 +575,65 @@ public class StringUtil
 		return s;
 	}
 
+	public static final String SUPERSCRIPTS[] = { "\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074",
+			"\u2075", "\u2076", "\u2077", "\u2078", "\u2079" };
+
+	public static String superscriptNumber(int num)
+	{
+		if (num < 0)
+			throw new IllegalArgumentException();
+		if (num < 10)
+			return SUPERSCRIPTS[num];
+		return superscriptNumber(String.valueOf(num));
+	}
+
+	public static String superscriptNumber(String digits)
+	{
+		int l = digits.length();
+		StringBuffer b = new StringBuffer();
+		for (int i = 0; i < l; ++i)
+			b.append(superscriptNumber(Character.getNumericValue(digits.charAt(i))));
+		return b.toString();
+	}
+
+	public static String formatSmallDoubles(double d)
+	{
+		if (d == 0)
+			return new DecimalFormat("0.0").format(d);
+		else if (d < 0.01)
+		{
+			String s = new DecimalFormat("0.0E0").format(d) + "";
+			int idx = s.indexOf("E-");
+			String niceS = s;
+			if (idx != -1)
+			{
+				niceS = s.substring(0, idx);
+				niceS += "\u00D710\u207B"; // x10^-
+				niceS += superscriptNumber(s.substring(idx + 2));
+			}
+			return niceS;
+		}
+		else
+			return new DecimalFormat("0.00").format(d);
+	}
+
 	public static void main(String[] args)
 	{
-		System.out.println(textToHtml("* bla\n* blu"));
+		double d = 0.00013456;
+		System.out.println(formatDouble(d));
+		System.out.println(new DecimalFormat("#.##").format(d));
+		System.out.println(d);
+
+		System.out.println(formatSmallDoubles(d));
+
+		System.out.println(formatSmallDoubles(0.123));
+		System.out.println(formatSmallDoubles(0.0123));
+		System.out.println(formatSmallDoubles(0.00123));
+		System.out.println(formatSmallDoubles(0.000123));
+
+		System.out.println(formatSmallDoubles(0.0));
+
+		//System.out.println(textToHtml("* bla\n* blu"));
 
 		//		for (int i = 0; i < 10000; i++)
 		//		{

@@ -1,22 +1,36 @@
 package org.mg.javalib.util;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.inference.TestUtils;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.mg.javalib.freechart.HistogramPanel;
 
-public class Binning
+public class Binning implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	double min;
 	double max;
 	double width;
 	int bins;
 	long counts[];
+	double values[];
 
 	public Binning(double[] values, int bins, boolean acceptNullBins)
 	{
+		this.values = values;
 		double[] vals = Arrays.copyOf(values, values.length);
 		Arrays.sort(vals);
 		min = vals[0];
@@ -99,6 +113,44 @@ public class Binning
 		return s;
 	}
 
+	public ChartPanel plot()
+	{
+		return plot(null);
+	}
+
+	public ChartPanel plot(Double val)
+	{
+		HistogramPanel p = new HistogramPanel(null, null, "x", "y", ListUtil.createList("Bins"),
+				ListUtil.createList(values), bins);
+		JFreeChart chart = p.getChart();
+		XYPlot plot = (XYPlot) chart.getPlot();
+
+		chart.removeLegend();
+		plot.setBackgroundPaint(Color.WHITE);
+		plot.setRangeGridlinePaint(Color.GRAY);
+		plot.setDomainGridlinePaint(Color.GRAY);
+		chart.setBackgroundPaint(new Color(0, 0, 0, 0));
+
+		XYBarRenderer render = new XYBarRenderer();
+		render.setShadowVisible(false);
+		StandardXYBarPainter painter = new StandardXYBarPainter();
+		render.setBarPainter(painter);
+		render.setSeriesPaint(0, new Color(0, 0, 0, 0));
+		render.setDrawBarOutline(true);
+		render.setSeriesOutlinePaint(0, Color.BLACK);
+		plot.setRenderer(render);
+
+		if (val != null)
+		{
+			JFreeChart c = p.getChartPanel().getChart();
+			ValueMarker marker = new ValueMarker(val);
+			marker.setPaint(Color.RED);
+			marker.setStroke(new BasicStroke(2.0F));
+			plot.addDomainMarker(marker);
+		}
+		return p.getChartPanel();
+	}
+
 	public static void main(String[] args)
 	{
 		//double d[] = new double[] { -1, 0, 0, 0, 1, 1, 1, 2, 2, 3, 4, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 10 };
@@ -122,9 +174,12 @@ public class Binning
 			}
 			System.out.println(ListUtil.toString(l1n));
 			System.out.println(ListUtil.toString(l2n));
-			double p = TestUtils.chiSquareTestDataSetsComparison(ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l1n)),
+			double p = TestUtils.chiSquareTestDataSetsComparison(
+					ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l1n)),
 					ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l2n)));
 			System.out.println(p);
+
+			SwingUtil.showInFrame(bin.plot());
 		}
 	}
 }

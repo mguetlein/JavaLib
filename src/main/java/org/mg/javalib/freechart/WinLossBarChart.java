@@ -51,7 +51,7 @@ public class WinLossBarChart
 {
 	public static final int SPACE_FOR_TITLE = 28;
 	public static final int SPACE_FOR_LEGEND_AND_X_AXIS = 55;
-	public static final String SPACE_BETWEEN_CAT1_MARKER = "      ";
+	public static final String SPACE_BETWEEN_CAT1_MARKER = "        ";
 
 	ResultSet rs;
 	String winLossCmp;
