@@ -58,9 +58,9 @@ public class ColorGradient
 	@Override
 	public String toString()
 	{
-		return "hr:" + high.getRed() + "-hg:" + high.getGreen() + "-hb:" + high.getBlue() + "-mr:" + med.getRed()
-				+ "-mg:" + med.getGreen() + "-mb:" + med.getBlue() + "-lr:" + low.getRed() + "-lg:" + low.getGreen()
-				+ "-lb:" + low.getBlue();
+		return "hr:" + high.getRed() + "-hg:" + high.getGreen() + "-hb:" + high.getBlue() + "-mr:"
+				+ med.getRed() + "-mg:" + med.getGreen() + "-mb:" + med.getBlue() + "-lr:"
+				+ low.getRed() + "-lg:" + low.getGreen() + "-lb:" + low.getBlue();
 	}
 
 	public static Object parseColorGradient(String colorGradient)
@@ -79,8 +79,8 @@ public class ColorGradient
 			{
 				String valueString[] = valueStrings[valIndex].split(":");
 				if (valueString.length != 2 || !(valueString[0].equals(hmlString + rgbString)))
-					throw new IllegalArgumentException("cannot parse color gradient: " + colorGradient + " "
-							+ valueStrings[valIndex]);
+					throw new IllegalArgumentException("cannot parse color gradient: "
+							+ colorGradient + " " + valueStrings[valIndex]);
 				rgb[rgbIndex] = Integer.parseInt(valueString[1]);
 				valIndex++;
 				rgbIndex++;

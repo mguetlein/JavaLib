@@ -568,14 +568,15 @@ public class ResultSet implements Serializable
 		return s.toString();
 	}
 
-	public void sortResults(final String property, final Comparator<Object> comp)
+	public <T> void sortResults(final String property, final Comparator<T> comp)
 	{
 		Collections.sort(results, new Comparator<Result>()
 		{
+			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(Result o1, Result o2)
 			{
-				return comp.compare(o1.getValue(property), o2.getValue(property));
+				return comp.compare((T) o1.getValue(property), (T) o2.getValue(property));
 			}
 		});
 	}

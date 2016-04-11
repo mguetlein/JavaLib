@@ -15,6 +15,7 @@ import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.Range;
 import org.mg.javalib.freechart.HistogramPanel;
 
 public class Binning implements Serializable
@@ -147,6 +148,12 @@ public class Binning implements Serializable
 			marker.setPaint(Color.RED);
 			marker.setStroke(new BasicStroke(2.0F));
 			plot.addDomainMarker(marker);
+
+			Range r = plot.getDomainAxis().getRange();
+			if (r.getUpperBound() < val)
+				plot.getDomainAxis().setRange(r.getLowerBound(), val * (val > 0 ? 1.1 : 0.9));
+			if (r.getLowerBound() > val)
+				plot.getDomainAxis().setRange(val * (val > 0 ? 0.9 : 1.1), r.getUpperBound());
 		}
 		return p.getChartPanel();
 	}
@@ -179,7 +186,7 @@ public class Binning implements Serializable
 					ArrayUtil.toPrimitiveLongArray(ListUtil.toArray(l2n)));
 			System.out.println(p);
 
-			SwingUtil.showInFrame(bin.plot());
+			SwingUtil.showInFrame(bin.plot(-25.0));
 		}
 	}
 }

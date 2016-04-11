@@ -42,34 +42,36 @@ public class HistogramPanel extends AbstractFreeChartPanel
 {
 	JFreeChart chart;
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			List<String> captions, List<double[]> values, int bins)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, List<String> captions, List<double[]> values, int bins)
 	{
 		IntervalXYDataset dataset = createDataset(captions, values, bins);
 		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, false);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			List<String> captions, List<double[]> values, int bins, double[] minMax)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, List<String> captions, List<double[]> values, int bins,
+			double[] minMax)
 	{
 		IntervalXYDataset dataset = createDataset(captions, values, bins, minMax);
 		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, false);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			String caption, double[] values, int bins)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, String caption, double[] values, int bins)
 	{
 		this(chartTitle, subtitle, xAxisLabel, yAxisLabel, caption, values, bins, null);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			String caption, double[] values, int bins, double[] minMax)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, String caption, double[] values, int bins, double[] minMax)
 	{
 		this(chartTitle, subtitle, xAxisLabel, yAxisLabel, caption, values, bins, minMax, false);
 	}
 
-	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			String caption, double[] values, int bins, double[] minMax, boolean hideLegend)
+	public HistogramPanel(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, String caption, double[] values, int bins, double[] minMax,
+			boolean hideLegend)
 	{
 		IntervalXYDataset dataset = createDataset(caption, values, bins, minMax);
 		init(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset, bins, hideLegend);
@@ -77,8 +79,14 @@ public class HistogramPanel extends AbstractFreeChartPanel
 
 	public void addFunction(String name, Function2D function2d)
 	{
+		addFunction(name, function2d, null);
+	}
+
+	public void addFunction(String name, Function2D function2d, Color col)
+	{
 		XYPlot p = ((XYPlot) chart.getPlot());
-		XYDataset result = DatasetUtilities.sampleFunction2D(function2d, p.getDomainAxis().getRange().getLowerBound(),
+		XYDataset result = DatasetUtilities.sampleFunction2D(function2d,
+				p.getDomainAxis().getRange().getLowerBound(),
 				p.getDomainAxis().getRange().getUpperBound(), 300, name);
 		p.setDataset(1, result);
 		final XYItemRenderer renderer2 = new StandardXYItemRenderer();
@@ -88,11 +96,19 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		p.setRangeAxis(1, rangeAxis2);
 		p.mapDatasetToRangeAxis(1, 1);
 
+		if (col != null)
+		{
+			renderer2.setSeriesPaint(0, col);
+		}
+
 		p.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+
+		rangeAxis2.setLabelFont(p.getRangeAxis().getLabelFont());
+		rangeAxis2.setTickLabelFont(p.getRangeAxis().getTickLabelFont());
 	}
 
-	private void init(String chartTitle, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			IntervalXYDataset dataset, int bins, boolean hideLegend)
+	private void init(String chartTitle, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, IntervalXYDataset dataset, int bins, boolean hideLegend)
 	{
 		chart = createChart(chartTitle, subtitle, xAxisLabel, yAxisLabel, dataset);
 		chart.setBackgroundPaint(new Color(255, 255, 255, 0));
@@ -107,7 +123,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 			{
 				if (listeners.size() == 0)
 					return;
-				double[] sel = getInterval(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
+				double[] sel = getInterval(chartMouseEvent.getTrigger().getX(),
+						chartMouseEvent.getTrigger().getY());
 				selectedMin = sel[0];
 				selectedMax = sel[1];
 				fireHoverEvent();
@@ -120,11 +137,12 @@ public class HistogramPanel extends AbstractFreeChartPanel
 					return;
 				if (SwingUtilities.isLeftMouseButton(chartMouseEvent.getTrigger()))
 				{
-					double sel[] = getInterval(chartMouseEvent.getTrigger().getX(), chartMouseEvent.getTrigger().getY());
+					double sel[] = getInterval(chartMouseEvent.getTrigger().getX(),
+							chartMouseEvent.getTrigger().getY());
 					selectedMin = sel[0];
 					selectedMax = sel[1];
-					fireClickEvent(chartMouseEvent.getTrigger().isControlDown(), chartMouseEvent.getTrigger()
-							.getClickCount() > 1);
+					fireClickEvent(chartMouseEvent.getTrigger().isControlDown(),
+							chartMouseEvent.getTrigger().getClickCount() > 1);
 				}
 			}
 		});
@@ -169,7 +187,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		return selectedMax;
 	}
 
-	private IntervalXYDataset createDataset(String caption, double[] values, int bins, double[] minMax)
+	private IntervalXYDataset createDataset(String caption, double[] values, int bins,
+			double[] minMax)
 	{
 		List<String> captions = new ArrayList<String>();
 		captions.add(caption);
@@ -190,7 +209,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 
 	boolean yValuesInteger;
 
-	private IntervalXYDataset createDataset(List<String> captions, List<double[]> values, int bins, double[] minMax)
+	private IntervalXYDataset createDataset(List<String> captions, List<double[]> values, int bins,
+			double[] minMax)
 	{
 		HistogramDataset dataset = new HistogramDataset();
 
@@ -282,8 +302,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		}
 	}
 
-	private JFreeChart createChart(String title, List<String> subtitle, String xAxisLabel, String yAxisLabel,
-			IntervalXYDataset dataset)
+	private JFreeChart createChart(String title, List<String> subtitle, String xAxisLabel,
+			String yAxisLabel, IntervalXYDataset dataset)
 	{
 		JFreeChart chart = ChartFactory.createHistogram(title, xAxisLabel, yAxisLabel, dataset,
 				PlotOrientation.VERTICAL, true, false, false);
@@ -327,7 +347,8 @@ public class HistogramPanel extends AbstractFreeChartPanel
 		captions.add("b");
 		vals.add(new double[] { 1, 2, 4, 5, 1, 1, 1, 2, 2, 10, 10, 10, 100, 100, 1000 });
 		{
-			final HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds", captions, vals, 20);
+			final HistogramPanel p = new HistogramPanel(null, null, "property", "#compounds",
+					captions, vals, 20);
 
 			p.addSelectionListener(new ChartMouseSelectionListener()
 			{
