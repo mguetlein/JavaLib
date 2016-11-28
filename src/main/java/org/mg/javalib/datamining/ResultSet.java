@@ -1904,6 +1904,14 @@ public class ResultSet implements Serializable
 		return p.getChartPanel();
 	}
 
+	public List<Double> getDoubleResultValues(String prop)
+	{
+		List<Double> o = new ArrayList<Double>();
+		for (Result r : results)
+			o.add((Double) r.getValue(prop));
+		return o;
+	}
+
 	public CountedSet<Object> getResultValues(String prop)
 	{
 		CountedSet<Object> o = new CountedSet<Object>();
@@ -1926,7 +1934,7 @@ public class ResultSet implements Serializable
 	{
 		CountedSet<Object> o = getResultValues(prop);
 		if (o.getNumValues() != 1)
-			throw new IllegalStateException("'" + prop + "' not unique: " + o);
+			throw new IllegalStateException("'" + prop + "' not unique: '" + o + "'");
 		return o.values().get(0);
 	}
 
