@@ -122,6 +122,36 @@ public class CountedSet<T> implements ArraySummary
 		return elems;
 	}
 
+	public String toStringDeviationFromMax()
+	{
+		if (map.size() == 0)
+			return "";
+		List<T> values = values();
+		if (values.size() > 1
+				&& (values.get(0) == null || (toBack != null && (values.get(0).equals(toBack)))))
+			values.add(values.remove(0)); // move null to the back
+		StringBuffer sb = new StringBuffer();
+		int max = getMaxCount(true);
+		sb.append(max);
+		sb.append("\u00D7");
+
+		StringBuffer dev = new StringBuffer();
+		for (T elem : values)
+		{
+			int count = getCount(elem);
+			if (count == max)
+				continue;
+			dev.append(count);
+			dev.append("\u00D7\u2009'");
+			dev.append(String.valueOf(elem));
+			dev.append("', ");
+		}
+		String devStr = dev.toString();
+		if (!devStr.isEmpty())
+			devStr = " (" + devStr.substring(0, devStr.length() - 2) + ")";
+		return sb.toString() + devStr;
+	}
+
 	public String toString()
 	{
 		return toString(false);
@@ -137,7 +167,8 @@ public class CountedSet<T> implements ArraySummary
 		if (map.size() == 0)
 			return "";
 		List<T> values = values();
-		if (values.size() > 1 && (values.get(0) == null || (toBack != null && (values.get(0).equals(toBack)))))
+		if (values.size() > 1
+				&& (values.get(0) == null || (toBack != null && (values.get(0).equals(toBack)))))
 			values.add(values.remove(0)); // move null to the back
 		if (!html)
 		{
