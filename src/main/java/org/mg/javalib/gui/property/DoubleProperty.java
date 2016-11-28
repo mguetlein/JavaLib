@@ -18,7 +18,8 @@ public class DoubleProperty extends AbstractProperty
 		this(name, name, value);
 	}
 
-	public DoubleProperty(String name, Double value, Double minValue, Double maxValue, Double stepWidth)
+	public DoubleProperty(String name, Double value, Double minValue, Double maxValue,
+			Double stepWidth)
 	{
 		this(name, name, value, minValue, maxValue, stepWidth);
 	}
@@ -28,8 +29,8 @@ public class DoubleProperty extends AbstractProperty
 		this(name, uniqueName, value, 0.0, Double.MAX_VALUE, 0.01);
 	}
 
-	public DoubleProperty(String name, String uniqueName, Double value, Double minValue, Double maxValue,
-			Double stepWidth)
+	public DoubleProperty(String name, String uniqueName, Double value, Double minValue,
+			Double maxValue, Double stepWidth)
 	{
 		super(name, uniqueName);
 		this.defaultValue = value;
@@ -42,6 +43,10 @@ public class DoubleProperty extends AbstractProperty
 	@Override
 	public JComponent getPropertyComponent()
 	{
+		if (getMaxValue() < getValue())
+			maxValue = Double.POSITIVE_INFINITY;
+		if (getMinValue() > getValue())
+			minValue = Double.NEGATIVE_INFINITY;
 		return new DoublePropertyComponent(this);
 	}
 
