@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import org.mg.imagelib.ImageLoader;
 import org.mg.javalib.util.ArrayUtil;
-import org.mg.javalib.util.ImageLoader;
 import org.mg.javalib.util.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;

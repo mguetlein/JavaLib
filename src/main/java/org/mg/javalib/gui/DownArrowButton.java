@@ -13,9 +13,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.mg.javalib.util.ImageLoader;
+import org.mg.imagelib.ImageLoader;
+import org.mg.imagelib.ImageLoader.Image;
 import org.mg.javalib.util.SwingUtil;
-import org.mg.javalib.util.ImageLoader.Image;
 
 public class DownArrowButton extends JPanel
 {

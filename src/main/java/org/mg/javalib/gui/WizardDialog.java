@@ -29,7 +29,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.mg.javalib.util.ImageLoader;
+import org.mg.imagelib.ImageLoader;
 import org.mg.javalib.util.SwingUtil;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;

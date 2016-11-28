@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 
-import org.mg.javalib.util.ImageLoader;
+import org.mg.imagelib.ImageLoader;
 
 public class MessageLabel extends JPanel
 {

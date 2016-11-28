@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-import org.mg.javalib.util.ImageLoader;
+import org.mg.imagelib.ImageLoader;
 import org.mg.javalib.util.SwingUtil;
 
 public class HideablePanel extends JPanel

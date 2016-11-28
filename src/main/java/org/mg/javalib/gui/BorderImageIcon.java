@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import org.mg.javalib.util.ImageLoader;
+import org.mg.imagelib.ImageLoader;
 import org.mg.javalib.util.SwingUtil;
 
 public class BorderImageIcon extends ImageIcon
@@ -70,7 +70,7 @@ public class BorderImageIcon extends ImageIcon
 
 	public static void main(String[] args)
 	{
-		SwingUtil.showInDialog(new JLabel(new BorderImageIcon(ImageLoader.getImage(org.mg.javalib.util.ImageLoader.Image.error), 30,
+		SwingUtil.showInDialog(new JLabel(new BorderImageIcon(ImageLoader.getImage(org.mg.imagelib.ImageLoader.Image.error), 30,
 				Color.RED, new Insets(20, 2, 5, 50))));
 		System.exit(0);
 	}
