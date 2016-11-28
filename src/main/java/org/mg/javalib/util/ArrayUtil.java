@@ -355,6 +355,12 @@ public class ArrayUtil
 		return new HashSet<T>(ArrayUtil.toList(array));
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static HashSet<Double> getDistinctValues(double array[])
+	{
+		return new HashSet((List<Double>) ArrayUtil.toList(array));
+	}
+
 	public static Double[] normalizeObjectArray(Object array[])
 	{
 		if (array.length == 0)
@@ -1343,6 +1349,17 @@ public class ArrayUtil
 			if (!ObjectUtil.equals(tmp, array[i]))
 				return null;
 		return tmp;
+	}
+
+	public static boolean isUniq(double[] array)
+	{
+		if (array.length == 0)
+			throw new IllegalArgumentException();
+		double d = array[0];
+		for (int i = 1; i < array.length; i++)
+			if (d != array[i])
+				return false;
+		return true;
 	}
 
 	public static <T> T last(T[] array)
