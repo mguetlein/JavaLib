@@ -16,6 +16,13 @@ public class StringProperty extends AbstractProperty
 		this.value = value;
 	}
 
+	public StringProperty(String name, String uniqName, String value)
+	{
+		super(name, uniqName);
+		this.defaultValue = value;
+		this.value = value;
+	}
+
 	@Override
 	public JComponent getPropertyComponent()
 	{
