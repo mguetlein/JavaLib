@@ -54,7 +54,10 @@ public class BitSetUtil
 		and.and(b2);
 		BitSet or = (BitSet) b1.clone();
 		or.or(b2);
-		return and.cardinality() / (double) or.cardinality();
+		double numOr = or.cardinality();
+		if (numOr == 0)
+			return 0;
+		return and.cardinality() / (double) numOr;
 	}
 
 }
