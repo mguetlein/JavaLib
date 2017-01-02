@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +40,8 @@ import org.mg.javalib.util.SwingUtil;
 
 public class ResultSetBoxPlot
 {
+	public static boolean VERBOSE = false;
+
 	private static class KeyCounter
 	{
 		LinkedHashMap<String, Integer[]> map = new LinkedHashMap<String, Integer[]>();
@@ -188,6 +191,9 @@ public class ResultSetBoxPlot
 		}
 		else
 		{
+			if (VERBOSE)
+				System.out.println("boxplot> series2 given: " + seriesProperty2);
+
 			CountedSet<Object> series2 = set.getResultValues(seriesProperty2);
 
 			for (final Object series2Value : series2.valuesInsertionOrder())
@@ -197,9 +203,16 @@ public class ResultSetBoxPlot
 					@Override
 					public boolean accept(Result result)
 					{
-						return result.getValue(seriesProperty2).equals(series2Value.toString());
+						return result.getValue(seriesProperty2).toString()
+								.equals(series2Value.toString());
 					}
 				});
+
+				if (VERBOSE)
+					System.out.println(
+							"boxplot> #" + filtered.getNumResults() + " values for series2 ('"
+									+ seriesProperty2 + "') with value: " + series2Value);
+
 				for (int r = 0; r < filtered.getNumResults(); r++)
 				{
 					String key1 = series2Value.toString();
@@ -493,32 +506,48 @@ public class ResultSetBoxPlot
 					rs.setResultValue(x, "recall", r.nextDouble());
 					//					break;
 				}
+		System.out.println(rs.toNiceString());
 
 		{
-			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", null,
-					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
+			List<String> categories = Arrays.asList(new String[] { "auc", "accuracy", "recall" });
+			System.out.println("plot has no series -> only one series (-> only one color)");
+			System.out.println("categories are " + categories);
+			System.out.println("values of categories in result set have to be numeric");
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", null, categories);
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
 			SwingUtil.showInDialog(p.getChart(), new Dimension(400, 400));
 		}
 		{
-			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "auc", "algorithm", "dataset",
-					"auc");
-			ChartPanel pp = p.getChart();
-
-			pp.setMaximumDrawWidth(100000);
-			pp.setMaximumDrawHeight(100000);
-			pp.setPreferredSize(new Dimension(2000, 1000));
-
-			SwingUtil.showInDialog(pp);
-		}
-		{
-			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", "algorithm",
-					ArrayUtil.toList(new String[] { "auc", "accuracy", "recall" }));
+			String series = "algorithm";
+			List<String> categories = Arrays.asList(new String[] { "auc", "accuracy", "recall" });
+			System.out.println("\nplot has one series: " + series);
+			System.out.println("second series -> one data-point in x-axis for each entry");
+			System.out.println("categories are " + categories);
+			System.out.println("print mean and stdev is enabled");
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "yLabel", series, categories);
 
 			p.setSubtitles(new String[] { "subtitle1", "subtitle2" });
 			p.setPrintMeanAndStdev(true);
 			p.setFontSize(16F);
 			SwingUtil.showInDialog(p.getChart());
+		}
+		{
+			String series1 = "algorithm";
+			String series2 = "dataset";
+			String cat = "auc";
+			System.out.println("\nplot has two series: " + series1 + " " + series2);
+			System.out.println("first series -> one color for each entry");
+			System.out.println("second series -> one data-point in x-axis for each entry");
+			System.out.println("plots with two categories can have only one category");
+			System.out.println("category is " + cat);
+			ResultSetBoxPlot p = new ResultSetBoxPlot(rs, "title", "auc", series1, series2, cat);
+			ChartPanel pp = p.getChart();
+
+			pp.setMaximumDrawWidth(100000);
+			pp.setMaximumDrawHeight(100000);
+			pp.setPreferredSize(new Dimension(1200, 850));
+
+			SwingUtil.showInDialog(pp);
 		}
 
 		System.exit(1);

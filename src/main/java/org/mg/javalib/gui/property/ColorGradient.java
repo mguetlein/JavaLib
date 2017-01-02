@@ -29,13 +29,13 @@ public class ColorGradient
 		this.low = low;
 	}
 
-	public static Color get2ColorGradient(double ratio, Color from, Color to)
+	public static Color get2ColorGradient(double ratio, Color oneColor, Color zeroColor)
 	{
 		if (ratio < 0 || ratio > 1)
 			throw new IllegalArgumentException(ratio + "");
-		int red = (int) (ratio * from.getRed()) + (int) ((1 - ratio) * to.getRed());
-		int green = (int) (ratio * from.getGreen()) + (int) ((1 - ratio) * to.getGreen());
-		int blue = (int) (ratio * from.getBlue()) + (int) ((1 - ratio) * to.getBlue());
+		int red = (int) (ratio * oneColor.getRed()) + (int) ((1 - ratio) * zeroColor.getRed());
+		int green = (int) (ratio * oneColor.getGreen()) + (int) ((1 - ratio) * zeroColor.getGreen());
+		int blue = (int) (ratio * oneColor.getBlue()) + (int) ((1 - ratio) * zeroColor.getBlue());
 		return new Color(red, green, blue);
 	}
 
@@ -93,6 +93,9 @@ public class ColorGradient
 
 	public static void main(String args[])
 	{
+		System.out.println(get2ColorGradient(0.0, Color.WHITE, Color.BLACK));
+		System.out.println(get2ColorGradient(1.0, Color.WHITE, Color.BLACK));
+
 		ColorGradient gc = new ColorGradient(Color.RED, Color.GREEN, Color.BLUE);
 		System.out.println(gc);
 		System.out.println(ColorGradient.parseColorGradient(gc.toString()));
